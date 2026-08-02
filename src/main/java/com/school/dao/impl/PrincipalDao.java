@@ -1,7 +1,6 @@
 package com.school.dao.impl;
 
 import com.school.model.Principal;
-import com.school.model.Administrator;
 
 import java.util.List;
 

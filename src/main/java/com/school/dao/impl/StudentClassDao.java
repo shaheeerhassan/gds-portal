@@ -11,4 +11,5 @@ public interface StudentClassDao {
     boolean endEnrollment(long studentId, int academicYearId);
     boolean transferStudent(long studentId, int newSectionId, int academicYearId);
     boolean updateRollNumber(long studentId, int academicYearId, String newRollNumber);
+    int promoteSection(int sourceSectionId, int sourceAcademicYearId, int targetSectionId, int targetAcademicYearId);
 }

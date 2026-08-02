@@ -14,6 +14,7 @@ public interface AssignmentDao {
 
     List<Assignment> getAssignmentsByTeacher(long teacherId, int academicYearId);
     List<Submission> getSubmissionsByAssignment(long assignmentId);
+    List<Submission> getSubmissionsByStudent(long studentId);
     boolean updateSubmission(Submission submission);
     boolean markSubmissionLate(long submissionId);
 

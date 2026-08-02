@@ -2,7 +2,6 @@ package com.school.dao.impl;
 
 import com.school.model.Timetable;
 
-import java.time.DayOfWeek;
 import java.util.List;
 
 public interface TimetableDao {
@@ -11,5 +10,5 @@ public interface TimetableDao {
     boolean updateTimeTable(Timetable timetable);
     boolean deleteTimetable(long timetableId);
     List<Timetable> getTimetableByTeacher(long teacherId, int academicYearId);
-    List<Timetable> getTimetableByDay(int sectionId, DayOfWeek day);
+    List<Timetable> getTimetableByDay(int sectionId, Timetable.DayOfWeek day);
 }
