@@ -11,7 +11,7 @@ public interface StudentDao {
     List<Student> getAllStudentsByClass(int classId, int academicYearId);
     List<Student> getAllStudentsBySection(int sectionId);
     Student getStudentByUserId(long userId);
-    List<Student> getAllStudentsByClassAndSection(int classId, int sectionId, int academicYearId);
+    Student getStudentByStudentId(long studentId);
 
     Student getStudentById(long studentId);
     Student getStudentByRegistrationNumber(String registrationNumber);

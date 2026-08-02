@@ -11,5 +11,6 @@ public interface PrincipalDao {
     Principal getPrincipalByUserId(long userId);
     List<Principal> getAllPrincipals();
     boolean updatePrincipal(Principal principal);
+    boolean deletePrincipal(long principalId); // Soft delete via is_active
 }
 
