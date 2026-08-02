@@ -14,7 +14,6 @@ public interface TeacherAttendanceDao {
 
     List<TeacherAttendance> getTeacherAttendanceByDate(LocalDate date);
     List<TeacherAttendance> getTeacherAttendanceByTeacherId(long teacherId, LocalDate startDate, LocalDate endDate);
-    List<TeacherAttendance> getTeacherAttendanceByTeacher(long teacherId, LocalDate startDate, LocalDate endDate);
 
     TeacherAttendance getTeacherAttendanceById(long attendanceId);
 }
