@@ -5,8 +5,13 @@ import java.util.List;
 
 public interface ClassTeacherAssignmentDao {
     boolean assignClassTeacher(ClassTeacherAssignment assignment);
-    boolean removeClassTeacher(int sectionId, int academicYearId);
-    List<ClassTeacherAssignment> getAssignmentHistoryByTeacher(long teacherId);
-    ClassTeacherAssignment getCurrentAssignmentBySection(int sectionId, int academicYearId);
-    ClassTeacherAssignment getCurrentAssignmentByTeacher(long teacherId, int academicYearId);
+    boolean deleteClassTeacher(int sectionId, int academicYearId);
+
+    ClassTeacherAssignment getCurrentAssignmentBySection(int sectionId);
+    ClassTeacherAssignment getCurrentAssignmentForTeacher(long teacherId, int academicYearId);
+
+    boolean isTeacherAssignedAsClassTeacher(long teacherId, int academicYearId);
+
+    List<ClassTeacherAssignment> getAssignmentHistoryForTeacher(long teacherId);
+    List<ClassTeacherAssignment> getAssignmentHistoryForSection(int sectionId);
 }

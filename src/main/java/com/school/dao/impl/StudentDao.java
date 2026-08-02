@@ -10,12 +10,11 @@ public interface StudentDao {
     List<Student> getAllStudentsByName(String name);
     List<Student> getAllStudentsByClass(int classId, int academicYearId);
     List<Student> getAllStudentsBySection(int sectionId);
+
     Student getStudentByUserId(long userId);
     Student getStudentByStudentId(long studentId);
-
-    Student getStudentById(long studentId);
     Student getStudentByRegistrationNumber(String registrationNumber);
 
     boolean updateStudentDetails(Student student);
-    boolean updateStudentStatus(long studentId, boolean isActive);
+    boolean deleteStudent(long studentId, boolean isActive);
 }

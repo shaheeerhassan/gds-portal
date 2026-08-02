@@ -15,5 +15,5 @@ public interface ParentDao {
     Parent getParentByUserId(long userId);
 
     boolean updateParentDetails(Parent parent);
-    boolean updateParentStatus(long parentId, boolean isActive);
+    boolean deleteParent(long parentId);
 }

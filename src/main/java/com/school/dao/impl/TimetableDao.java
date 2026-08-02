@@ -6,9 +6,10 @@ import java.util.List;
 
 public interface TimetableDao {
     boolean insertTimeTable(Timetable timetable);
-    List<Timetable> getTimetableBySectionAndYear(int sectionId, int academicYearId);
     boolean updateTimeTable(Timetable timetable);
     boolean deleteTimetable(long timetableId);
+
+    List<Timetable> getTimetableBySectionAndYear(int sectionId, int academicYearId);
     List<Timetable> getTimetableByTeacher(long teacherId, int academicYearId);
     List<Timetable> getTimetableByDay(int sectionId, Timetable.DayOfWeek day);
 }

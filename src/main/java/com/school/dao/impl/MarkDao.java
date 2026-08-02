@@ -5,11 +5,13 @@ import java.util.List;
 
 public interface MarkDao {
     boolean insertMarks(List<Mark> marks);
+    boolean updateMark(Mark mark);
+    boolean deleteMark(long markId);
+
     List<Mark> getMarksByExamination(long examinationId);
     List<Mark> getStudentMarksForYear(long studentId, int academicYearId);
-    boolean updateMark(long markId, double newScore);
-    Mark getMark(long studentId, long examinationId);
-    boolean deleteMark(long markId);
-    boolean updateMarkDetails(long markId, double newScore, String remarks);
+    List<Mark> getStudentMarksByExamType(long studentId, String examName, int academicYearId);
 
+    Mark getMarkById(long markId);
+    Mark getMarkByStudentAndExamination(long studentId, long examinationId);
 }

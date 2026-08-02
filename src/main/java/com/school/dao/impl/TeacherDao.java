@@ -10,26 +10,20 @@ import java.util.Map;
 public interface TeacherDao {
     boolean insertTeacher(Teacher teacher);
 
-    boolean assignTeacherSubject(long teacherId, int subjectId, int sectionId, int academicYearId);
-    boolean assignTeacherClass(long teacherId, int classId, int sectionId, int academicYearId);
-
-    List<Subject> getTeacherSubjects(long teacherId, int academicYearId);
-    List<Section> getTeacherClasses(long teacherId, int academicYearId);
-    boolean unassignTeacherSubject(long teacherId, int subjectId, int sectionId, int academicYearId);
-    boolean unassignTeacherClass(long teacherId, int classId, int sectionId, int academicYearId);
-
     List<Teacher> getAllTeachers();
-    List<Teacher> getAllTeachersByName(String name);
+    List<Teacher> searchTeachersByName(String name);
     List<Teacher> getAllTeachersBySubject(int subjectId);
-    Map<Teacher, Section> getAllClassTeachers();
-    Teacher getTeacherByUserId(long userId);
     List<Teacher> getTeachersBySection(int sectionId, int academicYearId);
 
+    Map<Teacher, Section> getAllClassTeachers();
+
+    Teacher getTeacherByUserId(long userId);
     Teacher getTeacherById(long teacherId);
+    Teacher getTeacherByEmployeeId(String employeeId);
+    Teacher getTeacherByEmail(String email);
+
+    int getTeacherCount();
 
     boolean updateTeacherDetails(Teacher teacher);
-    boolean updateTeacherStatus(long teacherId, boolean isActive);
-
-    boolean assignClassTeacher(long teacherId, int sectionId, int academicYearId, LocalDate assignedDate);
-    boolean removeClassTeacher(long assignmentId, LocalDate removedDate);
+    boolean deleteTeacher(long teacherId);
 }
