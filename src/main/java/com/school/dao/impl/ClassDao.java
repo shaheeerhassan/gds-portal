@@ -1,8 +1,6 @@
 package com.school.dao.impl;
 
 import com.school.model.Class;
-import com.school.model.Section;
-import com.school.model.Subject;
 import java.util.List;
 
 public interface ClassDao {

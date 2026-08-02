@@ -11,4 +11,5 @@ public interface AnnouncementDao {
     Announcement getAnnouncementById(long announcementId);
     List<Announcement> getAnnouncementsByTargetRole(int roleId);
     List<Announcement> getAnnouncementsByTargetClass(int classId);
+    List<Announcement> getAnnouncementsByTargetSection(int sectionId);
 }

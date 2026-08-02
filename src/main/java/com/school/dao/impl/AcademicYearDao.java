@@ -10,5 +10,4 @@ public interface AcademicYearDao {
     List<AcademicYear> getAllAcademicYears();
     boolean updateAcademicYear(AcademicYear academicYear);
     boolean setCurrentAcademicYear(int academicYearId);
-    boolean updateAcademicYearStatus(int academicYearId, boolean isActive);
 }

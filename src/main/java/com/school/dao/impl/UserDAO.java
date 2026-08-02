@@ -4,7 +4,7 @@ import com.school.model.User;
 
 import java.util.List;
 
-public interface UserDAO {
+public interface UserDao {
     long insertUser(User user);
 
     User getUserById(long userId);

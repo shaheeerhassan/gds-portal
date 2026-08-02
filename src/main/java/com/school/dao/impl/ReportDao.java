@@ -8,4 +8,7 @@ public interface ReportDao {
     Map<String, Object> getStudentPerformanceReport(long studentId, int academicYearId);
     Map<String, Object> getTeacherAttendanceReport(long teacherId, int month, int year);
     List<Map<String, Object>> getClassAttendanceReport(int sectionId, int month, int year);
+    Map<String, Object> getTeacherPerformanceReport(long teacherId, int academicYearId);
+    List<Map<String, Object>> getExaminationReport(long examinationId);
+    Map<String, Object> getStudentAttendanceSummary(long studentId, int academicYearId);
 }

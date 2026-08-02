@@ -1,6 +1,7 @@
 package com.school.dao.impl;
 
 import com.school.model.Section;
+import com.school.model.Subject;
 import com.school.model.Teacher;
 import java.time.LocalDate;
 import java.util.List;
@@ -11,6 +12,11 @@ public interface TeacherDao {
 
     boolean assignTeacherSubject(long teacherId, int subjectId, int sectionId, int academicYearId);
     boolean assignTeacherClass(long teacherId, int classId, int sectionId, int academicYearId);
+
+    List<Subject> getTeacherSubjects(long teacherId, int academicYearId);
+    List<Section> getTeacherClasses(long teacherId, int academicYearId);
+    boolean unassignTeacherSubject(long teacherId, int subjectId, int sectionId, int academicYearId);
+    boolean unassignTeacherClass(long teacherId, int classId, int sectionId, int academicYearId);
 
     List<Teacher> getAllTeachers();
     List<Teacher> getAllTeachersByName(String name);
