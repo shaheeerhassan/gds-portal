@@ -12,7 +12,7 @@ import java.util.List;
 
 public class UserDaoImpl implements UserDao {
 
-    private static final String INSERT = "INSERT INTO users (role_id, username, email, password_hash, profile_picture_url, is_active, last_login_at) VALUES (?, ?, ?, ?, ?, ?, ?)";
+    private static final String INSERT = "INSERT INTO users (role_id, username, email, password_hash, profile_picture_url, is_active, last_login_at, created_at, updated_at) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)";
     private static final String SELECT_BY_ID = "SELECT * FROM users WHERE user_id = ?";
     private static final String SELECT_BY_USERNAME = "SELECT * FROM users WHERE username = ?";
     private static final String SELECT_BY_EMAIL = "SELECT * FROM users WHERE email = ?";
@@ -41,12 +41,17 @@ public class UserDaoImpl implements UserDao {
             } else {
                 ps.setNull(7, Types.TIMESTAMP);
             }
+            LocalDateTime creationAndUpdateTime = user.getCreatedAt() == null || user.getUpdatedAt() == null ? LocalDateTime.now() : user.getCreatedAt();
+            ps.setTimestamp(8, Timestamp.valueOf(creationAndUpdateTime));
+            ps.setTimestamp(9, Timestamp.valueOf(creationAndUpdateTime));
 
             int success = ps.executeUpdate();
 
             try (ResultSet resultSet = ps.getGeneratedKeys()) {
                 if (resultSet.next()) {
                     user.setUserId(resultSet.getLong("user_id"));
+                    user.setCreatedAt(creationAndUpdateTime);
+                    user.setUpdatedAt(creationAndUpdateTime);
                 }
             }
 
