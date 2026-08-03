@@ -15,4 +15,6 @@ public interface ExaminationDao {
 
     List<Examination> getExaminationsByTeacher(long teacherId, int academicYearId);
     List<Examination> getSpecificExaminationsByTeacher(long teacherId, String examName, int academicYearId);
+    List<Examination> getExaminationsByTeacherAndSection(long teacherId, int sectionId, int academicYearId);
+    List<Examination> getSpecificExaminationsByTeacherAndSection(long teacherId, int sectionId, String examName, int academicYearId);
 }
