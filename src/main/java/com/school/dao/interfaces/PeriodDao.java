@@ -1,4 +1,4 @@
-package com.school.dao.impl;
+package com.school.dao.interfaces;
 
 import com.school.model.Period;
 import java.util.List;

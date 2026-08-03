@@ -1,7 +1,7 @@
-package com.school.dao.impl;
+package com.school.dao.interfaces;
 
 import com.school.model.StudentAttendance;
-import com.school.model.TeacherAttendance;
+
 import java.time.LocalDate;
 import java.util.List;
 

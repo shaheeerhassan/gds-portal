@@ -1,7 +1,7 @@
-package com.school.dao.impl;
+package com.school.dao.interfaces;
 
 import com.school.model.Assignment;
-import com.school.model.Submission;
+
 import java.util.List;
 
 public interface AssignmentDao {

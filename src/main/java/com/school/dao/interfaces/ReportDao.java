@@ -1,4 +1,4 @@
-package com.school.dao.impl;
+package com.school.dao.interfaces;
 
 import java.util.List;
 import java.util.Map;

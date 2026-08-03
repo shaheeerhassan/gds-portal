@@ -1,9 +1,8 @@
-package com.school.dao.impl;
+package com.school.dao.interfaces;
 
 import com.school.model.Section;
-import com.school.model.Subject;
 import com.school.model.Teacher;
-import java.time.LocalDate;
+
 import java.util.List;
 import java.util.Map;
 

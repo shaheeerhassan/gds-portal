@@ -1,4 +1,4 @@
-package com.school.dao.impl;
+package com.school.dao.interfaces;
 
 import com.school.model.ClassTeacherAssignment;
 import java.util.List;
