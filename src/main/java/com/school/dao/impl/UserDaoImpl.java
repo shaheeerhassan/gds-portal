@@ -142,7 +142,7 @@ public class UserDaoImpl implements UserDao {
     @Override
     public boolean updateUser(User user) {
         try (Connection cn = getDataSource().getConnection();
-             PreparedStatement ps = cn.prepareStatement(UPDATE_USER, Statement.RETURN_GENERATED_KEYS)) {
+             PreparedStatement ps = cn.prepareStatement(UPDATE_USER)) {
 
             ps.setInt(1, user.getRoleId());
             ps.setString(2, user.getUsername());
