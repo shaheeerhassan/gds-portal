@@ -10,6 +10,7 @@ public interface StudentDao {
     List<Student> getAllStudentsByName(String name);
     List<Student> getAllStudentsByClass(int classId, int academicYearId);
     List<Student> getAllStudentsBySection(int sectionId);
+    List<Student> getAllStudentsByParentId(long parentId);
 
     Student getStudentByUserId(long userId);
     Student getStudentByStudentId(long studentId);

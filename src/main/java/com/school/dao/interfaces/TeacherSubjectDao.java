@@ -7,5 +7,5 @@ import java.util.List;
 public interface TeacherSubjectDao {
     boolean assignTeacherSubject(long teacherId, int subjectId, int sectionId, int academicYearId);
     List<Subject> getTeacherSubjects(long teacherId, int academicYearId);
-    boolean unassignTeacherSubject(long teacher_subject_id);
+    boolean unassignTeacherSubject(long teacherSubjectId);
 }

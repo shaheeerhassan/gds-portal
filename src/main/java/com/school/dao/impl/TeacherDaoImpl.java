@@ -7,7 +7,6 @@ import com.school.model.Teacher;
 import static com.school.config.DBConfig.*;
 
 import java.sql.*;
-import java.util.AbstractMap;
 import java.util.ArrayList;
 import java.util.LinkedHashMap;
 import java.util.List;
