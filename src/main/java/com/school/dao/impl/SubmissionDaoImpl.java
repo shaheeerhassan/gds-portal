@@ -1,7 +1,7 @@
 package com.school.dao.impl;
 
 import com.school.dao.interfaces.SubmissionDao;
-import com.school.exception.DaoException;
+import com.school.exceptions.DaoException;
 import com.school.model.Submission;
 import static com.school.config.DBConfig.*;
 

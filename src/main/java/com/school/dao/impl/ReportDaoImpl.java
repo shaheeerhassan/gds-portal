@@ -1,7 +1,7 @@
 package com.school.dao.impl;
 
 import com.school.dao.interfaces.ReportDao;
-import com.school.exception.DaoException;
+import com.school.exceptions.DaoException;
 import static com.school.config.DBConfig.*;
 
 import java.sql.*;

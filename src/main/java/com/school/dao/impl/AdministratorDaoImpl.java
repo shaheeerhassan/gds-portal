@@ -1,7 +1,7 @@
 package com.school.dao.impl;
 
 import com.school.dao.interfaces.AdministratorDao;
-import com.school.exception.DaoException;
+import com.school.exceptions.DaoException;
 import com.school.model.Administrator;
 import static com.school.config.DBConfig.*;
 

@@ -1,7 +1,7 @@
 package com.school.dao.impl;
 
 import com.school.dao.interfaces.TimetableDao;
-import com.school.exception.DaoException;
+import com.school.exceptions.DaoException;
 import com.school.model.Timetable;
 import static com.school.config.DBConfig.*;
 

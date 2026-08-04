@@ -1,7 +1,7 @@
 package com.school.dao.impl;
 
 import com.school.dao.interfaces.TeacherAttendanceDao;
-import com.school.exception.DaoException;
+import com.school.exceptions.DaoException;
 import com.school.model.TeacherAttendance;
 import static com.school.config.DBConfig.*;
 

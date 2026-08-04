@@ -1,14 +1,12 @@
 package com.school.dao.impl;
 
 import com.school.dao.interfaces.ExaminationDao;
-import com.school.exception.DaoException;
+import com.school.exceptions.DaoException;
 import com.school.model.Examination;
 import static com.school.config.DBConfig.*;
 
 import java.sql.*;
-import java.time.LocalDate;
 import java.time.LocalDateTime;
-import java.time.LocalTime;
 import java.util.ArrayList;
 import java.util.List;
 

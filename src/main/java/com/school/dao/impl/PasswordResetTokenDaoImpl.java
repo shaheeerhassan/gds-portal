@@ -1,13 +1,12 @@
 package com.school.dao.impl;
 
 import com.school.dao.interfaces.PasswordResetTokenDao;
-import com.school.exception.DaoException;
+import com.school.exceptions.DaoException;
 import com.school.model.PasswordResetToken;
 import static com.school.config.DBConfig.*;
 
 import java.sql.*;
 import java.time.LocalDateTime;
-import java.util.List;
 
 public class PasswordResetTokenDaoImpl implements PasswordResetTokenDao {
 
