@@ -1,4 +1,4 @@
-package com.school.exception;
+package com.school.exceptions;
 
 public class DaoException extends RuntimeException {
     public DaoException(String message) {
