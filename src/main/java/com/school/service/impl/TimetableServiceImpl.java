@@ -1,6 +1,8 @@
 package com.school.service.impl;
 
+import com.school.dao.impl.AcademicYearDaoImpl;
 import com.school.dao.impl.TimetableDaoImpl;
+import com.school.dao.interfaces.AcademicYearDao;
 import com.school.dao.interfaces.TimetableDao;
 import com.school.exceptions.ResourceNotFoundException;
 import com.school.exceptions.ValidationException;
@@ -14,9 +16,11 @@ import static com.school.validations.ValidatorUtil.*;
 public class TimetableServiceImpl implements TimetableService {
 
     private final TimetableDao timetableDao;
+    private final AcademicYearDao academicYearDao;
 
     public TimetableServiceImpl() {
         timetableDao = new TimetableDaoImpl();
+        academicYearDao = new AcademicYearDaoImpl();
     }
 
     @Override
@@ -61,10 +65,11 @@ public class TimetableServiceImpl implements TimetableService {
 
     @Override
     public List<Timetable> getTimetableByDay(int sectionId, Timetable.DayOfWeek day) {
+        int currentAcademicYearId = academicYearDao.getCurrentAcademicYear().getAcademicYearId();
         validateId(sectionId);
         if (day == null)
             throw new ValidationException("Day of week is required.");
-        return timetableDao.getTimetableByDay(sectionId, day);
+        return timetableDao.getTimetableByDay(sectionId, day, currentAcademicYearId);
     }
 
     private void validateTimetable(Timetable timetable) {

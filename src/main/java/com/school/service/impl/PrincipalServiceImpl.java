@@ -38,8 +38,14 @@ public class PrincipalServiceImpl implements PrincipalService {
         principal.setUserId(user.getUserId());
         principal.setActive(true);
 
-        if (!principalDao.insertPrincipal(principal))
-            throw new IllegalStateException("Failed to create principal.");
+        try {
+            if (!principalDao.insertPrincipal(principal)) {
+                throw new IllegalStateException("Failed to create principal.");
+            }
+        } catch (Exception e) {
+            userService.deleteUser(user.getUserId());
+            throw e;
+        }
 
         return principal;
     }
@@ -70,6 +76,18 @@ public class PrincipalServiceImpl implements PrincipalService {
     @Override
     public void updatePrincipal(Principal principal) {
         validateId(principal.getPrincipalId());
+
+        Principal existing = principalDao.getPrincipalById(principal.getPrincipalId());
+
+        if (principal.getEmployeeId() == null)
+            principal.setEmployeeId(existing.getEmployeeId());
+        if (principal.getFirstName() == null)
+            principal.setFirstName(existing.getFirstName());
+        if (principal.getLastName()==null)
+            principal.setLastName(existing.getLastName());
+        if (principal.getPhone() == null)
+            principal.setPhone(existing.getPhone());
+
         principal.setFirstName(validateName(principal.getFirstName(), "First name"));
         principal.setLastName(validateName(principal.getLastName(), "Last name"));
         principal.setPhone(validatePhone(principal.getPhone()));

@@ -41,7 +41,7 @@ public class AuthenticationServiceImpl implements AuthenticationService {
     @Override
     public User login(String email, String password) {
         email = validateEmail(email);
-        validatePassword(password);
+        password = validateRequired(password, "Password");
 
         User user = userDao.getUserByEmail(email);
         if (user == null)
@@ -74,17 +74,15 @@ public class AuthenticationServiceImpl implements AuthenticationService {
     }
 
     @Override
-    public String requestPasswordReset(String email) {
+    public boolean requestPasswordReset(String email) {
         email = validateEmail(email);
 
         User user = userDao.getUserByEmail(email);
         if (user == null)
-            return null;
+            return false;
 
         String rawToken = TokenGenerator.generateToken();
         String tokenHash = TokenGenerator.sha256(rawToken);
-
-        passwordResetTokenDao.invalidateUserTokens(user.getUserId());
 
         PasswordResetToken resetToken = new PasswordResetToken();
         resetToken.setUserId(user.getUserId());
@@ -95,7 +93,10 @@ public class AuthenticationServiceImpl implements AuthenticationService {
         if (!passwordResetTokenDao.insertToken(resetToken))
             throw new BusinessRuleException("Could not create a reset token.");
 
-        return rawToken;
+        passwordResetTokenDao.invalidateUserTokens(user.getUserId());
+
+        // call email service here later
+        return true;
     }
 
     @Override
@@ -110,8 +111,11 @@ public class AuthenticationServiceImpl implements AuthenticationService {
         if (resetToken.getExpiresAt().isBefore(LocalDateTime.now()))
             throw new UnauthorizedException("Reset token has expired.");
 
+        if (!passwordResetTokenDao.markTokenAsUsed(tokenHash))
+            throw new UnauthorizedException("Invalid or already used reset token.");
+
         userDao.updatePasswordHash(resetToken.getUserId(), PasswordEncryption.encode(newPassword));
-        passwordResetTokenDao.markTokenAsUsed(tokenHash);
+
         passwordResetTokenDao.invalidateUserTokens(resetToken.getUserId());
     }
 
@@ -133,19 +137,29 @@ public class AuthenticationServiceImpl implements AuthenticationService {
 
         switch (role.getRoleName()) {
             case "ADMINISTRATOR":
-                profile.put("profile", administratorDao.getAdminByUserId(userId));
+                Administrator administrator = administratorDao.getAdminByUserId(userId);
+                if (administrator==null) break;
+                profile.put("profile", administrator);
                 break;
             case "PRINCIPAL":
-                profile.put("profile", principalDao.getPrincipalByUserId(userId));
+                Principal principal = principalDao.getPrincipalByUserId(userId);
+                if (principal == null) break;
+                profile.put("profile", principal);
                 break;
             case "TEACHER":
-                profile.put("profile", teacherDao.getTeacherByUserId(userId));
+                Teacher teacher = teacherDao.getTeacherByUserId(userId);
+                if (teacher == null) break;
+                profile.put("profile", teacher);
                 break;
             case "STUDENT":
-                profile.put("profile", studentDao.getStudentByUserId(userId));
+                Student student = studentDao.getStudentByUserId(userId);
+                if (student == null) break;
+                profile.put("profile", student);
                 break;
             case "PARENT":
-                profile.put("profile", parentDao.getParentByUserId(userId));
+                Parent parent = parentDao.getParentByUserId(userId);
+                if (parent == null) break;
+                profile.put("profile", parent);
                 break;
             default:
                 profile.put("profile", null);

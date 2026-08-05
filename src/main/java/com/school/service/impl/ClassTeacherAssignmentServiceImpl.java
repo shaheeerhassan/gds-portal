@@ -1,7 +1,9 @@
 package com.school.service.impl;
 
 import com.school.dao.impl.ClassTeacherAssignmentDaoImpl;
+import com.school.dao.impl.SectionDaoImpl;
 import com.school.dao.interfaces.ClassTeacherAssignmentDao;
+import com.school.dao.interfaces.SectionDao;
 import com.school.exceptions.ResourceNotFoundException;
 import com.school.model.ClassTeacherAssignment;
 import com.school.service.interfaces.ClassTeacherAssignmentService;
@@ -13,16 +15,18 @@ import static com.school.validations.ValidatorUtil.*;
 public class ClassTeacherAssignmentServiceImpl implements ClassTeacherAssignmentService {
 
     private final ClassTeacherAssignmentDao classTeacherAssignmentDao;
+    private final SectionDao sectionDao;
 
     public ClassTeacherAssignmentServiceImpl() {
         classTeacherAssignmentDao = new ClassTeacherAssignmentDaoImpl();
+        sectionDao = new SectionDaoImpl();
     }
 
     @Override
     public void assignClassTeacher(ClassTeacherAssignment assignment) {
-        validateId(assignment.getTeacherId());
-        validateId(assignment.getSectionId());
-        validateId(assignment.getAcademicYearId());
+        validateId(assignment.getTeacherId(), assignment.getSectionId(), assignment.getAcademicYearId());
+
+        deleteClassTeacher(assignment.getSectionId(), assignment.getAcademicYearId());
 
         if (!classTeacherAssignmentDao.assignClassTeacher(assignment))
             throw new IllegalStateException("Failed to assign class teacher.");
@@ -38,8 +42,9 @@ public class ClassTeacherAssignmentServiceImpl implements ClassTeacherAssignment
 
     @Override
     public ClassTeacherAssignment getCurrentAssignmentBySection(int sectionId) {
-        validateId(sectionId);
-        ClassTeacherAssignment assignment = classTeacherAssignmentDao.getCurrentAssignmentBySection(sectionId);
+        int academicYearId = sectionDao.getSectionById(sectionId).getSectionId();
+        validateId(sectionId, academicYearId);
+        ClassTeacherAssignment assignment = classTeacherAssignmentDao.getCurrentAssignmentBySection(sectionId, academicYearId);
         if (assignment == null)
             throw new ResourceNotFoundException("No class teacher assigned to this section.");
         return assignment;

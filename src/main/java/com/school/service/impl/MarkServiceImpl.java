@@ -74,6 +74,21 @@ public class MarkServiceImpl implements MarkService {
     @Override
     public void updateMark(Mark mark) {
         validateId(mark.getMarkId());
+
+        Mark existing = markDao.getMarkById(mark.getMarkId());
+
+        if (existing == null)
+            throw new ResourceNotFoundException("Mark not found.");
+
+        if (mark.getMarksObtained() == null)
+            mark.setMarksObtained(existing.getMarksObtained());
+        if (mark.getGrade() == null)
+            mark.setGrade(existing.getGrade());
+        if (mark.getRemarks() == null)
+            mark.setRemarks(existing.getRemarks());
+        if (mark.getEnteredBy() == 0)
+            mark.setEnteredBy(existing.getEnteredBy());
+
         validateMark(mark);
 
         if (!markDao.updateMark(mark))

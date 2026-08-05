@@ -83,6 +83,17 @@ public class SubmissionServiceImpl implements SubmissionService {
     @Override
     public void updateSubmission(Submission submission) {
         validateId(submission.getSubmissionId());
+
+        Submission existing = submissionDao.getSubmissionById(submission.getSubmissionId());
+
+        if (existing == null)
+            throw new ResourceNotFoundException("Submission not found.");
+
+        if (submission.getFileUrl() == null)
+            submission.setFileUrl(existing.getFileUrl());
+        if (submission.getStatus() == null)
+            submission.setStatus(existing.getStatus());
+
         if (!submissionDao.updateSubmission(submission))
             throw new ResourceNotFoundException("Submission not found.");
     }

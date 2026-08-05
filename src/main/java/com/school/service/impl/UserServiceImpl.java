@@ -1,6 +1,7 @@
 package com.school.service.impl;
 
 import com.school.dao.impl.UserDaoImpl;
+import com.school.dao.interfaces.StudentDao;
 import com.school.dao.interfaces.UserDao;
 import com.school.exceptions.DaoException;
 import com.school.exceptions.DuplicateResourceException;
@@ -98,9 +99,43 @@ public class UserServiceImpl implements UserService {
     @Override
     public void updateUser(User user) {
         validateId(user.getUserId());
-        validateId(user.getRoleId());
+
+        User existing = userDao.getUserById(user.getUserId());
+
+        if (existing == null)
+            throw new ResourceNotFoundException("User not found.");
+
+        if (user.getRoleId() == 0)
+            user.setRoleId(existing.getRoleId());
+
+        if (user.getUsername() == null)
+            user.setUsername(existing.getUsername());
+
+        if (user.getEmail() == null)
+            user.setEmail(existing.getEmail());
+
         user.setEmail(validateEmail(user.getEmail()));
         user.setUsername(validateUsername(user.getUsername()));
+
+        User emailOwner = userDao.getUserByEmail(user.getEmail());
+
+        if (emailOwner != null
+                && emailOwner.getUserId() != user.getUserId()) {
+            throw new DuplicateResourceException(
+                    "A user with this email already exists."
+            );
+        }
+
+        User usernameOwner = userDao.getUserByUsername(
+                user.getUsername()
+        );
+
+        if (usernameOwner != null
+                && usernameOwner.getUserId() != user.getUserId()) {
+            throw new DuplicateResourceException(
+                    "This username is already taken."
+            );
+        }
 
         if (!userDao.updateUser(user))
             throw new ResourceNotFoundException("User not found.");

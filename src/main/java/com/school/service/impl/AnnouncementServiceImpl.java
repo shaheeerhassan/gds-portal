@@ -63,6 +63,23 @@ public class AnnouncementServiceImpl implements AnnouncementService {
     @Override
     public void updateAnnouncement(Announcement announcement) {
         validateId(announcement.getAnnouncementId());
+
+        Announcement existing = announcementDao.getAnnouncementById(announcement.getAnnouncementId());
+
+        if (existing == null)
+            throw new ResourceNotFoundException("Announcement not found.");
+
+        if (announcement.getTitle() == null)
+            announcement.setTitle(existing.getTitle());
+        if (announcement.getContent() == null)
+            announcement.setContent(existing.getContent());
+        if (announcement.getTargetRoleId() == null)
+            announcement.setTargetRoleId(existing.getTargetRoleId());
+        if (announcement.getClassId() == null)
+            announcement.setClassId(existing.getClassId());
+        if (announcement.getSectionId() == null)
+            announcement.setSectionId(existing.getSectionId());
+
         validateAnnouncement(announcement);
 
         if (!announcementDao.updateAnnouncement(announcement))

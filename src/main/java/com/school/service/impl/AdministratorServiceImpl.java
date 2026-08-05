@@ -37,8 +37,14 @@ public class AdministratorServiceImpl implements AdministratorService {
 
         administrator.setUserId(user.getUserId());
 
-        if (!administratorDao.insertAdministrator(administrator))
-            throw new IllegalStateException("Failed to create administrator.");
+        try {
+            if (!administratorDao.insertAdministrator(administrator)) {
+                throw new IllegalStateException("Failed to create administrator.");
+            }
+        } catch (Exception e) {
+            userService.deleteUser(user.getUserId());
+            throw e;
+        }
 
         return administrator;
     }
@@ -69,6 +75,21 @@ public class AdministratorServiceImpl implements AdministratorService {
     @Override
     public void updateAdministrator(Administrator administrator) {
         validateId(administrator.getAdminId(), administrator.getUserId());
+
+        Administrator existing = administratorDao.getAdministratorById(administrator.getAdminId());
+
+        if (existing == null)
+            throw new ResourceNotFoundException("Administrator not found.");
+
+        if (administrator.getEmployeeId() == null)
+            administrator.setEmployeeId(existing.getEmployeeId());
+        if (administrator.getFirstName() == null)
+            administrator.setFirstName(existing.getFirstName());
+        if (administrator.getLastName()==null)
+            administrator.setLastName(existing.getLastName());
+        if (administrator.getPhone() == null)
+            administrator.setPhone(existing.getPhone());
+        
         validateRequired(administrator.getEmployeeId(), "Employee ID");
         administrator.setFirstName(validateName(administrator.getFirstName(), "First name"));
         administrator.setLastName(validateName(administrator.getLastName(), "Last name"));

@@ -3,6 +3,7 @@ package com.school.service.impl;
 import com.school.dao.impl.StudentDaoImpl;
 import com.school.dao.interfaces.StudentDao;
 import com.school.exceptions.ResourceNotFoundException;
+import com.school.exceptions.UnauthorizedException;
 import com.school.exceptions.ValidationException;
 import com.school.model.Student;
 import com.school.model.User;
@@ -38,8 +39,14 @@ public class StudentServiceImpl implements StudentService {
         student.setUserId(user.getUserId());
         student.setActive(true);
 
-        if (!studentDao.insertStudent(student))
-            throw new IllegalStateException("Failed to create student.");
+        try {
+            if (!studentDao.insertStudent(student)) {
+                throw new IllegalStateException("Failed to create student.");
+            }
+        } catch (Exception e) {
+            userService.deleteUser(user.getUserId());
+            throw e;
+        }
 
         return student;
     }
@@ -104,9 +111,42 @@ public class StudentServiceImpl implements StudentService {
     @Override
     public void updateStudent(Student student) {
         validateId(student.getStudentId());
+
+        Student existing = studentDao.getStudentByStudentId(student.getStudentId());
+
+        if (existing == null)
+            throw new ResourceNotFoundException("Student not found.");
+
+        if (student.getRegistrationNumber() == null)
+            student.setRegistrationNumber(existing.getRegistrationNumber());
+
+        if (student.getFirstName() == null)
+            student.setFirstName(existing.getFirstName());
+
+        if (student.getLastName() == null)
+            student.setLastName(existing.getLastName());
+
+        if (student.getDateOfBirth() == null)
+            student.setDateOfBirth(existing.getDateOfBirth());
+
+        if (student.getGender() == null)
+            student.setGender(existing.getGender());
+
+        if (student.getAdmissionDate() == null)
+            student.setAdmissionDate(existing.getAdmissionDate());
+
+        student.setUserId(existing.getUserId());
+        student.setActive(existing.isActive());
+
         validateStudent(student);
-        student.setFirstName(validateName(student.getFirstName(), "First name"));
-        student.setLastName(validateName(student.getLastName(), "Last name"));
+
+        student.setFirstName(
+                validateName(student.getFirstName(), "First name")
+        );
+
+        student.setLastName(
+                validateName(student.getLastName(), "Last name")
+        );
 
         if (!studentDao.updateStudentDetails(student))
             throw new ResourceNotFoundException("Student not found.");

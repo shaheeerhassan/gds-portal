@@ -39,8 +39,14 @@ public class ParentServiceImpl implements ParentService {
         parent.setUserId(user.getUserId());
         parent.setActive(true);
 
-        if (!parentDao.insertParent(parent))
-            throw new IllegalStateException("Failed to create parent.");
+        try {
+            if (!parentDao.insertParent(parent)) {
+                throw new IllegalStateException("Failed to create parent.");
+            }
+        } catch (Exception e) {
+            userService.deleteUser(user.getUserId());
+            throw e;
+        }
 
         return parent;
     }
@@ -72,6 +78,21 @@ public class ParentServiceImpl implements ParentService {
     @Override
     public void updateParent(Parent parent) {
         validateId(parent.getParentId());
+
+        Parent existing = parentDao.getParentById(parent.getParentId());
+
+        if (existing == null)
+            throw new ResourceNotFoundException("Parent not found.");
+
+        if (parent.getFirstName() == null)
+            parent.setFirstName(existing.getFirstName());
+        if (parent.getLastName() == null)
+            parent.setLastName(existing.getLastName());
+        if (parent.getPhone() == null)
+            parent.setPhone(existing.getPhone());
+        if (parent.getOccupation() == null)
+            parent.setOccupation(existing.getOccupation());
+
         parent.setFirstName(validateName(parent.getFirstName(), "First name"));
         parent.setLastName(validateName(parent.getLastName(), "Last name"));
         parent.setPhone(validatePhone(parent.getPhone()));

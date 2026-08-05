@@ -7,7 +7,7 @@ import java.util.Map;
 public interface AuthenticationService {
     User login(String email, String password);
     void changePassword(long userId, String currentPassword, String newPassword);
-    String requestPasswordReset(String email);
+    boolean requestPasswordReset(String email);
     void resetPassword(String token, String newPassword);
     Map<String, Object> getUserProfile(long userId);
 }

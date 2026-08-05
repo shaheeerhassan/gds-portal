@@ -44,8 +44,14 @@ public class TeacherServiceImpl implements TeacherService {
         teacher.setUserId(user.getUserId());
         teacher.setActive(true);
 
-        if (!teacherDao.insertTeacher(teacher))
-            throw new IllegalStateException("Failed to create teacher.");
+        try {
+            if (!teacherDao.insertTeacher(teacher)) {
+                throw new IllegalStateException("Failed to create teacher.");
+            }
+        } catch (Exception e) {
+            userService.deleteUser(user.getUserId());
+            throw e;
+        }
 
         return teacher;
     }
@@ -122,6 +128,34 @@ public class TeacherServiceImpl implements TeacherService {
     @Override
     public void updateTeacher(Teacher teacher) {
         validateId(teacher.getTeacherId());
+
+        Teacher existing = teacherDao.getTeacherById(teacher.getTeacherId());
+
+
+        if (existing == null)
+            throw new ResourceNotFoundException("Teacher not found.");
+
+        if (teacher.getEmployeeId() == null)
+            teacher.setEmployeeId(existing.getEmployeeId());
+
+        if (teacher.getFirstName() == null)
+            teacher.setFirstName(existing.getFirstName());
+
+        if (teacher.getLastName() == null)
+            teacher.setLastName(existing.getLastName());
+
+        if (teacher.getPhone() == null)
+            teacher.setPhone(existing.getPhone());
+
+        if (teacher.getDateOfBirth() == null)
+            teacher.setDateOfBirth(existing.getDateOfBirth());
+
+        if (teacher.getHireDate() == null)
+            teacher.setHireDate(existing.getHireDate());
+
+        if (teacher.getQualification() == null)
+            teacher.setQualification(existing.getQualification());
+
         teacher.setFirstName(validateName(teacher.getFirstName(), "First name"));
         teacher.setLastName(validateName(teacher.getLastName(), "Last name"));
         teacher.setPhone(validatePhone(teacher.getPhone()));

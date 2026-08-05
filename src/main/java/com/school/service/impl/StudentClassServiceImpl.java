@@ -3,6 +3,8 @@ package com.school.service.impl;
 import com.school.dao.impl.StudentClassDaoImpl;
 import com.school.dao.interfaces.StudentClassDao;
 import com.school.exceptions.ResourceNotFoundException;
+import com.school.model.Section;
+import com.school.model.Student;
 import com.school.model.StudentClass;
 import com.school.service.interfaces.StudentClassService;
 
@@ -20,10 +22,10 @@ public class StudentClassServiceImpl implements StudentClassService {
 
     @Override
     public StudentClass enrollStudent(StudentClass studentClass) {
-        validateId(studentClass.getStudentId());
-        validateId(studentClass.getClassId());
-        validateId(studentClass.getSectionId());
-        validateId(studentClass.getAcademicYearId());
+        validateId(studentClass.getStudentId(), studentClass.getClassId(), studentClass.getSectionId(), studentClass.getAcademicYearId());
+        validateRequired(studentClass.getRollNumber(), "Roll No");
+        if (studentClass.isActive())
+            studentClass.setActive(true);
 
         if (!studentClassDao.enrollStudent(studentClass))
             throw new IllegalStateException("Failed to enroll student.");
@@ -62,11 +64,11 @@ public class StudentClassServiceImpl implements StudentClassService {
     }
 
     @Override
-    public void transferStudent(long studentId, int newSectionId, int academicYearId) {
-        validateId(studentId);
-        validateId(newSectionId);
-        validateId(academicYearId);
-        if (!studentClassDao.transferStudent(studentId, newSectionId, academicYearId))
+    public void transferStudent(StudentClass studentClass, int newSectionId) {
+        validateId(studentClass.getStudentId(), newSectionId, studentClass.getAcademicYearId());
+        validateRequired(studentClass.getRollNumber(), "Roll NO");
+
+        if (!studentClassDao.transferStudent(studentClass, newSectionId))
             throw new ResourceNotFoundException("Active enrollment not found for student.");
     }
 
