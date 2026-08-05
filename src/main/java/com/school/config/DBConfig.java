@@ -8,7 +8,7 @@ public class DBConfig {
 
     static {
         HikariConfig config = new HikariConfig();
-        config.setJdbcUrl("jdbc:mysql://localhost:3306/gds_school");
+        config.setJdbcUrl("jdbc:mysql://localhost:3306/gds_portal");
         config.setUsername("root");
         config.setPassword("password");
         config.setDriverClassName("com.mysql.cj.jdbc.Driver");
