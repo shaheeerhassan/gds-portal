@@ -14,7 +14,7 @@ public class ClassTeacherAssignmentDaoImpl implements ClassTeacherAssignmentDao 
 
     private static final String INSERT = "INSERT INTO class_teacher_assignments (teacher_id, section_id, academic_year_id, assigned_date, is_active) VALUES (?, ?, ?, ?, ?)";
     private static final String DELETE = "UPDATE class_teacher_assignments SET is_active = FALSE, removed_date = ? WHERE section_id = ? AND academic_year_id = ? AND is_active = TRUE";
-    private static final String SELECT_CURRENT_BY_SECTION = "SELECT * FROM class_teacher_assignments WHERE section_id = ? AND is_active = TRUE";
+    private static final String SELECT_CURRENT_BY_SECTION = "SELECT * FROM class_teacher_assignments WHERE section_id = ? AND academic_year_id = ? AND is_active = TRUE";
     private static final String SELECT_CURRENT_BY_TEACHER = "SELECT * FROM class_teacher_assignments WHERE teacher_id = ? AND academic_year_id = ? AND is_active = TRUE";
     private static final String SELECT_HISTORY_BY_TEACHER = "SELECT * FROM class_teacher_assignments WHERE teacher_id = ? ORDER BY assigned_date DESC";
     private static final String SELECT_HISTORY_BY_SECTION = "SELECT * FROM class_teacher_assignments WHERE section_id = ? ORDER BY assigned_date DESC";
@@ -65,11 +65,12 @@ public class ClassTeacherAssignmentDaoImpl implements ClassTeacherAssignmentDao 
     }
 
     @Override
-    public ClassTeacherAssignment getCurrentAssignmentBySection(int sectionId) {
+    public ClassTeacherAssignment getCurrentAssignmentBySection(int sectionId, int academicYearId) {
         try (Connection cn = getDataSource().getConnection();
              PreparedStatement ps = cn.prepareStatement(SELECT_CURRENT_BY_SECTION)) {
 
             ps.setInt(1, sectionId);
+            ps.setInt(2, academicYearId);
 
             try (ResultSet resultSet = ps.executeQuery()) {
                 if (resultSet.next())

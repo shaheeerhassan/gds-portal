@@ -7,7 +7,7 @@ public interface ClassTeacherAssignmentDao {
     boolean assignClassTeacher(ClassTeacherAssignment assignment);
     boolean deleteClassTeacher(int sectionId, int academicYearId);
 
-    ClassTeacherAssignment getCurrentAssignmentBySection(int sectionId);
+    ClassTeacherAssignment getCurrentAssignmentBySection(int sectionId, int academicYearId);
     ClassTeacherAssignment getCurrentAssignmentForTeacher(long teacherId, int academicYearId);
 
     boolean isTeacherAssignedAsClassTeacher(long teacherId, int academicYearId);
