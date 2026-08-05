@@ -21,32 +21,55 @@ public class AcademicYearDaoImpl implements AcademicYearDao {
 
     @Override
     public boolean insertAcademicYear(AcademicYear academicYear) {
-        try (Connection cn = getDataSource().getConnection();
-             PreparedStatement ps = cn.prepareStatement(INSERT, Statement.RETURN_GENERATED_KEYS)) {
+        Connection cn = null;
+        try {
+            cn = getDataSource().getConnection();
+            cn.setAutoCommit(false);
 
-            ps.setString(1, academicYear.getYearName());
-            if (academicYear.getStartDate() != null) {
-                ps.setDate(2, Date.valueOf(academicYear.getStartDate()));
-            } else {
-                ps.setNull(2, Types.DATE);
-            }
-            if (academicYear.getEndDate() != null) {
-                ps.setDate(3, Date.valueOf(academicYear.getEndDate()));
-            } else {
-                ps.setNull(3, Types.DATE);
-            }
-            ps.setBoolean(4, academicYear.isCurrent());
-
-            int success = ps.executeUpdate();
-
-            try (ResultSet resultSet = ps.getGeneratedKeys()) {
-                if (resultSet.next())
-                    academicYear.setAcademicYearId(resultSet.getInt(1));
+            if (academicYear.isCurrent()) {
+                try (PreparedStatement ps = cn.prepareStatement(CLEAR_CURRENT)) {
+                    ps.executeUpdate();
+                }
             }
 
-            return success == 1;
+            try (PreparedStatement ps = cn.prepareStatement(INSERT, Statement.RETURN_GENERATED_KEYS)) {
+                ps.setString(1, academicYear.getYearName());
+                if (academicYear.getStartDate() != null) {
+                    ps.setDate(2, Date.valueOf(academicYear.getStartDate()));
+                } else {
+                    ps.setNull(2, Types.DATE);
+                }
+                if (academicYear.getEndDate() != null) {
+                    ps.setDate(3, Date.valueOf(academicYear.getEndDate()));
+                } else {
+                    ps.setNull(3, Types.DATE);
+                }
+                ps.setBoolean(4, academicYear.isCurrent());
+
+                int success = ps.executeUpdate();
+
+                try (ResultSet resultSet = ps.getGeneratedKeys()) {
+                    if (resultSet.next())
+                        academicYear.setAcademicYearId(resultSet.getInt(1));
+                }
+
+                if (success != 1) {
+                    cn.rollback();
+                    return false;
+                }
+            }
+
+            cn.commit();
+            return true;
         } catch (SQLException e) {
+            if (cn != null) {
+                try { cn.rollback(); } catch (SQLException ignore) {}
+            }
             throw new DaoException("Error inserting academic year", e);
+        } finally {
+            if (cn != null) {
+                try { cn.close(); } catch (SQLException ignore) {}
+            }
         }
     }
 
@@ -98,26 +121,49 @@ public class AcademicYearDaoImpl implements AcademicYearDao {
 
     @Override
     public boolean updateAcademicYear(AcademicYear academicYear) {
-        try (Connection cn = getDataSource().getConnection();
-             PreparedStatement ps = cn.prepareStatement(UPDATE)) {
+        Connection cn = null;
+        try {
+            cn = getDataSource().getConnection();
+            cn.setAutoCommit(false);
 
-            ps.setString(1, academicYear.getYearName());
-            if (academicYear.getStartDate() != null) {
-                ps.setDate(2, Date.valueOf(academicYear.getStartDate()));
-            } else {
-                ps.setNull(2, Types.DATE);
+            if (academicYear.isCurrent()) {
+                try (PreparedStatement ps = cn.prepareStatement(CLEAR_CURRENT)) {
+                    ps.executeUpdate();
+                }
             }
-            if (academicYear.getEndDate() != null) {
-                ps.setDate(3, Date.valueOf(academicYear.getEndDate()));
-            } else {
-                ps.setNull(3, Types.DATE);
-            }
-            ps.setBoolean(4, academicYear.isCurrent());
-            ps.setInt(5, academicYear.getAcademicYearId());
 
-            return ps.executeUpdate() > 0;
+            try (PreparedStatement ps = cn.prepareStatement(UPDATE)) {
+                ps.setString(1, academicYear.getYearName());
+                if (academicYear.getStartDate() != null) {
+                    ps.setDate(2, Date.valueOf(academicYear.getStartDate()));
+                } else {
+                    ps.setNull(2, Types.DATE);
+                }
+                if (academicYear.getEndDate() != null) {
+                    ps.setDate(3, Date.valueOf(academicYear.getEndDate()));
+                } else {
+                    ps.setNull(3, Types.DATE);
+                }
+                ps.setBoolean(4, academicYear.isCurrent());
+                ps.setInt(5, academicYear.getAcademicYearId());
+
+                int updated = ps.executeUpdate();
+                if (updated > 0) {
+                    cn.commit();
+                } else {
+                    cn.rollback();
+                }
+                return updated > 0;
+            }
         } catch (SQLException e) {
+            if (cn != null) {
+                try { cn.rollback(); } catch (SQLException ignore) {}
+            }
             throw new DaoException("Error updating academic year", e);
+        } finally {
+            if (cn != null) {
+                try { cn.close(); } catch (SQLException ignore) {}
+            }
         }
     }
 
@@ -127,6 +173,16 @@ public class AcademicYearDaoImpl implements AcademicYearDao {
         try {
             cn = getDataSource().getConnection();
             cn.setAutoCommit(false);
+
+            try (PreparedStatement check = cn.prepareStatement("SELECT COUNT(*) FROM academic_years WHERE academic_year_id = ?")) {
+                check.setInt(1, academicYearId);
+                try (ResultSet resultSet = check.executeQuery()) {
+                    if (resultSet.next() && resultSet.getInt(1) == 0) {
+                        cn.rollback();
+                        return false;
+                    }
+                }
+            }
 
             try (PreparedStatement ps = cn.prepareStatement(CLEAR_CURRENT)) {
                 ps.executeUpdate();

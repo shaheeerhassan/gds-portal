@@ -20,7 +20,7 @@ public class SubmissionDaoImpl implements SubmissionDao {
     private static final String SELECT_BY_ASSIGNMENT_AND_STUDENT = "SELECT * FROM submissions WHERE assignment_id = ? AND student_id = ?";
     private static final String UPDATE = "UPDATE submissions SET file_url = ?, status = ? WHERE submission_id = ?";
     private static final String MARK_LATE = "UPDATE submissions SET status = ? WHERE submission_id = ?";
-    private static final String GRADE = "UPDATE submissions SET marks_awarded = ?, feedback = ?, status = ?, graded_at = ? WHERE submission_id = ?";
+    private static final String GRADE = "UPDATE submissions SET marks_awarded = ?, feedback = ?, status = ?, graded_by = ?, graded_at = ? WHERE submission_id = ?";
     private static final String DELETE = "DELETE FROM submissions WHERE submission_id = ?";
     private static final String COUNT_BY_ASSIGNMENT = "SELECT COUNT(*) FROM submissions WHERE assignment_id = ?";
     private static final String COUNT_EXISTS = "SELECT COUNT(*) FROM submissions WHERE assignment_id = ? AND student_id = ?";
@@ -99,15 +99,20 @@ public class SubmissionDaoImpl implements SubmissionDao {
     }
 
     @Override
-    public boolean gradeSubmission(long submissionId, double marksObtained, String feedback) {
+    public boolean gradeSubmission(long submissionId, double marksObtained, String feedback, Long gradedBy) {
         try (Connection cn = getDataSource().getConnection();
              PreparedStatement ps = cn.prepareStatement(GRADE)) {
 
             ps.setDouble(1, marksObtained);
             ps.setString(2, feedback);
             ps.setString(3, Submission.Status.GRADED.name());
-            ps.setTimestamp(4, Timestamp.valueOf(LocalDateTime.now()));
-            ps.setLong(5, submissionId);
+            if (gradedBy != null) {
+                ps.setLong(4, gradedBy);
+            } else {
+                ps.setNull(4, Types.BIGINT);
+            }
+            ps.setTimestamp(5, Timestamp.valueOf(LocalDateTime.now()));
+            ps.setLong(6, submissionId);
 
             return ps.executeUpdate() > 0;
         } catch (SQLException e) {

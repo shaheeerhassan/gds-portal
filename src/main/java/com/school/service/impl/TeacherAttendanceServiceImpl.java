@@ -2,6 +2,7 @@ package com.school.service.impl;
 
 import com.school.dao.impl.TeacherAttendanceDaoImpl;
 import com.school.dao.interfaces.TeacherAttendanceDao;
+import com.school.exceptions.BusinessRuleException;
 import com.school.exceptions.ResourceNotFoundException;
 import com.school.exceptions.ValidationException;
 import com.school.model.TeacherAttendance;
@@ -32,6 +33,8 @@ public class TeacherAttendanceServiceImpl implements TeacherAttendanceService {
                 throw new ValidationException("Attendance date is required.");
             if (record.getStatus() == null)
                 throw new ValidationException("Attendance status is required.");
+            if (teacherAttendanceDao.existsAttendance(record.getTeacherId(), record.getAttendanceDate()))
+                throw new BusinessRuleException("Attendance already recorded for this teacher on this date.");
         }
 
         if (!teacherAttendanceDao.insertTeacherAttendance(attendanceRecords))
@@ -86,6 +89,14 @@ public class TeacherAttendanceServiceImpl implements TeacherAttendanceService {
         validateId(attendanceId);
         if (checkOutTime == null)
             throw new ValidationException("Check-out time is required.");
+
+        TeacherAttendance existing = teacherAttendanceDao.getTeacherAttendanceById(attendanceId);
+        if (existing == null)
+            throw new ResourceNotFoundException("Attendance record not found.");
+        if (existing.getCheckInTime() == null)
+            throw new ValidationException("Check-in must be recorded before check-out.");
+        if (!checkOutTime.isAfter(existing.getCheckInTime()))
+            throw new ValidationException("Check-out time must be after check-in time.");
 
         if (!teacherAttendanceDao.updateTeacherCheckOut(attendanceId, checkOutTime))
             throw new ResourceNotFoundException("Attendance record not found.");

@@ -5,6 +5,7 @@ import java.util.List;
 
 public interface StudentClassDao {
     boolean enrollStudent(StudentClass studentClass);
+    boolean isStudentEnrolled(long studentId, int academicYearId);
     StudentClass getCurrentEnrollment(long studentId);
     List<StudentClass> getEnrollmentHistory(long studentId);
     List<StudentClass> getStudentsBySection(int sectionId, int academicYearId);

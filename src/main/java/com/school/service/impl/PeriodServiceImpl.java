@@ -2,6 +2,7 @@ package com.school.service.impl;
 
 import com.school.dao.impl.PeriodDaoImpl;
 import com.school.dao.interfaces.PeriodDao;
+import com.school.exceptions.DuplicateResourceException;
 import com.school.exceptions.ResourceNotFoundException;
 import com.school.exceptions.ValidationException;
 import com.school.model.Period;
@@ -22,6 +23,8 @@ public class PeriodServiceImpl implements PeriodService {
     @Override
     public Period createPeriod(Period period) {
         validatePeriod(period);
+        checkDuplicateNumber(period, 0);
+        checkOverlap(period, 0);
 
         int periodId = periodDao.insertPeriod(period);
         if (periodId <= 0)
@@ -49,6 +52,8 @@ public class PeriodServiceImpl implements PeriodService {
     public void updatePeriod(Period period) {
         validateId(period.getPeriodId());
         validatePeriod(period);
+        checkDuplicateNumber(period, period.getPeriodId());
+        checkOverlap(period, period.getPeriodId());
 
         if (!periodDao.updatePeriod(period))
             throw new ResourceNotFoundException("Period not found.");
@@ -69,5 +74,21 @@ public class PeriodServiceImpl implements PeriodService {
             throw new ValidationException("End time is required.");
         if (!period.getEndTime().isAfter(period.getStartTime()))
             throw new ValidationException("End time must be after start time.");
+    }
+
+    private void checkDuplicateNumber(Period period, int excludePeriodId) {
+        if (periodDao.existsByPeriodNumber(period.getPeriodNumber(), excludePeriodId))
+            throw new DuplicateResourceException("A period with this number already exists.");
+    }
+
+    private void checkOverlap(Period period, int excludePeriodId) {
+        for (Period existing : periodDao.getAllPeriods()) {
+            if (existing.getPeriodId() == excludePeriodId)
+                continue;
+            boolean overlaps = existing.getStartTime().isBefore(period.getEndTime())
+                    && existing.getEndTime().isAfter(period.getStartTime());
+            if (overlaps)
+                throw new ValidationException("Period time range overlaps with period number " + existing.getPeriodNumber() + ".");
+        }
     }
 }

@@ -26,7 +26,7 @@ public class ClassTeacherAssignmentServiceImpl implements ClassTeacherAssignment
     public void assignClassTeacher(ClassTeacherAssignment assignment) {
         validateId(assignment.getTeacherId(), assignment.getSectionId(), assignment.getAcademicYearId());
 
-        deleteClassTeacher(assignment.getSectionId(), assignment.getAcademicYearId());
+        classTeacherAssignmentDao.deleteClassTeacher(assignment.getSectionId(), assignment.getAcademicYearId());
 
         if (!classTeacherAssignmentDao.assignClassTeacher(assignment))
             throw new IllegalStateException("Failed to assign class teacher.");
@@ -42,7 +42,7 @@ public class ClassTeacherAssignmentServiceImpl implements ClassTeacherAssignment
 
     @Override
     public ClassTeacherAssignment getCurrentAssignmentBySection(int sectionId) {
-        int academicYearId = sectionDao.getSectionById(sectionId).getSectionId();
+        int academicYearId = sectionDao.getSectionById(sectionId).getAcademicYearId();
         validateId(sectionId, academicYearId);
         ClassTeacherAssignment assignment = classTeacherAssignmentDao.getCurrentAssignmentBySection(sectionId, academicYearId);
         if (assignment == null)

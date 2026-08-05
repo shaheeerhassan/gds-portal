@@ -76,7 +76,7 @@ public class NotificationServiceImpl implements NotificationService {
     @Override
     public void markAsRead(long notificationId, LocalDateTime readAt) {
         validateId(notificationId);
-        if (!notificationDao.markAsRead(notificationId, readAt))
+        if (!notificationDao.markAsRead(notificationId, readAt != null ? readAt : LocalDateTime.now()))
             throw new ResourceNotFoundException("Notification not found.");
     }
 

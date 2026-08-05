@@ -7,6 +7,7 @@ import com.school.exceptions.ValidationException;
 import com.school.model.Assignment;
 import com.school.service.interfaces.AssignmentService;
 
+import java.time.LocalDateTime;
 import java.util.List;
 
 import static com.school.validations.ValidatorUtil.*;
@@ -22,6 +23,8 @@ public class AssignmentServiceImpl implements AssignmentService {
     @Override
     public Assignment createAssignment(Assignment assignment) {
         validateAssignment(assignment);
+        if (assignment.getDeadline().isBefore(LocalDateTime.now()))
+            throw new ValidationException("Deadline cannot be in the past.");
 
         if (!assignmentDao.insertAssignment(assignment))
             throw new IllegalStateException("Failed to create assignment.");
@@ -85,5 +88,7 @@ public class AssignmentServiceImpl implements AssignmentService {
             throw new ValidationException("Max marks must be a positive number.");
         if (assignment.getDeadline() == null)
             throw new ValidationException("Deadline is required.");
+        if (assignment.getStatus() == null)
+            throw new ValidationException("Assignment status is required.");
     }
 }

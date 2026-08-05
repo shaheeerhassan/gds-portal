@@ -80,7 +80,7 @@ public class TeacherServiceImpl implements TeacherService {
     }
 
     @Override
-    public Map<Teacher, Section> getAllClassTeachers() {
+    public Map<Long, List<Section>> getAllClassTeachers() {
         return teacherDao.getAllClassTeachers();
     }
 

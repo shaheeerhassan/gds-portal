@@ -89,7 +89,9 @@ public interface ValidatorUtil {
 
     static String validatePhone(String phone) {
         String value = validateRequired(phone, "Phone");
-        if (!value.matches("\\+?[0-9]{10,15}"))
+        if (value.startsWith("+"))
+            value = value.substring(1);
+        if (!value.matches("[0-9]{10,15}"))
             throw new ValidationException("Invalid phone number.");
         if (value.startsWith("03")) {
             if (value.length() != 11)

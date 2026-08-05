@@ -18,7 +18,7 @@ public class MarkDaoImpl implements MarkDao {
     private static final String SELECT_BY_STUDENT_AND_EXAMINATION = "SELECT * FROM marks WHERE student_id = ? AND examination_id = ?";
     private static final String SELECT_BY_STUDENT_AND_YEAR = "SELECT m.* FROM marks m JOIN examinations e ON m.examination_id = e.examination_id WHERE m.student_id = ? AND e.academic_year_id = ? ORDER BY m.mark_id";
     private static final String SELECT_BY_STUDENT_AND_EXAM_TYPE = "SELECT m.* FROM marks m JOIN examinations e ON m.examination_id = e.examination_id WHERE m.student_id = ? AND e.exam_name = ? AND e.academic_year_id = ? ORDER BY m.mark_id";
-    private static final String UPDATE = "UPDATE marks SET marks_obtained = ?, grade = ?, remarks = ?, entered_by = ? WHERE mark_id = ?";
+    private static final String UPDATE = "UPDATE marks SET marks_obtained = ?, grade = ?, remarks = ?, entered_by = ?, entered_at = ? WHERE mark_id = ?";
     private static final String DELETE = "DELETE FROM marks WHERE mark_id = ?";
 
     @Override
@@ -74,7 +74,8 @@ public class MarkDaoImpl implements MarkDao {
             ps.setString(2, mark.getGrade());
             ps.setString(3, mark.getRemarks());
             ps.setLong(4, mark.getEnteredBy());
-            ps.setLong(5, mark.getMarkId());
+            ps.setTimestamp(5, Timestamp.valueOf(LocalDateTime.now()));
+            ps.setLong(6, mark.getMarkId());
 
             return ps.executeUpdate() > 0;
         } catch (SQLException e) {

@@ -2,6 +2,7 @@ package com.school.service.impl;
 
 import com.school.dao.impl.StudentClassDaoImpl;
 import com.school.dao.interfaces.StudentClassDao;
+import com.school.exceptions.DuplicateResourceException;
 import com.school.exceptions.ResourceNotFoundException;
 import com.school.model.Section;
 import com.school.model.Student;
@@ -26,6 +27,9 @@ public class StudentClassServiceImpl implements StudentClassService {
         validateRequired(studentClass.getRollNumber(), "Roll No");
         if (studentClass.isActive())
             studentClass.setActive(true);
+
+        if (studentClassDao.isStudentEnrolled(studentClass.getStudentId(), studentClass.getAcademicYearId()))
+            throw new DuplicateResourceException("Student is already enrolled for this academic year.");
 
         if (!studentClassDao.enrollStudent(studentClass))
             throw new IllegalStateException("Failed to enroll student.");

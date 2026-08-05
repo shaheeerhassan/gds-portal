@@ -21,6 +21,7 @@ public class TeacherAttendanceDaoImpl implements TeacherAttendanceDao {
     private static final String UPDATE_STATUS = "UPDATE teacher_attendance SET status = ? WHERE attendance_id = ?";
     private static final String UPDATE_CHECK_IN = "UPDATE teacher_attendance SET check_in_time = ? WHERE attendance_id = ?";
     private static final String UPDATE_CHECK_OUT = "UPDATE teacher_attendance SET check_out_time = ? WHERE attendance_id = ?";
+    private static final String COUNT_EXISTS = "SELECT COUNT(*) FROM teacher_attendance WHERE teacher_id = ? AND attendance_date = ?";
 
     @Override
     public boolean insertTeacherAttendance(List<TeacherAttendance> attendanceRecords) {
@@ -116,6 +117,24 @@ public class TeacherAttendanceDaoImpl implements TeacherAttendanceDao {
             return ps.executeUpdate() > 0;
         } catch (SQLException e) {
             throw new DaoException("Error updating check-out time", e);
+        }
+    }
+
+    @Override
+    public boolean existsAttendance(long teacherId, LocalDate date) {
+        try (Connection cn = getDataSource().getConnection();
+             PreparedStatement ps = cn.prepareStatement(COUNT_EXISTS)) {
+
+            ps.setLong(1, teacherId);
+            ps.setDate(2, Date.valueOf(date));
+
+            try (ResultSet resultSet = ps.executeQuery()) {
+                if (resultSet.next())
+                    return resultSet.getInt(1) > 0;
+            }
+            return false;
+        } catch (SQLException e) {
+            throw new DaoException("Error checking teacher attendance", e);
         }
     }
 

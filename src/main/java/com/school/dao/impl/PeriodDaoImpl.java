@@ -16,6 +16,7 @@ public class PeriodDaoImpl implements PeriodDao {
     private static final String SELECT_ALL = "SELECT * FROM periods ORDER BY period_number";
     private static final String UPDATE = "UPDATE periods SET period_number = ?, start_time = ?, end_time = ? WHERE period_id = ?";
     private static final String DELETE = "DELETE FROM periods WHERE period_id = ?";
+    private static final String COUNT_BY_NUMBER = "SELECT COUNT(*) FROM periods WHERE period_number = ? AND period_id <> ?";
 
     @Override
     public int insertPeriod(Period period) {
@@ -116,6 +117,24 @@ public class PeriodDaoImpl implements PeriodDao {
             return ps.executeUpdate() > 0;
         } catch (SQLException e) {
             throw new DaoException("Error deleting period", e);
+        }
+    }
+
+    @Override
+    public boolean existsByPeriodNumber(int periodNumber, int excludePeriodId) {
+        try (Connection cn = getDataSource().getConnection();
+             PreparedStatement ps = cn.prepareStatement(COUNT_BY_NUMBER)) {
+
+            ps.setInt(1, periodNumber);
+            ps.setInt(2, excludePeriodId);
+
+            try (ResultSet resultSet = ps.executeQuery()) {
+                if (resultSet.next())
+                    return resultSet.getInt(1) > 0;
+            }
+            return false;
+        } catch (SQLException e) {
+            throw new DaoException("Error checking period number", e);
         }
     }
 

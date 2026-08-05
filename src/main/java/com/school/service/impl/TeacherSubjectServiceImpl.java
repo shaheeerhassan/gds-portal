@@ -2,6 +2,7 @@ package com.school.service.impl;
 
 import com.school.dao.impl.TeacherSubjectDaoImpl;
 import com.school.dao.interfaces.TeacherSubjectDao;
+import com.school.exceptions.DuplicateResourceException;
 import com.school.exceptions.ResourceNotFoundException;
 import com.school.model.Subject;
 import com.school.service.interfaces.TeacherSubjectService;
@@ -24,6 +25,9 @@ public class TeacherSubjectServiceImpl implements TeacherSubjectService {
         validateId(subjectId);
         validateId(sectionId);
         validateId(academicYearId);
+
+        if (teacherSubjectDao.isAssigned(teacherId, subjectId, sectionId, academicYearId))
+            throw new DuplicateResourceException("This subject is already assigned to the teacher for this section and year.");
 
         if (!teacherSubjectDao.assignTeacherSubject(teacherId, subjectId, sectionId, academicYearId))
             throw new IllegalStateException("Failed to assign subject to teacher.");

@@ -62,6 +62,10 @@ public class ClassServiceImpl implements ClassService {
         c.setClassName(validateRequired(c.getClassName(), "Class name"));
         validateId(c.getNumericLevel());
 
+        Class existingLevel = classDao.getClassByNumericLevel(c.getNumericLevel());
+        if (existingLevel != null && existingLevel.getClassId() != c.getClassId())
+            throw new DuplicateResourceException("A class at this level already exists.");
+
         if (!classDao.updateClass(c))
             throw new ResourceNotFoundException("Class not found.");
     }

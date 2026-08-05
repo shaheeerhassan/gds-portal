@@ -2,6 +2,7 @@ package com.school.service.impl;
 
 import com.school.dao.impl.StudentAttendanceDaoImpl;
 import com.school.dao.interfaces.StudentAttendanceDao;
+import com.school.exceptions.BusinessRuleException;
 import com.school.exceptions.ResourceNotFoundException;
 import com.school.exceptions.ValidationException;
 import com.school.model.StudentAttendance;
@@ -31,6 +32,10 @@ public class StudentAttendanceServiceImpl implements StudentAttendanceService {
                 throw new ValidationException("Attendance date is required.");
             if (record.getStatus() == null)
                 throw new ValidationException("Attendance status is required.");
+            if (studentAttendanceDao.existsAttendance(record.getStudentClassId(), record.getAttendanceDate()))
+                throw new BusinessRuleException("Attendance already recorded for this student on this date.");
+            if (studentAttendanceDao.isAttendanceLocked(record.getStudentClassId(), record.getAttendanceDate()))
+                throw new BusinessRuleException("Attendance is locked for this date and cannot be modified.");
         }
 
         if (!studentAttendanceDao.insertStudentAttendance(attendanceRecords))
@@ -66,6 +71,12 @@ public class StudentAttendanceServiceImpl implements StudentAttendanceService {
         validateId(attendanceId);
         if (status == null)
             throw new ValidationException("Attendance status is required.");
+
+        StudentAttendance existing = studentAttendanceDao.getStudentAttendanceById(attendanceId);
+        if (existing == null)
+            throw new ResourceNotFoundException("Attendance record not found.");
+        if (existing.isLocked())
+            throw new BusinessRuleException("Attendance is locked and cannot be updated.");
 
         if (!studentAttendanceDao.updateStudentAttendance(attendanceId, status))
             throw new ResourceNotFoundException("Attendance record not found.");

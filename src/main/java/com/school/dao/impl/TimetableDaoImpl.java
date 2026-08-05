@@ -17,6 +17,8 @@ public class TimetableDaoImpl implements TimetableDao {
     private static final String SELECT_BY_SECTION_AND_DAY = "SELECT * FROM timetables WHERE section_id = ? AND day_of_week = ? AND academic_year_id = ? ORDER BY period_id";
     private static final String UPDATE = "UPDATE timetables SET section_id = ?, subject_id = ?, teacher_id = ?, period_id = ?, day_of_week = ?, academic_year_id = ? WHERE timetable_id = ?";
     private static final String DELETE = "DELETE FROM timetables WHERE timetable_id = ?";
+    private static final String COUNT_SECTION_SLOT = "SELECT COUNT(*) FROM timetables WHERE section_id = ? AND academic_year_id = ? AND day_of_week = ? AND period_id = ? AND timetable_id <> ?";
+    private static final String COUNT_TEACHER_SLOT = "SELECT COUNT(*) FROM timetables WHERE teacher_id = ? AND academic_year_id = ? AND day_of_week = ? AND period_id = ? AND timetable_id <> ?";
 
     @Override
     public boolean insertTimeTable(Timetable timetable) {
@@ -130,6 +132,48 @@ public class TimetableDaoImpl implements TimetableDao {
             }
         } catch (SQLException e) {
             throw new DaoException("Error fetching timetable", e);
+        }
+    }
+
+    @Override
+    public boolean isSectionSlotOccupied(int sectionId, int academicYearId, Timetable.DayOfWeek day, int periodId, long excludeTimetableId) {
+        try (Connection cn = getDataSource().getConnection();
+             PreparedStatement ps = cn.prepareStatement(COUNT_SECTION_SLOT)) {
+
+            ps.setInt(1, sectionId);
+            ps.setInt(2, academicYearId);
+            ps.setString(3, day.name());
+            ps.setInt(4, periodId);
+            ps.setLong(5, excludeTimetableId);
+
+            try (ResultSet resultSet = ps.executeQuery()) {
+                if (resultSet.next())
+                    return resultSet.getInt(1) > 0;
+            }
+            return false;
+        } catch (SQLException e) {
+            throw new DaoException("Error checking timetable slot", e);
+        }
+    }
+
+    @Override
+    public boolean isTeacherSlotOccupied(long teacherId, int academicYearId, Timetable.DayOfWeek day, int periodId, long excludeTimetableId) {
+        try (Connection cn = getDataSource().getConnection();
+             PreparedStatement ps = cn.prepareStatement(COUNT_TEACHER_SLOT)) {
+
+            ps.setLong(1, teacherId);
+            ps.setInt(2, academicYearId);
+            ps.setString(3, day.name());
+            ps.setInt(4, periodId);
+            ps.setLong(5, excludeTimetableId);
+
+            try (ResultSet resultSet = ps.executeQuery()) {
+                if (resultSet.next())
+                    return resultSet.getInt(1) > 0;
+            }
+            return false;
+        } catch (SQLException e) {
+            throw new DaoException("Error checking teacher timetable slot", e);
         }
     }
 

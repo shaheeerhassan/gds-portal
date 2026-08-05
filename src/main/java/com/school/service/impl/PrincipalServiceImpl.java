@@ -79,6 +79,9 @@ public class PrincipalServiceImpl implements PrincipalService {
 
         Principal existing = principalDao.getPrincipalById(principal.getPrincipalId());
 
+        if (existing == null)
+            throw new ResourceNotFoundException("Principal not found.");
+
         if (principal.getEmployeeId() == null)
             principal.setEmployeeId(existing.getEmployeeId());
         if (principal.getFirstName() == null)

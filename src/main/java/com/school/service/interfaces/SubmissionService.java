@@ -14,6 +14,6 @@ public interface SubmissionService {
     int getSubmissionCount(long assignmentId);
     void updateSubmission(Submission submission);
     void markLate(long submissionId);
-    void gradeSubmission(long submissionId, double marksAwarded, String feedback);
+    void gradeSubmission(long submissionId, double marksAwarded, String feedback, Long gradedBy);
     void deleteSubmission(long submissionId);
 }

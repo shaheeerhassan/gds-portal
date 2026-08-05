@@ -15,6 +15,7 @@ public class TeacherSubjectDaoImpl implements TeacherSubjectDao {
     private static final String INSERT = "INSERT INTO teacher_subjects (teacher_id, subject_id, section_id, academic_year_id, assigned_at) VALUES (?, ?, ?, ?, ?)";
     private static final String SELECT_BY_TEACHER = "SELECT DISTINCT s.* FROM subjects s JOIN teacher_subjects ts ON s.subject_id = ts.subject_id WHERE ts.teacher_id = ? AND ts.academic_year_id = ? ORDER BY s.subject_id";
     private static final String DELETE = "DELETE FROM teacher_subjects WHERE teacher_subject_id = ?";
+    private static final String COUNT_ASSIGNED = "SELECT COUNT(*) FROM teacher_subjects WHERE teacher_id = ? AND subject_id = ? AND section_id = ? AND academic_year_id = ?";
 
     @Override
     public boolean assignTeacherSubject(long teacherId, int subjectId, int sectionId, int academicYearId) {
@@ -30,6 +31,26 @@ public class TeacherSubjectDaoImpl implements TeacherSubjectDao {
             return ps.executeUpdate() > 0;
         } catch (SQLException e) {
             throw new DaoException("Error assigning teacher subject", e);
+        }
+    }
+
+    @Override
+    public boolean isAssigned(long teacherId, int subjectId, int sectionId, int academicYearId) {
+        try (Connection cn = getDataSource().getConnection();
+             PreparedStatement ps = cn.prepareStatement(COUNT_ASSIGNED)) {
+
+            ps.setLong(1, teacherId);
+            ps.setInt(2, subjectId);
+            ps.setInt(3, sectionId);
+            ps.setInt(4, academicYearId);
+
+            try (ResultSet resultSet = ps.executeQuery()) {
+                if (resultSet.next())
+                    return resultSet.getInt(1) > 0;
+            }
+            return false;
+        } catch (SQLException e) {
+            throw new DaoException("Error checking teacher subject assignment", e);
         }
     }
 

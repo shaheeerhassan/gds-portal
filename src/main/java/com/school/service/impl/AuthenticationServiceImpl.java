@@ -90,10 +90,10 @@ public class AuthenticationServiceImpl implements AuthenticationService {
         resetToken.setExpiresAt(LocalDateTime.now().plusHours(RESET_TOKEN_VALID_HOURS));
         resetToken.setUsed(false);
 
+        passwordResetTokenDao.invalidateUserTokens(user.getUserId());
+
         if (!passwordResetTokenDao.insertToken(resetToken))
             throw new BusinessRuleException("Could not create a reset token.");
-
-        passwordResetTokenDao.invalidateUserTokens(user.getUserId());
 
         // call email service here later
         return true;

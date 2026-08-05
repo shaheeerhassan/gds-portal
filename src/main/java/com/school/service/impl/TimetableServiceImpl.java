@@ -4,8 +4,10 @@ import com.school.dao.impl.AcademicYearDaoImpl;
 import com.school.dao.impl.TimetableDaoImpl;
 import com.school.dao.interfaces.AcademicYearDao;
 import com.school.dao.interfaces.TimetableDao;
+import com.school.exceptions.BusinessRuleException;
 import com.school.exceptions.ResourceNotFoundException;
 import com.school.exceptions.ValidationException;
+import com.school.model.AcademicYear;
 import com.school.model.Timetable;
 import com.school.service.interfaces.TimetableService;
 
@@ -26,6 +28,7 @@ public class TimetableServiceImpl implements TimetableService {
     @Override
     public Timetable createTimetableEntry(Timetable timetable) {
         validateTimetable(timetable);
+        checkSlotConflicts(timetable, 0L);
 
         if (!timetableDao.insertTimeTable(timetable))
             throw new IllegalStateException("Failed to create timetable entry.");
@@ -37,6 +40,7 @@ public class TimetableServiceImpl implements TimetableService {
     public void updateTimetableEntry(Timetable timetable) {
         validateId(timetable.getTimetableId());
         validateTimetable(timetable);
+        checkSlotConflicts(timetable, timetable.getTimetableId());
 
         if (!timetableDao.updateTimeTable(timetable))
             throw new ResourceNotFoundException("Timetable entry not found.");
@@ -65,7 +69,14 @@ public class TimetableServiceImpl implements TimetableService {
 
     @Override
     public List<Timetable> getTimetableByDay(int sectionId, Timetable.DayOfWeek day) {
-        int currentAcademicYearId = academicYearDao.getCurrentAcademicYear().getAcademicYearId();
+        AcademicYear currentAcademicYear = academicYearDao.getCurrentAcademicYear();
+
+        int currentAcademicYearId;
+        if (currentAcademicYear != null)
+            currentAcademicYearId = currentAcademicYear.getAcademicYearId();
+        else
+            throw new ResourceNotFoundException("Current academic year not found.");
+
         validateId(sectionId);
         if (day == null)
             throw new ValidationException("Day of week is required.");
@@ -80,5 +91,15 @@ public class TimetableServiceImpl implements TimetableService {
         validateId(timetable.getAcademicYearId());
         if (timetable.getDayOfWeek() == null)
             throw new ValidationException("Day of week is required.");
+    }
+
+    private void checkSlotConflicts(Timetable timetable, long excludeTimetableId) {
+        if (timetableDao.isSectionSlotOccupied(timetable.getSectionId(), timetable.getAcademicYearId(),
+                timetable.getDayOfWeek(), timetable.getPeriodId(), excludeTimetableId))
+            throw new BusinessRuleException("This section already has a lesson for this day and period.");
+
+        if (timetableDao.isTeacherSlotOccupied(timetable.getTeacherId(), timetable.getAcademicYearId(),
+                timetable.getDayOfWeek(), timetable.getPeriodId(), excludeTimetableId))
+            throw new BusinessRuleException("This teacher is already assigned to another section at this day and period.");
     }
 }

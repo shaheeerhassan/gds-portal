@@ -38,7 +38,7 @@ public class TeacherDaoImpl implements TeacherDao {
             ps.setString(3, teacher.getFirstName());
             ps.setString(4, teacher.getLastName());
             ps.setString(5, teacher.getPhone());
-            ps.setString(6, teacher.getGender().name());
+            ps.setString(6, teacher.getGender() != null ? teacher.getGender().name() : null);
             if (teacher.getDateOfBirth() != null) {
                 ps.setDate(7, Date.valueOf(teacher.getDateOfBirth()));
             } else {
@@ -138,14 +138,17 @@ public class TeacherDaoImpl implements TeacherDao {
     }
 
     @Override
-    public Map<Teacher, Section> getAllClassTeachers() {
+    public Map<Long, List<Section>> getAllClassTeachers() {
         try (Connection cn = getDataSource().getConnection();
              PreparedStatement ps = cn.prepareStatement(SELECT_CLASS_TEACHERS);
              ResultSet resultSet = ps.executeQuery()) {
 
-            Map<Teacher, Section> result = new LinkedHashMap<>();
-            while (resultSet.next())
-                result.put(mapTeacher(resultSet), mapSection(resultSet));
+            Map<Long, List<Section>> result = new LinkedHashMap<>();
+            while (resultSet.next()) {
+                Teacher teacher = mapTeacher(resultSet);
+                result.computeIfAbsent(teacher.getTeacherId(), k -> new ArrayList<>())
+                      .add(mapSection(resultSet));
+            }
             return result;
         } catch (SQLException e) {
             throw new DaoException("Error fetching class teachers", e);
@@ -243,7 +246,7 @@ public class TeacherDaoImpl implements TeacherDao {
             ps.setString(2, teacher.getFirstName());
             ps.setString(3, teacher.getLastName());
             ps.setString(4, teacher.getPhone());
-            ps.setString(5, teacher.getGender().name());
+            ps.setString(5, teacher.getGender() != null ? teacher.getGender().name() : null);
             if (teacher.getDateOfBirth() != null) {
                 ps.setDate(6, Date.valueOf(teacher.getDateOfBirth()));
             } else {

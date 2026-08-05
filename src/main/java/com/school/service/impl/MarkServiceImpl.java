@@ -1,9 +1,12 @@
 package com.school.service.impl;
 
+import com.school.dao.impl.ExaminationDaoImpl;
 import com.school.dao.impl.MarkDaoImpl;
+import com.school.dao.interfaces.ExaminationDao;
 import com.school.dao.interfaces.MarkDao;
 import com.school.exceptions.ResourceNotFoundException;
 import com.school.exceptions.ValidationException;
+import com.school.model.Examination;
 import com.school.model.Mark;
 import com.school.service.interfaces.MarkService;
 
@@ -14,9 +17,11 @@ import static com.school.validations.ValidatorUtil.*;
 public class MarkServiceImpl implements MarkService {
 
     private final MarkDao markDao;
+    private final ExaminationDao examinationDao;
 
     public MarkServiceImpl() {
         markDao = new MarkDaoImpl();
+        examinationDao = new ExaminationDaoImpl();
     }
 
     @Override
@@ -105,7 +110,15 @@ public class MarkServiceImpl implements MarkService {
     private void validateMark(Mark mark) {
         validateId(mark.getExaminationId());
         validateId(mark.getStudentId());
+        if (mark.getMarksObtained() == null)
+            throw new ValidationException("Marks obtained is required.");
         if (mark.getMarksObtained() < 0)
             throw new ValidationException("Marks obtained cannot be negative.");
+
+        Examination examination = examinationDao.getExaminationById(mark.getExaminationId());
+        if (examination == null)
+            throw new ResourceNotFoundException("Examination not found.");
+        if (mark.getMarksObtained() > examination.getMaxMarks())
+            throw new ValidationException("Marks obtained cannot exceed the examination max marks.");
     }
 }

@@ -8,7 +8,7 @@ public interface SubmissionDao {
     boolean insertSubmission(Submission submission);
     boolean updateSubmission(Submission submission);
     boolean markSubmissionLate(long submissionId);
-    boolean gradeSubmission(long submissionId, double marksObtained, String feedback);
+    boolean gradeSubmission(long submissionId, double marksObtained, String feedback, Long gradedBy);
     boolean deleteSubmission(long submissionId);
     boolean submissionExists(long assignmentId, long studentId);
 

@@ -37,7 +37,7 @@ public class StudentDaoImpl implements StudentDao {
             } else {
                 ps.setNull(5, Types.DATE);
             }
-            ps.setString(6, student.getGender().name());
+            ps.setString(6, student.getGender() != null ? student.getGender().name() : null);
             if (student.getAdmissionDate() != null) {
                 ps.setDate(7, Date.valueOf(student.getAdmissionDate()));
             } else {
@@ -212,7 +212,7 @@ public class StudentDaoImpl implements StudentDao {
             } else {
                 ps.setNull(4, Types.DATE);
             }
-            ps.setString(5, student.getGender().name());
+            ps.setString(5, student.getGender() != null ? student.getGender().name() : null);
             if (student.getAdmissionDate() != null) {
                 ps.setDate(6, Date.valueOf(student.getAdmissionDate()));
             } else {

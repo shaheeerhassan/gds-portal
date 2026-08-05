@@ -12,4 +12,7 @@ public interface TimetableDao {
     List<Timetable> getTimetableBySectionAndYear(int sectionId, int academicYearId);
     List<Timetable> getTimetableByTeacher(long teacherId, int academicYearId);
     List<Timetable> getTimetableByDay(int sectionId, Timetable.DayOfWeek day, int academicYearId);
+
+    boolean isSectionSlotOccupied(int sectionId, int academicYearId, Timetable.DayOfWeek day, int periodId, long excludeTimetableId);
+    boolean isTeacherSlotOccupied(long teacherId, int academicYearId, Timetable.DayOfWeek day, int periodId, long excludeTimetableId);
 }

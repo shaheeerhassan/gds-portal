@@ -39,3 +39,6 @@ build/
 
 ### Mac OS ###
 .DS_Store
+
+BUGS.md
+school_management_schema.txt

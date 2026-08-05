@@ -19,6 +19,8 @@ public class StudentAttendanceDaoImpl implements StudentAttendanceDao {
     private static final String SELECT_BY_STUDENT = "SELECT sa.* FROM student_attendance sa JOIN student_classes sc ON sa.student_class_id = sc.student_class_id WHERE sc.student_id = ? AND sa.attendance_date BETWEEN ? AND ? ORDER BY sa.attendance_date";
     private static final String UPDATE_STATUS = "UPDATE student_attendance SET status = ? WHERE attendance_id = ?";
     private static final String LOCK_DATE = "UPDATE student_attendance sa JOIN student_classes sc ON sa.student_class_id = sc.student_class_id SET sa.is_locked = TRUE WHERE sc.section_id = ? AND sa.attendance_date = ?";
+    private static final String COUNT_EXISTS = "SELECT COUNT(*) FROM student_attendance WHERE student_class_id = ? AND attendance_date = ?";
+    private static final String COUNT_LOCKED = "SELECT COUNT(*) FROM student_attendance WHERE student_class_id = ? AND attendance_date = ? AND is_locked = TRUE";
 
     @Override
     public boolean insertStudentAttendance(List<StudentAttendance> attendanceRecords) {
@@ -94,6 +96,42 @@ public class StudentAttendanceDaoImpl implements StudentAttendanceDao {
             return ps.executeUpdate() > 0;
         } catch (SQLException e) {
             throw new DaoException("Error locking attendance", e);
+        }
+    }
+
+    @Override
+    public boolean existsAttendance(long studentClassId, LocalDate date) {
+        try (Connection cn = getDataSource().getConnection();
+             PreparedStatement ps = cn.prepareStatement(COUNT_EXISTS)) {
+
+            ps.setLong(1, studentClassId);
+            ps.setDate(2, Date.valueOf(date));
+
+            try (ResultSet resultSet = ps.executeQuery()) {
+                if (resultSet.next())
+                    return resultSet.getInt(1) > 0;
+            }
+            return false;
+        } catch (SQLException e) {
+            throw new DaoException("Error checking attendance", e);
+        }
+    }
+
+    @Override
+    public boolean isAttendanceLocked(long studentClassId, LocalDate date) {
+        try (Connection cn = getDataSource().getConnection();
+             PreparedStatement ps = cn.prepareStatement(COUNT_LOCKED)) {
+
+            ps.setLong(1, studentClassId);
+            ps.setDate(2, Date.valueOf(date));
+
+            try (ResultSet resultSet = ps.executeQuery()) {
+                if (resultSet.next())
+                    return resultSet.getInt(1) > 0;
+            }
+            return false;
+        } catch (SQLException e) {
+            throw new DaoException("Error checking attendance lock", e);
         }
     }
 

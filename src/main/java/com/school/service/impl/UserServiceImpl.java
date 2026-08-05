@@ -49,6 +49,8 @@ public class UserServiceImpl implements UserService {
                 if (userDao.insertUser(user)) {
                     return user;
                 }
+                user.setUsername(null);
+                attempts++;
             } catch (DaoException e) {
                 user.setUsername(null);
                 attempts++;

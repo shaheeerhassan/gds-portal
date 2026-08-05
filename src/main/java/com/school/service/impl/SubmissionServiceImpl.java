@@ -1,13 +1,17 @@
 package com.school.service.impl;
 
+import com.school.dao.impl.AssignmentDaoImpl;
 import com.school.dao.impl.SubmissionDaoImpl;
+import com.school.dao.interfaces.AssignmentDao;
 import com.school.dao.interfaces.SubmissionDao;
 import com.school.exceptions.BusinessRuleException;
 import com.school.exceptions.ResourceNotFoundException;
 import com.school.exceptions.ValidationException;
+import com.school.model.Assignment;
 import com.school.model.Submission;
 import com.school.service.interfaces.SubmissionService;
 
+import java.time.LocalDateTime;
 import java.util.List;
 
 import static com.school.validations.ValidatorUtil.*;
@@ -15,9 +19,11 @@ import static com.school.validations.ValidatorUtil.*;
 public class SubmissionServiceImpl implements SubmissionService {
 
     private final SubmissionDao submissionDao;
+    private final AssignmentDao assignmentDao;
 
     public SubmissionServiceImpl() {
         submissionDao = new SubmissionDaoImpl();
+        assignmentDao = new AssignmentDaoImpl();
     }
 
     @Override
@@ -27,8 +33,18 @@ public class SubmissionServiceImpl implements SubmissionService {
         if (submission.getFileUrl() == null || submission.getFileUrl().isBlank())
             throw new ValidationException("A file is required to submit an assignment.");
 
+        Assignment assignment = assignmentDao.getAssignmentById(submission.getAssignmentId());
+        if (assignment == null)
+            throw new ResourceNotFoundException("Assignment not found.");
+
         if (submissionDao.submissionExists(submission.getAssignmentId(), submission.getStudentId()))
             throw new BusinessRuleException("This assignment has already been submitted.");
+
+        LocalDateTime submittedAt = submission.getSubmittedAt() != null
+                ? submission.getSubmittedAt() : LocalDateTime.now();
+        submission.setSubmittedAt(submittedAt);
+        submission.setStatus(assignment.getDeadline() != null && submittedAt.isAfter(assignment.getDeadline())
+                ? Submission.Status.LATE : Submission.Status.SUBMITTED);
 
         if (!submissionDao.insertSubmission(submission))
             throw new IllegalStateException("Failed to submit assignment.");
@@ -106,11 +122,24 @@ public class SubmissionServiceImpl implements SubmissionService {
     }
 
     @Override
-    public void gradeSubmission(long submissionId, double marksAwarded, String feedback) {
+    public void gradeSubmission(long submissionId, double marksAwarded, String feedback, Long gradedBy) {
         validateId(submissionId);
         if (marksAwarded < 0)
             throw new ValidationException("Marks awarded cannot be negative.");
-        if (!submissionDao.gradeSubmission(submissionId, marksAwarded, feedback))
+        if (gradedBy != null)
+            validateId(gradedBy);
+
+        Submission submission = submissionDao.getSubmissionById(submissionId);
+        if (submission == null)
+            throw new ResourceNotFoundException("Submission not found.");
+
+        Assignment assignment = assignmentDao.getAssignmentById(submission.getAssignmentId());
+        if (assignment == null)
+            throw new ResourceNotFoundException("Assignment not found.");
+        if (marksAwarded > assignment.getMaxMarks())
+            throw new ValidationException("Marks awarded cannot exceed the assignment max marks.");
+
+        if (!submissionDao.gradeSubmission(submissionId, marksAwarded, feedback, gradedBy))
             throw new ResourceNotFoundException("Submission not found.");
     }
 

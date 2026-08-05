@@ -13,6 +13,7 @@ import java.util.List;
 public class StudentClassDaoImpl implements StudentClassDao {
 
     private static final String INSERT = "INSERT INTO student_classes (student_id, class_id, section_id, academic_year_id, roll_number, enrollment_date, is_active) VALUES (?, ?, ?, ?, ?, ?, ?)";
+    private static final String COUNT_ENROLLED = "SELECT COUNT(*) FROM student_classes WHERE student_id = ? AND academic_year_id = ? AND is_active = TRUE";
     private static final String SELECT_CURRENT_BY_STUDENT = "SELECT * FROM student_classes WHERE student_id = ? AND is_active = TRUE";
     private static final String SELECT_HISTORY_BY_STUDENT = "SELECT * FROM student_classes WHERE student_id = ? ORDER BY enrollment_date DESC";
     private static final String SELECT_BY_SECTION = "SELECT * FROM student_classes WHERE section_id = ? AND academic_year_id = ? AND is_active = TRUE ORDER BY roll_number";
@@ -51,6 +52,24 @@ public class StudentClassDaoImpl implements StudentClassDao {
             return success == 1;
         } catch (SQLException e) {
             throw new DaoException("Error enrolling student", e);
+        }
+    }
+
+    @Override
+    public boolean isStudentEnrolled(long studentId, int academicYearId) {
+        try (Connection cn = getDataSource().getConnection();
+             PreparedStatement ps = cn.prepareStatement(COUNT_ENROLLED)) {
+
+            ps.setLong(1, studentId);
+            ps.setInt(2, academicYearId);
+
+            try (ResultSet resultSet = ps.executeQuery()) {
+                if (resultSet.next())
+                    return resultSet.getInt(1) > 0;
+            }
+            return false;
+        } catch (SQLException e) {
+            throw new DaoException("Error checking student enrollment", e);
         }
     }
 

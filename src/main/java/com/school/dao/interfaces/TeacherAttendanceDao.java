@@ -11,6 +11,7 @@ public interface TeacherAttendanceDao {
     boolean updateTeacherAttendance(long attendanceId, TeacherAttendance.Status status);
     boolean updateTeacherCheckIn(long attendanceId, LocalTime checkInTime);
     boolean updateTeacherCheckOut(long attendanceId, LocalTime checkOutTime);
+    boolean existsAttendance(long teacherId, LocalDate date);
 
     List<TeacherAttendance> getTeacherAttendanceByDate(LocalDate date);
     List<TeacherAttendance> getTeacherAttendanceByTeacherId(long teacherId, LocalDate startDate, LocalDate endDate);

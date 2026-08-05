@@ -9,4 +9,5 @@ public interface PeriodDao {
     List<Period> getAllPeriods();
     boolean updatePeriod(Period period);
     boolean deletePeriod(int periodId);
+    boolean existsByPeriodNumber(int periodNumber, int excludePeriodId);
 }

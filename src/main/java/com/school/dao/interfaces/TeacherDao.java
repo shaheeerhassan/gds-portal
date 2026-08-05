@@ -14,7 +14,7 @@ public interface TeacherDao {
     List<Teacher> getAllTeachersBySubject(int subjectId);
     List<Teacher> getTeachersBySection(int sectionId, int academicYearId);
 
-    Map<Teacher, Section> getAllClassTeachers();
+    Map<Long, List<Section>> getAllClassTeachers();
 
     Teacher getTeacherByUserId(long userId);
     Teacher getTeacherById(long teacherId);

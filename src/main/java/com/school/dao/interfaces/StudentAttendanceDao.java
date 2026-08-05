@@ -9,6 +9,8 @@ public interface StudentAttendanceDao {
         boolean insertStudentAttendance(List<StudentAttendance> attendanceRecords);
         boolean updateStudentAttendance(long attendanceId, StudentAttendance.Status status);
         boolean lockAttendanceForDate(LocalDate date, int sectionId);
+        boolean existsAttendance(long studentClassId, LocalDate date);
+        boolean isAttendanceLocked(long studentClassId, LocalDate date);
 
         List<StudentAttendance> getStudentAttendanceBySectionAndDate(int sectionId, LocalDate date);
         List<StudentAttendance> getStudentAttendanceByStudentId(long studentId, LocalDate startDate, LocalDate endDate);
