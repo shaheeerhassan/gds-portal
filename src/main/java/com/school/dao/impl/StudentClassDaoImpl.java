@@ -19,6 +19,9 @@ public class StudentClassDaoImpl implements StudentClassDao {
     private static final String END_ENROLLMENT = "UPDATE student_classes SET is_active = FALSE WHERE student_id = ? AND academic_year_id = ? AND is_active = TRUE";
     private static final String UPDATE_ROLL_NUMBER = "UPDATE student_classes SET roll_number = ? WHERE student_id = ? AND academic_year_id = ? AND is_active = TRUE";
     private static final String SELECT_SECTION_CLASS_ID = "SELECT class_id FROM sections WHERE section_id = ?";
+    private static final String END_ENROLLMENT_SOURCE = "UPDATE student_classes SET is_active = FALSE WHERE section_id = ? AND academic_year_id = ? AND is_active = TRUE";
+    private static final String DELETE_OLD_ENROLLMENT = "DELETE FROM student_classes WHERE section_id = ? AND academic_year_id = ? AND is_active = TRUE";
+    private static final String DELETE_STUDENT_CLASS = "DELETE FROM student_classes WHERE student_id = ? AND academic_year_id = ?";
 
     @Override
     public boolean enrollStudent(StudentClass studentClass) {
@@ -33,7 +36,8 @@ public class StudentClassDaoImpl implements StudentClassDao {
             if (studentClass.getEnrollmentDate() != null) {
                 ps.setDate(6, Date.valueOf(studentClass.getEnrollmentDate()));
             } else {
-                ps.setNull(6, Types.DATE);
+                studentClass.setEnrollmentDate(LocalDate.now());
+                ps.setDate(6, Date.valueOf(studentClass.getEnrollmentDate()));
             }
             ps.setBoolean(7, studentClass.isActive());
 
@@ -119,16 +123,16 @@ public class StudentClassDaoImpl implements StudentClassDao {
     }
 
     @Override
-    public boolean transferStudent(long studentId, int newSectionId, int academicYearId) {
+    public boolean transferStudent(StudentClass studentClass, int newSectionId) {
         Connection cn = null;
         try {
             cn = getDataSource().getConnection();
             cn.setAutoCommit(false);
 
             boolean ended;
-            try (PreparedStatement ps = cn.prepareStatement(END_ENROLLMENT)) {
-                ps.setLong(1, studentId);
-                ps.setInt(2, academicYearId);
+            try (PreparedStatement ps = cn.prepareStatement(DELETE_STUDENT_CLASS)) {
+                ps.setLong(1, studentClass.getStudentId());
+                ps.setInt(2, studentClass.getAcademicYearId());
                 ps.executeUpdate();
             }
 
@@ -146,11 +150,11 @@ public class StudentClassDaoImpl implements StudentClassDao {
             }
 
             try (PreparedStatement ps = cn.prepareStatement(INSERT, Statement.RETURN_GENERATED_KEYS)) {
-                ps.setLong(1, studentId);
+                ps.setLong(1, studentClass.getStudentId());
                 ps.setInt(2, newClassId);
                 ps.setInt(3, newSectionId);
-                ps.setInt(4, academicYearId);
-                ps.setString(5, null);
+                ps.setInt(4, studentClass.getAcademicYearId());
+                ps.setString(5, studentClass.getRollNumber());
                 ps.setDate(6, Date.valueOf(LocalDate.now()));
                 ps.setBoolean(7, true);
                 ended = ps.executeUpdate() > 0;
@@ -207,6 +211,11 @@ public class StudentClassDaoImpl implements StudentClassDao {
                 promoted = ps.executeUpdate();
             }
 
+            if (promoted == 0) {
+                cn.rollback();
+                return 0;
+            }
+
             try (PreparedStatement ps = cn.prepareStatement(END_ENROLLMENT_SOURCE)) {
                 ps.setInt(1, sourceSectionId);
                 ps.setInt(2, sourceAcademicYearId);
@@ -226,8 +235,6 @@ public class StudentClassDaoImpl implements StudentClassDao {
             }
         }
     }
-
-    private static final String END_ENROLLMENT_SOURCE = "UPDATE student_classes SET is_active = FALSE WHERE section_id = ? AND academic_year_id = ? AND is_active = TRUE";
 
     private StudentClass mapRow(ResultSet resultSet) throws SQLException {
         StudentClass studentClass = new StudentClass();

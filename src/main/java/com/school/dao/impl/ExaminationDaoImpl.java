@@ -12,16 +12,71 @@ import java.util.List;
 
 public class ExaminationDaoImpl implements ExaminationDao {
 
-    private static final String INSERT = "INSERT INTO examinations (exam_name, subject_id, section_id, academic_year_id, exam_date, start_time, end_time, max_marks, passing_marks, status, created_by, created_at) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)";
-    private static final String SELECT_BY_ID = "SELECT * FROM examinations WHERE examination_id = ?";
-    private static final String SELECT_BY_SECTION = "SELECT * FROM examinations WHERE section_id = ? AND academic_year_id = ? ORDER BY examination_id";
-    private static final String SELECT_SPECIFIC_BY_SECTION = "SELECT * FROM examinations WHERE section_id = ? AND exam_name = ? AND academic_year_id = ? ORDER BY examination_id";
-    private static final String SELECT_BY_TEACHER = "SELECT DISTINCT e.* FROM examinations e JOIN teacher_subjects ts ON e.subject_id = ts.subject_id WHERE ts.teacher_id = ? AND e.academic_year_id = ? ORDER BY e.examination_id";
-    private static final String SELECT_SPECIFIC_BY_TEACHER = "SELECT DISTINCT e.* FROM examinations e JOIN teacher_subjects ts ON e.subject_id = ts.subject_id WHERE ts.teacher_id = ? AND e.exam_name = ? AND e.academic_year_id = ? ORDER BY e.examination_id";
-    private static final String SELECT_BY_TEACHER_AND_SECTION = "SELECT DISTINCT e.* FROM examinations e JOIN teacher_subjects ts ON e.subject_id = ts.subject_id WHERE ts.teacher_id = ? AND e.section_id = ? AND e.academic_year_id = ? ORDER BY e.examination_id";
-    private static final String SELECT_SPECIFIC_BY_TEACHER_AND_SECTION = "SELECT DISTINCT e.* FROM examinations e JOIN teacher_subjects ts ON e.subject_id = ts.subject_id WHERE ts.teacher_id = ? AND e.section_id = ? AND e.exam_name = ? AND e.academic_year_id = ? ORDER BY e.examination_id";
-    private static final String UPDATE_STATUS = "UPDATE examinations SET status = ? WHERE examination_id = ?";
-    private static final String UPDATE = "UPDATE examinations SET exam_name = ?, subject_id = ?, section_id = ?, academic_year_id = ?, exam_date = ?, start_time = ?, end_time = ?, max_marks = ?, passing_marks = ?, status = ? WHERE examination_id = ?";
+    private static final String INSERT =
+            "INSERT INTO examinations (exam_name, subject_id, section_id, academic_year_id, exam_date, start_time, end_time, max_marks, passing_marks, status, created_by, created_at) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)";
+
+    private static final String SELECT_BY_ID =
+            "SELECT * FROM examinations WHERE examination_id = ?";
+
+    private static final String SELECT_BY_SECTION =
+            "SELECT * FROM examinations WHERE section_id = ? AND academic_year_id = ? ORDER BY examination_id";
+
+    private static final String SELECT_SPECIFIC_BY_SECTION =
+            "SELECT * FROM examinations WHERE section_id = ? AND exam_name = ? AND academic_year_id = ? ORDER BY examination_id";
+
+    private static final String SELECT_BY_TEACHER =
+            "SELECT DISTINCT e.* " +
+                    "FROM examinations e " +
+                    "JOIN teacher_subjects ts " +
+                    "ON e.subject_id = ts.subject_id " +
+                    "AND e.section_id = ts.section_id " +
+                    "AND e.academic_year_id = ts.academic_year_id " +
+                    "WHERE ts.teacher_id = ? " +
+                    "AND e.academic_year_id = ? " +
+                    "ORDER BY e.examination_id";
+
+    private static final String SELECT_SPECIFIC_BY_TEACHER =
+            "SELECT DISTINCT e.* " +
+                    "FROM examinations e " +
+                    "JOIN teacher_subjects ts " +
+                    "ON e.subject_id = ts.subject_id " +
+                    "AND e.section_id = ts.section_id " +
+                    "AND e.academic_year_id = ts.academic_year_id " +
+                    "WHERE ts.teacher_id = ? " +
+                    "AND e.exam_name = ? " +
+                    "AND e.academic_year_id = ? " +
+                    "ORDER BY e.examination_id";
+
+    private static final String SELECT_BY_TEACHER_AND_SECTION =
+            "SELECT DISTINCT e.* " +
+                    "FROM examinations e " +
+                    "JOIN teacher_subjects ts " +
+                    "ON e.subject_id = ts.subject_id " +
+                    "AND e.section_id = ts.section_id " +
+                    "AND e.academic_year_id = ts.academic_year_id " +
+                    "WHERE ts.teacher_id = ? " +
+                    "AND e.section_id = ? " +
+                    "AND e.academic_year_id = ? " +
+                    "ORDER BY e.examination_id";
+
+    private static final String SELECT_SPECIFIC_BY_TEACHER_AND_SECTION =
+            "SELECT DISTINCT e.* " +
+                    "FROM examinations e " +
+                    "JOIN teacher_subjects ts " +
+                    "ON e.subject_id = ts.subject_id " +
+                    "AND e.section_id = ts.section_id " +
+                    "AND e.academic_year_id = ts.academic_year_id " +
+                    "WHERE ts.teacher_id = ? " +
+                    "AND e.section_id = ? " +
+                    "AND e.exam_name = ? " +
+                    "AND e.academic_year_id = ? " +
+                    "ORDER BY e.examination_id";
+
+    private static final String UPDATE_STATUS =
+            "UPDATE examinations SET status = ? WHERE examination_id = ?";
+
+    private static final String UPDATE =
+            "UPDATE examinations SET exam_name = ?, subject_id = ?, section_id = ?, academic_year_id = ?, exam_date = ?, start_time = ?, end_time = ?, max_marks = ?, passing_marks = ?, status = ? WHERE examination_id = ?";
 
     @Override
     public boolean insertExamination(Examination examination) {

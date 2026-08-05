@@ -11,7 +11,7 @@ import java.util.List;
 
 public class PrincipalDaoImpl implements PrincipalDao {
 
-    private static final String INSERT = "INSERT INTO principals (user_id, employee_id, first_name, last_name, phone) VALUES (?, ?, ?, ?, ?)";
+    private static final String INSERT = "INSERT INTO principals (user_id, employee_id, first_name, last_name, phone, ) VALUES (?, ?, ?, ?, ?)";
     private static final String SELECT_BY_ID = "SELECT * FROM principals WHERE principal_id = ?";
     private static final String SELECT_BY_USER_ID = "SELECT * FROM principals WHERE user_id = ?";
     private static final String SELECT_ALL = "SELECT * FROM principals ORDER BY principal_id";

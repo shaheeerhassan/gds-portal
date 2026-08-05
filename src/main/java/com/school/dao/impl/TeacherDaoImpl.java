@@ -25,7 +25,7 @@ public class TeacherDaoImpl implements TeacherDao {
     private static final String SELECT_BY_SECTION = "SELECT DISTINCT t.* FROM teachers t JOIN teacher_classes tc ON t.teacher_id = tc.teacher_id WHERE tc.section_id = ? AND tc.academic_year_id = ? ORDER BY t.teacher_id";
     private static final String SELECT_CLASS_TEACHERS = "SELECT t.*, s.* FROM teachers t JOIN class_teacher_assignments cta ON t.teacher_id = cta.teacher_id JOIN sections s ON cta.section_id = s.section_id WHERE cta.is_active = TRUE";
     private static final String COUNT_ALL = "SELECT COUNT(*) FROM teachers";
-    private static final String UPDATE = "UPDATE teachers SET employee_id = ?, first_name = ?, last_name = ?, phone = ?, gender = ?, date_of_birth = ?, hire_date = ?, qualification = ?, is_active = ? WHERE teacher_id = ?";
+    private static final String UPDATE = "UPDATE teachers SET employee_id = ?, first_name = ?, last_name = ?, phone = ?, gender = ?, date_of_birth = ?, hire_date = ?, qualification = ? WHERE teacher_id = ?";
     private static final String DELETE = "UPDATE teachers SET is_active = FALSE WHERE teacher_id = ?";
 
     @Override
@@ -255,8 +255,7 @@ public class TeacherDaoImpl implements TeacherDao {
                 ps.setNull(7, Types.DATE);
             }
             ps.setString(8, teacher.getQualification());
-            ps.setBoolean(9, teacher.isActive());
-            ps.setLong(10, teacher.getTeacherId());
+            ps.setLong(9, teacher.getTeacherId());
 
             return ps.executeUpdate() > 0;
         } catch (SQLException e) {

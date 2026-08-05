@@ -18,7 +18,7 @@ public class UserDaoImpl implements UserDao {
     private static final String SELECT_BY_EMAIL = "SELECT * FROM users WHERE email = ?";
     private static final String SELECT_ALL = "SELECT * FROM users ORDER BY user_id";
     private static final String SELECT_BY_ROLE = "SELECT * FROM users WHERE role_id = ? ORDER BY user_id";
-    private static final String UPDATE_USER = "UPDATE users SET role_id = ?, username = ?, email = ?, profile_picture_url = ?, is_active = ?, updated_at = ? WHERE user_id = ?";
+    private static final String UPDATE_USER = "UPDATE users SET role_id = ?, username = ?, email = ?, profile_picture_url = ?, updated_at = ? WHERE user_id = ?";
     private static final String DELETE_USER = "UPDATE users SET is_active = FALSE, updated_at = ? WHERE user_id = ?";
     private static final String UPDATE_PASSWORD_HASH = "UPDATE users SET password_hash = ? WHERE user_id = ?";
     private static final String UPDATE_PROFILE_PICTURE = "UPDATE users SET profile_picture_url = ? WHERE user_id = ?";
@@ -153,9 +153,8 @@ public class UserDaoImpl implements UserDao {
             ps.setString(2, user.getUsername());
             ps.setString(3, user.getEmail());
             ps.setString(4, user.getProfilePictureUrl());
-            ps.setBoolean(5, user.isActive());
-            ps.setTimestamp(6, Timestamp.valueOf(LocalDateTime.now()));
-            ps.setLong(7, user.getUserId());
+            ps.setTimestamp(5, Timestamp.valueOf(LocalDateTime.now()));
+            ps.setLong(6, user.getUserId());
 
             return ps.executeUpdate() > 0;
         } catch (SQLException e) {

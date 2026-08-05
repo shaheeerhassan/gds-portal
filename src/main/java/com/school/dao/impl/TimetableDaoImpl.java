@@ -14,7 +14,7 @@ public class TimetableDaoImpl implements TimetableDao {
     private static final String INSERT = "INSERT INTO timetables (section_id, subject_id, teacher_id, period_id, day_of_week, academic_year_id) VALUES (?, ?, ?, ?, ?, ?)";
     private static final String SELECT_BY_SECTION_AND_YEAR = "SELECT * FROM timetables WHERE section_id = ? AND academic_year_id = ? ORDER BY day_of_week, period_id";
     private static final String SELECT_BY_TEACHER = "SELECT * FROM timetables WHERE teacher_id = ? AND academic_year_id = ? ORDER BY day_of_week, period_id";
-    private static final String SELECT_BY_SECTION_AND_DAY = "SELECT * FROM timetables WHERE section_id = ? AND day_of_week = ? ORDER BY period_id";
+    private static final String SELECT_BY_SECTION_AND_DAY = "SELECT * FROM timetables WHERE section_id = ? AND day_of_week = ? AND academic_year_id = ? ORDER BY period_id";
     private static final String UPDATE = "UPDATE timetables SET section_id = ?, subject_id = ?, teacher_id = ?, period_id = ?, day_of_week = ?, academic_year_id = ? WHERE timetable_id = ?";
     private static final String DELETE = "DELETE FROM timetables WHERE timetable_id = ?";
 
@@ -114,12 +114,13 @@ public class TimetableDaoImpl implements TimetableDao {
     }
 
     @Override
-    public List<Timetable> getTimetableByDay(int sectionId, Timetable.DayOfWeek day) {
+    public List<Timetable> getTimetableByDay(int sectionId, Timetable.DayOfWeek day, int academicYearId) {
         try (Connection cn = getDataSource().getConnection();
              PreparedStatement ps = cn.prepareStatement(SELECT_BY_SECTION_AND_DAY)) {
 
             ps.setInt(1, sectionId);
             ps.setString(2, day.name());
+            ps.setInt(3, academicYearId);
 
             try (ResultSet resultSet = ps.executeQuery()) {
                 List<Timetable> timetables = new ArrayList<>();

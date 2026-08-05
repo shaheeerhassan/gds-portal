@@ -20,7 +20,7 @@ public class StudentDaoImpl implements StudentDao {
     private static final String SELECT_BY_CLASS = "SELECT DISTINCT s.* FROM students s JOIN student_classes sc ON s.student_id = sc.student_id WHERE sc.class_id = ? AND sc.academic_year_id = ? AND sc.is_active = TRUE ORDER BY sc.roll_number, s.student_id";
     private static final String SELECT_BY_SECTION = "SELECT DISTINCT s.* FROM students s JOIN student_classes sc ON s.student_id = sc.student_id WHERE sc.section_id = ? AND sc.is_active = TRUE ORDER BY sc.roll_number, s.student_id";
     private static final String SELECT_BY_PARENT = "SELECT DISTINCT s.* FROM students s JOIN student_parent_links spl ON s.student_id = spl.student_id WHERE spl.parent_id = ? ORDER BY s.student_id";
-    private static final String UPDATE = "UPDATE students SET registration_number = ?, first_name = ?, last_name = ?, date_of_birth = ?, gender = ?, admission_date = ?, is_active = ? WHERE student_id = ?";
+    private static final String UPDATE = "UPDATE students SET registration_number = ?, first_name = ?, last_name = ?, date_of_birth = ?, gender = ?, admission_date = ? WHERE student_id = ?";
     private static final String UPDATE_STATUS = "UPDATE students SET is_active = ? WHERE student_id = ?";
 
     @Override
@@ -218,8 +218,7 @@ public class StudentDaoImpl implements StudentDao {
             } else {
                 ps.setNull(6, Types.DATE);
             }
-            ps.setBoolean(7, student.isActive());
-            ps.setLong(8, student.getStudentId());
+            ps.setLong(7, student.getStudentId());
 
             return ps.executeUpdate() > 0;
         } catch (SQLException e) {

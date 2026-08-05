@@ -14,13 +14,13 @@ import java.util.List;
 
 public class TeacherAttendanceDaoImpl implements TeacherAttendanceDao {
 
-    private static final String INSERT = "INSERT INTO teacher_attendances (teacher_id, attendance_date, status, check_in_time, check_out_time, marked_at) VALUES (?, ?, ?, ?, ?, ?)";
-    private static final String SELECT_BY_ID = "SELECT * FROM teacher_attendances WHERE attendance_id = ?";
-    private static final String SELECT_BY_DATE = "SELECT * FROM teacher_attendances WHERE attendance_date = ? ORDER BY attendance_id";
-    private static final String SELECT_BY_TEACHER = "SELECT * FROM teacher_attendances WHERE teacher_id = ? AND attendance_date BETWEEN ? AND ? ORDER BY attendance_date";
-    private static final String UPDATE_STATUS = "UPDATE teacher_attendances SET status = ? WHERE attendance_id = ?";
-    private static final String UPDATE_CHECK_IN = "UPDATE teacher_attendances SET check_in_time = ? WHERE attendance_id = ?";
-    private static final String UPDATE_CHECK_OUT = "UPDATE teacher_attendances SET check_out_time = ? WHERE attendance_id = ?";
+    private static final String INSERT = "INSERT INTO teacher_attendance (teacher_id, attendance_date, status, check_in_time, check_out_time, marked_at) VALUES (?, ?, ?, ?, ?, ?)";
+    private static final String SELECT_BY_ID = "SELECT * FROM teacher_attendance WHERE attendance_id = ?";
+    private static final String SELECT_BY_DATE = "SELECT * FROM teacher_attendance WHERE attendance_date = ? ORDER BY attendance_id";
+    private static final String SELECT_BY_TEACHER = "SELECT * FROM teacher_attendance WHERE teacher_id = ? AND attendance_date BETWEEN ? AND ? ORDER BY attendance_date";
+    private static final String UPDATE_STATUS = "UPDATE teacher_attendance SET status = ? WHERE attendance_id = ?";
+    private static final String UPDATE_CHECK_IN = "UPDATE teacher_attendance SET check_in_time = ? WHERE attendance_id = ?";
+    private static final String UPDATE_CHECK_OUT = "UPDATE teacher_attendance SET check_out_time = ? WHERE attendance_id = ?";
 
     @Override
     public boolean insertTeacherAttendance(List<TeacherAttendance> attendanceRecords) {

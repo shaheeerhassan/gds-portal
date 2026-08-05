@@ -23,12 +23,12 @@ public class ReportDaoImpl implements ReportDao {
 
     private static final String TEACHER_ATTENDANCE = "SELECT ta.attendance_date, ta.status, ta.check_in_time, ta.check_out_time, " +
             "t.first_name, t.last_name " +
-            "FROM teacher_attendances ta JOIN teachers t ON ta.teacher_id = t.teacher_id " +
+            "FROM teacher_attendance ta JOIN teachers t ON ta.teacher_id = t.teacher_id " +
             "WHERE ta.teacher_id = ? AND YEAR(ta.attendance_date) = ? AND MONTH(ta.attendance_date) = ? " +
             "ORDER BY ta.attendance_date";
 
     private static final String CLASS_ATTENDANCE = "SELECT sa.attendance_date, s.student_id, s.first_name, s.last_name, sa.status, sa.remarks " +
-            "FROM student_attendances sa " +
+            "FROM student_attendance sa " +
             "JOIN student_classes sc ON sa.student_class_id = sc.student_class_id " +
             "JOIN students s ON sc.student_id = s.student_id " +
             "WHERE sc.section_id = ? AND YEAR(sa.attendance_date) = ? AND MONTH(sa.attendance_date) = ? " +
@@ -56,7 +56,7 @@ public class ReportDaoImpl implements ReportDao {
             "ORDER BY m.marks_obtained DESC";
 
     private static final String STUDENT_ATTENDANCE_SUMMARY = "SELECT sa.status, COUNT(*) AS count " +
-            "FROM student_attendances sa " +
+            "FROM student_attendance sa " +
             "JOIN student_classes sc ON sa.student_class_id = sc.student_class_id " +
             "WHERE sc.student_id = ? AND sa.attendance_date BETWEEN " +
             "(SELECT start_date FROM academic_years WHERE academic_year_id = ?) " +

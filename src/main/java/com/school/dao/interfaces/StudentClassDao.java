@@ -9,7 +9,7 @@ public interface StudentClassDao {
     List<StudentClass> getEnrollmentHistory(long studentId);
     List<StudentClass> getStudentsBySection(int sectionId, int academicYearId);
     boolean endEnrollment(long studentId, int academicYearId);
-    boolean transferStudent(long studentId, int newSectionId, int academicYearId);
+    boolean transferStudent(StudentClass studentClass, int newSectionId);
     boolean updateRollNumber(long studentId, int academicYearId, String newRollNumber);
     int promoteSection(int sourceSectionId, int sourceAcademicYearId, int targetSectionId, int targetAcademicYearId);
 }

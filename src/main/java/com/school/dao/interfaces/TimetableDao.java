@@ -11,5 +11,5 @@ public interface TimetableDao {
 
     List<Timetable> getTimetableBySectionAndYear(int sectionId, int academicYearId);
     List<Timetable> getTimetableByTeacher(long teacherId, int academicYearId);
-    List<Timetable> getTimetableByDay(int sectionId, Timetable.DayOfWeek day);
+    List<Timetable> getTimetableByDay(int sectionId, Timetable.DayOfWeek day, int academicYearId);
 }

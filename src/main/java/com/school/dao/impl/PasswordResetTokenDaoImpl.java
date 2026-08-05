@@ -12,7 +12,7 @@ public class PasswordResetTokenDaoImpl implements PasswordResetTokenDao {
 
     private static final String INSERT = "INSERT INTO password_reset_tokens (user_id, token_hash, expires_at, is_used, created_at) VALUES (?, ?, ?, ?, ?)";
     private static final String SELECT_BY_TOKEN = "SELECT * FROM password_reset_tokens WHERE token_hash = ?";
-    private static final String MARK_USED = "UPDATE password_reset_tokens SET is_used = TRUE WHERE token_hash = ?";
+    private static final String MARK_USED = "UPDATE password_reset_tokens SET is_used = TRUE WHERE token_hash = ? AND is_used = FALSE";
     private static final String INVALIDATE_USER = "UPDATE password_reset_tokens SET is_used = TRUE WHERE user_id = ? AND is_used = FALSE";
     private static final String INVALIDATE_EXPIRED = "UPDATE password_reset_tokens SET is_used = TRUE WHERE expires_at < ? AND is_used = FALSE";
 

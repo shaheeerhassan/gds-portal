@@ -16,9 +16,8 @@ public class ParentDaoImpl implements ParentDao {
     private static final String SELECT_BY_ID = "SELECT * FROM parents WHERE parent_id = ?";
     private static final String SELECT_BY_USER_ID = "SELECT * FROM parents WHERE user_id = ?";
     private static final String SELECT_BY_STUDENT = "SELECT p.* FROM parents p JOIN student_parent_links spl ON p.parent_id = spl.parent_id WHERE spl.student_id = ? ORDER BY p.parent_id";
-    private static final String UPDATE = "UPDATE parents SET first_name = ?, last_name = ?, phone = ?, occupation = ?, is_active = ? WHERE parent_id = ?";
+    private static final String UPDATE = "UPDATE parents SET first_name = ?, last_name = ?, phone = ?, occupation = ? WHERE parent_id = ?";
     private static final String DELETE = "UPDATE parents SET is_active = FALSE WHERE parent_id = ?";
-
     private static final String LINK_INSERT = "INSERT INTO student_parent_links (student_id, parent_id, relationship_type, is_primary_contact) VALUES (?, ?, ?, ?)";
     private static final String LINK_DELETE = "DELETE FROM student_parent_links WHERE parent_id = ? AND student_id = ?";
     private static final String CLEAR_PRIMARY = "UPDATE student_parent_links SET is_primary_contact = FALSE WHERE student_id = ?";
@@ -160,8 +159,7 @@ public class ParentDaoImpl implements ParentDao {
             ps.setString(2, parent.getLastName());
             ps.setString(3, parent.getPhone());
             ps.setString(4, parent.getOccupation());
-            ps.setBoolean(5, parent.isActive());
-            ps.setLong(6, parent.getParentId());
+            ps.setLong(5, parent.getParentId());
 
             return ps.executeUpdate() > 0;
         } catch (SQLException e) {

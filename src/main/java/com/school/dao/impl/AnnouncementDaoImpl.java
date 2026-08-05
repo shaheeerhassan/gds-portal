@@ -18,7 +18,7 @@ public class AnnouncementDaoImpl implements AnnouncementDao {
     private static final String SELECT_BY_ROLE = "SELECT * FROM announcements WHERE is_active = TRUE AND target_role_id = ? ORDER BY created_at DESC";
     private static final String SELECT_BY_CLASS = "SELECT * FROM announcements WHERE is_active = TRUE AND class_id = ? ORDER BY created_at DESC";
     private static final String SELECT_BY_SECTION = "SELECT * FROM announcements WHERE is_active = TRUE AND section_id = ? ORDER BY created_at DESC";
-    private static final String UPDATE = "UPDATE announcements SET title = ?, content = ?, target_role_id = ?, class_id = ?, section_id = ?, is_active = ?, updated_at = ? WHERE announcement_id = ?";
+    private static final String UPDATE = "UPDATE announcements SET title = ?, content = ?, target_role_id = ?, class_id = ?, section_id = ?, updated_at = ? WHERE announcement_id = ?";
     private static final String DISABLE = "UPDATE announcements SET is_active = FALSE, updated_at = ? WHERE announcement_id = ?";
 
     @Override
@@ -102,9 +102,8 @@ public class AnnouncementDaoImpl implements AnnouncementDao {
             } else {
                 ps.setNull(5, Types.INTEGER);
             }
-            ps.setBoolean(6, announcement.isActive());
-            ps.setTimestamp(7, Timestamp.valueOf(LocalDateTime.now()));
-            ps.setLong(8, announcement.getAnnouncementId());
+            ps.setTimestamp(6, Timestamp.valueOf(LocalDateTime.now()));
+            ps.setLong(7, announcement.getAnnouncementId());
 
             return ps.executeUpdate() > 0;
         } catch (SQLException e) {

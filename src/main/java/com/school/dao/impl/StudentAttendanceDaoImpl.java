@@ -13,12 +13,12 @@ import java.util.List;
 
 public class StudentAttendanceDaoImpl implements StudentAttendanceDao {
 
-    private static final String INSERT = "INSERT INTO student_attendances (student_class_id, attendance_date, status, period_id, marked_by, marked_at, is_locked, remarks) VALUES (?, ?, ?, ?, ?, ?, ?, ?)";
-    private static final String SELECT_BY_ID = "SELECT * FROM student_attendances WHERE attendance_id = ?";
-    private static final String SELECT_BY_SECTION_AND_DATE = "SELECT sa.* FROM student_attendances sa JOIN student_classes sc ON sa.student_class_id = sc.student_class_id WHERE sc.section_id = ? AND sa.attendance_date = ? ORDER BY sa.attendance_id";
-    private static final String SELECT_BY_STUDENT = "SELECT sa.* FROM student_attendances sa JOIN student_classes sc ON sa.student_class_id = sc.student_class_id WHERE sc.student_id = ? AND sa.attendance_date BETWEEN ? AND ? ORDER BY sa.attendance_date";
-    private static final String UPDATE_STATUS = "UPDATE student_attendances SET status = ? WHERE attendance_id = ?";
-    private static final String LOCK_DATE = "UPDATE student_attendances sa JOIN student_classes sc ON sa.student_class_id = sc.student_class_id SET sa.is_locked = TRUE WHERE sc.section_id = ? AND sa.attendance_date = ?";
+    private static final String INSERT = "INSERT INTO student_attendance (student_class_id, attendance_date, status, period_id, marked_by, marked_at, is_locked, remarks) VALUES (?, ?, ?, ?, ?, ?, ?, ?)";
+    private static final String SELECT_BY_ID = "SELECT * FROM student_attendance WHERE attendance_id = ?";
+    private static final String SELECT_BY_SECTION_AND_DATE = "SELECT sa.* FROM student_attendance sa JOIN student_classes sc ON sa.student_class_id = sc.student_class_id WHERE sc.section_id = ? AND sa.attendance_date = ? ORDER BY sa.attendance_id";
+    private static final String SELECT_BY_STUDENT = "SELECT sa.* FROM student_attendance sa JOIN student_classes sc ON sa.student_class_id = sc.student_class_id WHERE sc.student_id = ? AND sa.attendance_date BETWEEN ? AND ? ORDER BY sa.attendance_date";
+    private static final String UPDATE_STATUS = "UPDATE student_attendance SET status = ? WHERE attendance_id = ?";
+    private static final String LOCK_DATE = "UPDATE student_attendance sa JOIN student_classes sc ON sa.student_class_id = sc.student_class_id SET sa.is_locked = TRUE WHERE sc.section_id = ? AND sa.attendance_date = ?";
 
     @Override
     public boolean insertStudentAttendance(List<StudentAttendance> attendanceRecords) {
