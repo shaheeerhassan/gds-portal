@@ -11,7 +11,7 @@ public class Mark {
     private long markId;
     private long examinationId;
     private long studentId;
-    private double marksObtained;
+    private Double marksObtained;
     private String grade;
     private String remarks;
     private long enteredBy;
