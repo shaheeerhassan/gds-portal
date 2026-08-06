@@ -18,7 +18,7 @@ public class StudentDaoImpl implements StudentDao {
     private static final String SELECT_ALL = "SELECT * FROM students ORDER BY student_id";
     private static final String SELECT_BY_NAME = "SELECT * FROM students WHERE first_name LIKE ? OR last_name LIKE ? ORDER BY student_id";
     private static final String SELECT_BY_CLASS = "SELECT DISTINCT s.* FROM students s JOIN student_classes sc ON s.student_id = sc.student_id WHERE sc.class_id = ? AND sc.academic_year_id = ? AND sc.is_active = TRUE ORDER BY sc.roll_number, s.student_id";
-    private static final String SELECT_BY_SECTION = "SELECT DISTINCT s.* FROM students s JOIN student_classes sc ON s.student_id = sc.student_id WHERE sc.section_id = ? AND sc.is_active = TRUE ORDER BY sc.roll_number, s.student_id";
+    private static final String SELECT_BY_SECTION = "SELECT DISTINCT s.* FROM students s JOIN student_classes sc ON s.student_id = sc.student_id WHERE sc.section_id = ? AND sc.academic_year_id = (SELECT academic_year_id FROM sections WHERE section_id = ?) AND sc.is_active = TRUE ORDER BY sc.roll_number, s.student_id";
     private static final String SELECT_BY_PARENT = "SELECT DISTINCT s.* FROM students s JOIN student_parent_links spl ON s.student_id = spl.student_id WHERE spl.parent_id = ? ORDER BY s.student_id";
     private static final String UPDATE = "UPDATE students SET registration_number = ?, first_name = ?, last_name = ?, date_of_birth = ?, gender = ?, admission_date = ? WHERE student_id = ?";
     private static final String UPDATE_STATUS = "UPDATE students SET is_active = ? WHERE student_id = ?";
@@ -118,6 +118,7 @@ public class StudentDaoImpl implements StudentDao {
              PreparedStatement ps = cn.prepareStatement(SELECT_BY_SECTION)) {
 
             ps.setInt(1, sectionId);
+            ps.setInt(2, sectionId);
 
             try (ResultSet resultSet = ps.executeQuery()) {
                 List<Student> students = new ArrayList<>();

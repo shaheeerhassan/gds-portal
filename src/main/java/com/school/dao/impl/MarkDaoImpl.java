@@ -48,6 +48,8 @@ public class MarkDaoImpl implements MarkDao {
                         marks.get(index).setMarkId(resultSet.getLong(1));
                         index++;
                     }
+                    if (index < marks.size())
+                        throw new SQLException("Not all mark records received generated keys.");
                 }
             }
 
