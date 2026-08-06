@@ -1,5 +1,6 @@
 package com.school.model;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import lombok.*;
 import java.time.LocalDateTime;
 
@@ -12,6 +13,7 @@ public class User {
     private int roleId;
     private String username;
     private String email;
+    @JsonIgnore
     private String passwordHash;
     private String profilePictureUrl;
     private boolean isActive;

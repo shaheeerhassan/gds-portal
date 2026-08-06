@@ -1,5 +1,6 @@
 package com.school.model;
 
+import com.fasterxml.jackson.annotation.JsonAlias;
 import lombok.*;
 
 @NoArgsConstructor
@@ -13,5 +14,6 @@ public class Principal {
     private String firstName;
     private String lastName;
     private String phone;
+    @JsonAlias("isActive")
     private boolean isActive;
 }

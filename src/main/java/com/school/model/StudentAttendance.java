@@ -1,5 +1,6 @@
 package com.school.model;
 
+import com.fasterxml.jackson.annotation.JsonAlias;
 import lombok.*;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
@@ -17,6 +18,7 @@ public class StudentAttendance {
     private int periodId;
     private long markedBy;
     private LocalDateTime markedAt;
+    @JsonAlias("isLocked")
     private boolean isLocked;
     private String remarks;
 }
