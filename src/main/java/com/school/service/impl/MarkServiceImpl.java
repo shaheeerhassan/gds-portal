@@ -85,6 +85,10 @@ public class MarkServiceImpl implements MarkService {
         if (existing == null)
             throw new ResourceNotFoundException("Mark not found.");
 
+        if (mark.getExaminationId() == 0)
+            mark.setExaminationId(existing.getExaminationId());
+        if (mark.getStudentId() == 0)
+            mark.setStudentId(existing.getStudentId());
         if (mark.getMarksObtained() == null)
             mark.setMarksObtained(existing.getMarksObtained());
         if (mark.getGrade() == null)

@@ -74,13 +74,15 @@ public class AdministratorServiceImpl implements AdministratorService {
 
     @Override
     public void updateAdministrator(Administrator administrator) {
-        validateId(administrator.getAdminId(), administrator.getUserId());
+        validateId(administrator.getAdminId());
 
         Administrator existing = administratorDao.getAdministratorById(administrator.getAdminId());
 
         if (existing == null)
             throw new ResourceNotFoundException("Administrator not found.");
 
+        if (administrator.getUserId() == 0)
+            administrator.setUserId(existing.getUserId());
         if (administrator.getEmployeeId() == null)
             administrator.setEmployeeId(existing.getEmployeeId());
         if (administrator.getFirstName() == null)

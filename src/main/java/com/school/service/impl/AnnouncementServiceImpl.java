@@ -69,6 +69,8 @@ public class AnnouncementServiceImpl implements AnnouncementService {
         if (existing == null)
             throw new ResourceNotFoundException("Announcement not found.");
 
+        if (announcement.getCreatedBy() == 0)
+            announcement.setCreatedBy(existing.getCreatedBy());
         if (announcement.getTitle() == null)
             announcement.setTitle(existing.getTitle());
         if (announcement.getContent() == null)

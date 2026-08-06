@@ -60,7 +60,7 @@ public class AuthenticationServiceImpl implements AuthenticationService {
     @Override
     public void changePassword(long userId, String currentPassword, String newPassword) {
         validateId(userId);
-        validatePassword(currentPassword);
+        currentPassword = validateRequired(currentPassword, "Current password");
         validatePassword(newPassword);
 
         User user = userDao.getUserById(userId);
@@ -108,7 +108,7 @@ public class AuthenticationServiceImpl implements AuthenticationService {
         PasswordResetToken resetToken = passwordResetTokenDao.getToken(tokenHash);
         if (resetToken == null || resetToken.isUsed())
             throw new UnauthorizedException("Invalid or already used reset token.");
-        if (resetToken.getExpiresAt().isBefore(LocalDateTime.now()))
+        if (resetToken.getExpiresAt() == null || resetToken.getExpiresAt().isBefore(LocalDateTime.now()))
             throw new UnauthorizedException("Reset token has expired.");
 
         if (!passwordResetTokenDao.markTokenAsUsed(tokenHash))

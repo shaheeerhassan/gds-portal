@@ -32,7 +32,8 @@ public class StudentAttendanceServiceImpl implements StudentAttendanceService {
                 throw new ValidationException("Attendance date is required.");
             if (record.getStatus() == null)
                 throw new ValidationException("Attendance status is required.");
-            if (studentAttendanceDao.existsAttendance(record.getStudentClassId(), record.getAttendanceDate()))
+            Integer periodId = record.getPeriodId() > 0 ? record.getPeriodId() : null;
+            if (studentAttendanceDao.existsAttendance(record.getStudentClassId(), record.getAttendanceDate(), periodId))
                 throw new BusinessRuleException("Attendance already recorded for this student on this date.");
             if (studentAttendanceDao.isAttendanceLocked(record.getStudentClassId(), record.getAttendanceDate()))
                 throw new BusinessRuleException("Attendance is locked for this date and cannot be modified.");

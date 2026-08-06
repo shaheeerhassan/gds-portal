@@ -85,6 +85,8 @@ public class PeriodServiceImpl implements PeriodService {
         for (Period existing : periodDao.getAllPeriods()) {
             if (existing.getPeriodId() == excludePeriodId)
                 continue;
+            if (existing.getStartTime() == null || existing.getEndTime() == null)
+                continue;
             boolean overlaps = existing.getStartTime().isBefore(period.getEndTime())
                     && existing.getEndTime().isAfter(period.getStartTime());
             if (overlaps)

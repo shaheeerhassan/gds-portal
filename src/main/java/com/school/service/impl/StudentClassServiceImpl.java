@@ -25,8 +25,7 @@ public class StudentClassServiceImpl implements StudentClassService {
     public StudentClass enrollStudent(StudentClass studentClass) {
         validateId(studentClass.getStudentId(), studentClass.getClassId(), studentClass.getSectionId(), studentClass.getAcademicYearId());
         validateRequired(studentClass.getRollNumber(), "Roll No");
-        if (studentClass.isActive())
-            studentClass.setActive(true);
+        studentClass.setActive(true);
 
         if (studentClassDao.isStudentEnrolled(studentClass.getStudentId(), studentClass.getAcademicYearId()))
             throw new DuplicateResourceException("Student is already enrolled for this academic year.");
