@@ -11,8 +11,11 @@ import com.school.service.interfaces.UserService;
 import com.school.utils.PasswordEncryption;
 import com.school.utils.UsernameGenerator;
 
+import java.sql.Connection;
+import java.sql.SQLException;
 import java.util.List;
 
+import static com.school.config.DBConfig.getDataSource;
 import static com.school.validations.ValidatorUtil.*;
 
 public class UserServiceImpl implements UserService {
@@ -25,6 +28,15 @@ public class UserServiceImpl implements UserService {
 
     @Override
     public User createUser(User user, String password) {
+        try (Connection cn = getDataSource().getConnection()) {
+            return createUser(user, password, cn);
+        } catch (SQLException e) {
+            throw new DaoException("Error creating user", e);
+        }
+    }
+
+    @Override
+    public User createUser(User user, String password, Connection cn) {
         user.setEmail(validateEmail(user.getEmail()));
         validatePassword(password);
         validateId(user.getRoleId());
@@ -46,7 +58,7 @@ public class UserServiceImpl implements UserService {
             }
 
             try {
-                if (userDao.insertUser(user)) {
+                if (userDao.insertUser(user, cn)) {
                     return user;
                 }
                 user.setUsername(null);

@@ -1,10 +1,12 @@
 package com.school.dao.interfaces;
 
 import com.school.model.Student;
+import java.sql.Connection;
 import java.util.List;
 
 public interface StudentDao {
     boolean insertStudent(Student student);
+    boolean insertStudent(Student student, Connection connection);
 
     List<Student> getAllStudents();
     List<Student> getAllStudentsByName(String name);

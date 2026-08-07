@@ -11,6 +11,7 @@ import javax.crypto.SecretKey;
 import java.nio.charset.StandardCharsets;
 import java.util.Base64;
 import java.util.Date;
+import java.util.UUID;
 
 public final class JwtUtil {
 
@@ -25,6 +26,7 @@ public final class JwtUtil {
         return Jwts.builder()
                 .issuer(ISSUER)
                 .subject(String.valueOf(userId))
+                .id(UUID.randomUUID().toString())
                 .claim("role", roleName)
                 .issuedAt(new Date(now))
                 .expiration(new Date(expiresAtMillis))
@@ -48,6 +50,7 @@ public final class JwtUtil {
             result.setUserId(Long.parseLong(claims.getSubject()));
             result.setRoleName(claims.get("role", String.class));
             result.setExpiresAt(claims.getExpiration().getTime());
+            result.setJti(claims.getId());
             return result;
         } catch (JwtException | IllegalArgumentException e) {
             return null;
@@ -60,7 +63,7 @@ public final class JwtUtil {
             throw new IllegalStateException("JWT_SECRET is not configured. Set a base64 secret (>= 32 bytes) in the .env file.");
         byte[] keyBytes;
         try {
-            keyBytes = Base64.getDecoder().decode(secret);
+            keyBytes = Base64.getUrlDecoder().decode(secret);
         } catch (IllegalArgumentException e) {
             keyBytes = secret.getBytes(StandardCharsets.UTF_8);
         }
@@ -77,5 +80,6 @@ public final class JwtUtil {
         private long userId;
         private String roleName;
         private long expiresAt;
+        private String jti;
     }
 }

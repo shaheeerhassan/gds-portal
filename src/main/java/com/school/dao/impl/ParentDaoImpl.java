@@ -24,8 +24,16 @@ public class ParentDaoImpl implements ParentDao {
 
     @Override
     public boolean insertParent(Parent parent) {
-        try (Connection cn = getDataSource().getConnection();
-             PreparedStatement ps = cn.prepareStatement(INSERT, Statement.RETURN_GENERATED_KEYS)) {
+        try (Connection cn = getDataSource().getConnection()) {
+            return insertParent(parent, cn);
+        } catch (SQLException e) {
+            throw new DaoException("Error inserting parent", e);
+        }
+    }
+
+    @Override
+    public boolean insertParent(Parent parent, Connection cn) {
+        try (PreparedStatement ps = cn.prepareStatement(INSERT, Statement.RETURN_GENERATED_KEYS)) {
 
             ps.setLong(1, parent.getUserId());
             ps.setString(2, parent.getFirstName());

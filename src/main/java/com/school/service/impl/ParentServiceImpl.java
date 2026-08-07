@@ -2,6 +2,7 @@ package com.school.service.impl;
 
 import com.school.dao.impl.ParentDaoImpl;
 import com.school.dao.interfaces.ParentDao;
+import com.school.exceptions.DaoException;
 import com.school.exceptions.ResourceNotFoundException;
 import com.school.exceptions.ValidationException;
 import com.school.model.Parent;
@@ -11,8 +12,11 @@ import com.school.service.interfaces.ParentService;
 import com.school.service.interfaces.RoleService;
 import com.school.service.interfaces.UserService;
 
+import java.sql.Connection;
+import java.sql.SQLException;
 import java.util.List;
 
+import static com.school.config.DBConfig.getDataSource;
 import static com.school.validations.ValidatorUtil.*;
 
 public class ParentServiceImpl implements ParentService {
@@ -34,18 +38,25 @@ public class ParentServiceImpl implements ParentService {
         parent.setPhone(validatePhone(parent.getPhone()));
 
         user.setRoleId(roleService.getRoleByName("PARENT").getRoleId());
-        user = userService.createUser(user, password);
 
-        parent.setUserId(user.getUserId());
-        parent.setActive(true);
+        try (Connection cn = getDataSource().getConnection()) {
+            cn.setAutoCommit(false);
+            try {
+                user = userService.createUser(user, password, cn);
 
-        try {
-            if (!parentDao.insertParent(parent)) {
-                throw new IllegalStateException("Failed to create parent.");
+                parent.setUserId(user.getUserId());
+                parent.setActive(true);
+
+                if (!parentDao.insertParent(parent, cn))
+                    throw new IllegalStateException("Failed to create parent.");
+
+                cn.commit();
+            } catch (Exception e) {
+                try { cn.rollback(); } catch (SQLException ignore) {}
+                throw e;
             }
-        } catch (Exception e) {
-            userService.deleteUser(user.getUserId());
-            throw e;
+        } catch (SQLException e) {
+            throw new DaoException("Error creating parent", e);
         }
 
         return parent;

@@ -30,8 +30,16 @@ public class TeacherDaoImpl implements TeacherDao {
 
     @Override
     public boolean insertTeacher(Teacher teacher) {
-        try (Connection cn = getDataSource().getConnection();
-             PreparedStatement ps = cn.prepareStatement(INSERT, Statement.RETURN_GENERATED_KEYS)) {
+        try (Connection cn = getDataSource().getConnection()) {
+            return insertTeacher(teacher, cn);
+        } catch (SQLException e) {
+            throw new DaoException("Error inserting teacher", e);
+        }
+    }
+
+    @Override
+    public boolean insertTeacher(Teacher teacher, Connection cn) {
+        try (PreparedStatement ps = cn.prepareStatement(INSERT, Statement.RETURN_GENERATED_KEYS)) {
 
             ps.setLong(1, teacher.getUserId());
             ps.setString(2, teacher.getEmployeeId());

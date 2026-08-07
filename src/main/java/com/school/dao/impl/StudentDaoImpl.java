@@ -25,8 +25,16 @@ public class StudentDaoImpl implements StudentDao {
 
     @Override
     public boolean insertStudent(Student student) {
-        try (Connection cn = getDataSource().getConnection();
-             PreparedStatement ps = cn.prepareStatement(INSERT, Statement.RETURN_GENERATED_KEYS)) {
+        try (Connection cn = getDataSource().getConnection()) {
+            return insertStudent(student, cn);
+        } catch (SQLException e) {
+            throw new DaoException("Error inserting student", e);
+        }
+    }
+
+    @Override
+    public boolean insertStudent(Student student, Connection cn) {
+        try (PreparedStatement ps = cn.prepareStatement(INSERT, Statement.RETURN_GENERATED_KEYS)) {
 
             ps.setLong(1, student.getUserId());
             ps.setString(2, student.getRegistrationNumber());

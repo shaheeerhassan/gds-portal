@@ -1,5 +1,7 @@
 package com.school.web.auth;
 
+import com.school.service.impl.RevokedTokenServiceImpl;
+import com.school.service.interfaces.RevokedTokenService;
 import com.school.web.dto.ApiResponse;
 import com.school.web.util.JsonUtil;
 
@@ -20,6 +22,8 @@ public class JwtAuthFilter implements Filter {
 
     private static final String AUTH_HEADER = "Authorization";
     private static final String BEARER_PREFIX = "Bearer ";
+
+    private final RevokedTokenService revokedTokenService = new RevokedTokenServiceImpl();
 
     private static final Set<String> PUBLIC_PATHS = Set.of(
             "/api/auth/login",
@@ -62,6 +66,12 @@ public class JwtAuthFilter implements Filter {
         if (claims == null) {
             JsonUtil.writeJson(response, HttpServletResponse.SC_UNAUTHORIZED,
                     ApiResponse.error("Invalid or expired token.", HttpServletResponse.SC_UNAUTHORIZED));
+            return;
+        }
+
+        if (revokedTokenService.isRevoked(claims.getJti())) {
+            JsonUtil.writeJson(response, HttpServletResponse.SC_UNAUTHORIZED,
+                    ApiResponse.error("Token has been revoked.", HttpServletResponse.SC_UNAUTHORIZED));
             return;
         }
 
