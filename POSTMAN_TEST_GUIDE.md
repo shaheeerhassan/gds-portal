@@ -669,31 +669,31 @@ Legend: `A`=ADMINISTRATOR, `P`=PRINCIPAL, `T`=TEACHER, `S`=STUDENT, `Pa`=PARENT,
 
 ### 5.17 Assignments — `/api/assignments/*`
 
-| Method | Path | Roles | Notes |
-|---|---|---|---|
+| Method | Path | Roles   | Notes |
+|---|---|---------|---|
 | GET | `/id/{id}` | A, P, T | |
 | GET | `/section/{sectionId}/{academicYearId}` | A, P, T | |
 | GET | `/teacher/{teacherId}/{academicYearId}` | A, P, T | **T self** |
-| POST | `/` | A, P, T | always pass `teacherId` explicitly |
-| PUT | `/publish/{id}` | A, P, T | |
-| PUT | `/{id}` | A, P, T | |
+| POST | `/` | T       | always pass `teacherId` explicitly |
+| PUT | `/publish/{id}` | T       | |
+| PUT | `/{id}` | T       | |
 | DELETE | `/{id}` | A, P, T | |
 
 ### 5.18 Submissions — `/api/submissions/*`
 
-| Method | Path | Roles | Notes |
-|---|---|---|---|
-| GET | `/count/{assignmentId}` | A, P, T | |
-| GET | `/id/{submissionId}` | S(own), A, P, T | |
-| GET | `/assignment/{assignmentId}` | A, P, T | |
-| GET | `/assignment/{assignmentId}/student/{studentId}` | S(own), A, P, T | |
-| GET | `/student/{studentId}` | S(own), A, P, T | |
-| GET | `/status/{status}` | A, P, T | `status` = `SUBMITTED, LATE, GRADED` |
-| POST | `/` | S, A, P | **TEACHER not allowed** |
-| PUT | `/grade/{submissionId}` | A, P, T | `{marksAwarded, feedback, gradedBy}` |
-| PUT | `/late/{submissionId}` | A, P, T | mark as late |
+| Method | Path | Roles | Notes                                                        |
+|---|---|---|--------------------------------------------------------------|
+| GET | `/count/{assignmentId}` | A, P, T |                                                              |
+| GET | `/id/{submissionId}` | S(own), A, P, T |                                                              |
+| GET | `/assignment/{assignmentId}` | A, P, T |                                                              |
+| GET | `/assignment/{assignmentId}/student/{studentId}` | S(own), A, P, T |                                                              |
+| GET | `/student/{studentId}` | S(own), A, P, T |                                                              |
+| GET | `/status/{status}` | A, P, T | `status` = `SUBMITTED, LATE, GRADED`                         |
+| POST | `/` | S | **TEACHER, ADMIN, PRINCIPAL not allowed**                    |
+| PUT | `/grade/{submissionId}` | A, P, T | `{marksAwarded, feedback, gradedBy}`                         |
+| PUT | `/late/{submissionId}` | A, P, T | mark as late                                                 |
 | PUT | `/{submissionId}` | S(own), A, P | student can edit only their own, grading fields are stripped |
-| DELETE | `/{submissionId}` | S(own), A, P | |
+| DELETE | `/{submissionId}` | S(own), A, P |                                                              |
 
 **Submission create body (as STUDENT):**
 ```json

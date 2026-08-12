@@ -72,12 +72,12 @@ public class AssignmentController extends BaseServlet {
 
     @Override
     protected void doPost(HttpServletRequest req, HttpServletResponse resp) throws IOException {
-        RoleGuard.requireRole(req, ROLE_ADMIN, ROLE_PRINCIPAL, ROLE_TEACHER);
+        RoleGuard.requireRole(req, ROLE_TEACHER);
         Assignment assignment = readBody(req, Assignment.class);
         if (assignment == null)
             throw new ValidationException("Request body is required.");
         if (assignment.getTeacherId() == 0)
-            assignment.setTeacherId(AuthContext.getUserId(req));
+            assignment.setTeacherId(teacherService.getTeacherByUserId(AuthContext.getUserId(req)).getTeacherId());
         if (assignment.getCreatedAt() == null)
             assignment.setCreatedAt(java.time.LocalDateTime.now());
         writeJson(resp, assignmentService.createAssignment(assignment), "Assignment created.");
@@ -85,19 +85,37 @@ public class AssignmentController extends BaseServlet {
 
     @Override
     protected void doPut(HttpServletRequest req, HttpServletResponse resp) throws IOException {
-        RoleGuard.requireRole(req, ROLE_ADMIN, ROLE_PRINCIPAL, ROLE_TEACHER);
+        RoleGuard.requireRole(req, ROLE_TEACHER);
         String path = pathInfo(req);
 
+        long currentTeacherId = teacherService.getTeacherByUserId(AuthContext.getUserId(req)).getTeacherId();
+
         if (path.startsWith("/publish/")) {
-            assignmentService.publishAssignment(parseLong(path.substring("/publish/".length())));
+            long assignmentId = parseLong(path.substring("/publish/".length()));
+            Assignment originalAssignment = assignmentService.getAssignmentById(assignmentId);
+
+            if (originalAssignment.getTeacherId() != currentTeacherId) {
+                throw new UnauthorizedException("Teachers can only publish their own assignments.");
+            }
+
+            assignmentService.publishAssignment(assignmentId);
             writeStatusMessage(resp, "Assignment published.");
             return;
         }
+
         long assignmentId = parseLong(path.substring(1));
         Assignment assignment = readBody(req, Assignment.class);
         if (assignment == null)
             throw new ValidationException("Request body is required.");
+
+        Assignment originalAssignment = assignmentService.getAssignmentById(assignmentId);
+
+        if (originalAssignment.getTeacherId() != currentTeacherId) {
+            throw new UnauthorizedException("Teachers can only update their own assignments.");
+        }
+
         assignment.setAssignmentId(assignmentId);
+        assignment.setTeacherId(originalAssignment.getTeacherId());
         assignmentService.updateAssignment(assignment);
         writeStatusMessage(resp, "Assignment updated.");
     }

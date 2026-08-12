@@ -1,5 +1,6 @@
 package com.school.service.impl;
 
+import com.fasterxml.jackson.annotation.JacksonAnnotationsInside;
 import com.school.dao.impl.UserDaoImpl;
 import com.school.dao.interfaces.StudentDao;
 import com.school.dao.interfaces.UserDao;
@@ -54,16 +55,24 @@ public class UserServiceImpl implements UserService {
         int attempts = 0;
         while (attempts < 3) {
             if (user.getUsername() == null) {
-                user.setUsername(UsernameGenerator.generateUsername());
+                String candidate = UsernameGenerator.generateUsername();
+
+                if (userDao.getUserByUsername(candidate) != null) {
+                    attempts++;
+                    continue;
+                }
+                user.setUsername(candidate);
             }
 
             try {
                 if (userDao.insertUser(user, cn)) {
                     return user;
                 }
+
                 user.setUsername(null);
                 attempts++;
             } catch (DaoException e) {
+                // Handle unexpected database error
                 user.setUsername(null);
                 attempts++;
             }

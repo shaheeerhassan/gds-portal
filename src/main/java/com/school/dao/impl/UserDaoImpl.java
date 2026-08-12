@@ -57,7 +57,7 @@ public class UserDaoImpl implements UserDao {
 
             try (ResultSet resultSet = ps.getGeneratedKeys()) {
                 if (resultSet.next()) {
-                    user.setUserId(resultSet.getLong("user_id"));
+                    user.setUserId(resultSet.getLong(1));
                     user.setCreatedAt(creationAndUpdateTime);
                     user.setUpdatedAt(creationAndUpdateTime);
                 }
