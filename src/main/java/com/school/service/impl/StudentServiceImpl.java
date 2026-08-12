@@ -167,9 +167,16 @@ public class StudentServiceImpl implements StudentService {
 
     @Override
     public void deactivateStudent(long studentId) {
-        validateId(studentId);
-        if (!studentDao.deleteStudent(studentId, false))
+        if (studentDao.getStudentByStudentId(studentId) == null)
             throw new ResourceNotFoundException("Student not found.");
+        studentDao.deleteStudent(studentId, false);
+        User user = userService.getUserById(studentDao.getStudentByStudentId(studentId).getUserId());
+        userService.updateUserStatus(user.getUserId(), false);
+    }
+
+    @Override
+    public int getActiveStudentCount() {
+        return studentDao.countActiveStudents();
     }
 
     private void validateStudent(Student student) {

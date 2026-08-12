@@ -11,6 +11,7 @@ public interface AnnouncementService {
     List<Announcement> getAnnouncementsByTargetRole(int roleId);
     List<Announcement> getAnnouncementsByTargetClass(int classId);
     List<Announcement> getAnnouncementsByTargetSection(int sectionId);
+    List<Announcement> getGlobalAnnouncements();
     void updateAnnouncement(Announcement announcement);
     void disableAnnouncement(long announcementId);
 }

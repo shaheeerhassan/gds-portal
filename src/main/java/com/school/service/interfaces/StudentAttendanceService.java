@@ -12,4 +12,5 @@ public interface StudentAttendanceService {
     List<StudentAttendance> getStudentAttendanceByStudentId(long studentId, LocalDate startDate, LocalDate endDate);
     void updateStudentAttendance(long attendanceId, StudentAttendance.Status status);
     void lockAttendanceForDate(LocalDate date, int sectionId);
+    int getPresentStudentCountToday();
 }

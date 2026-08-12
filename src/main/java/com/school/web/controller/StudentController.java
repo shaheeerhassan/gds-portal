@@ -53,6 +53,11 @@ public class StudentController extends BaseServlet {
                 writeJson(resp, studentService.getAllStudents());
                 return;
             }
+            case "/count": {
+                RoleGuard.requireRole(req, ROLE_ADMIN, ROLE_PRINCIPAL);
+                writeJson(resp, studentService.getActiveStudentCount());
+                return;
+            }
             default:
                 if (path.startsWith("/class/")) {
                     RoleGuard.requireRole(req, ROLE_ADMIN, ROLE_PRINCIPAL, ROLE_TEACHER);

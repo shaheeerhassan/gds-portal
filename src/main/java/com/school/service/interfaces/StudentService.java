@@ -17,4 +17,5 @@ public interface StudentService {
     List<Student> getStudentsByParentId(long parentId);
     void updateStudent(Student student);
     void deactivateStudent(long studentId);
+    int getActiveStudentCount();
 }

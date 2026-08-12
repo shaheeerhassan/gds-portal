@@ -11,6 +11,7 @@ public interface StudentAttendanceDao {
         boolean lockAttendanceForDate(LocalDate date, int sectionId);
         boolean existsAttendance(long studentClassId, LocalDate date, Integer periodId);
         boolean isAttendanceLocked(long studentClassId, LocalDate date);
+        int countPresentStudents(LocalDate date);
 
         List<StudentAttendance> getStudentAttendanceBySectionAndDate(int sectionId, LocalDate date);
         List<StudentAttendance> getStudentAttendanceByStudentId(long studentId, LocalDate startDate, LocalDate endDate);

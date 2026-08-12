@@ -20,4 +20,5 @@ public interface StudentDao {
 
     boolean updateStudentDetails(Student student);
     boolean deleteStudent(long studentId, boolean isActive);
+    int countActiveStudents();
 }
