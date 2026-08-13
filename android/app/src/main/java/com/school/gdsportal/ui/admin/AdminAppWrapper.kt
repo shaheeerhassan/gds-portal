@@ -261,8 +261,17 @@ fun AdminAppWrapper(
                 ParentPlaceholderScreen(title = "Edit Parent ($parentId)", onBack = { navController.navigateUp() })
             }
             composable("parents/{parentId}/students") { backStackEntry ->
-                val parentId = backStackEntry.arguments?.getString("parentId")
-                ParentPlaceholderScreen(title = "Linked Students ($parentId)", onBack = { navController.navigateUp() })
+                val parentIdStr = backStackEntry.arguments?.getString("parentId")
+                val parentId = parentIdStr?.toLongOrNull() ?: 0L
+                val factory = com.school.gdsportal.ui.admin.parents.ParentProfileViewModel.Companion.provideFactory(
+                    parentId = parentId,
+                    apiService = appContainer.apiService
+                )
+                val viewModel: com.school.gdsportal.ui.admin.parents.ParentProfileViewModel = viewModel(factory = factory)
+                com.school.gdsportal.ui.admin.parents.ParentStudentsScreen(
+                    viewModel = viewModel,
+                    onBackClick = { navController.navigateUp() }
+                )
             }
 
             composable("admin_academics_landing") {

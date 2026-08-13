@@ -106,11 +106,7 @@ fun ParentProfileScreen(
                     ParentIdentitySection(parent)
                     HorizontalDivider(modifier = Modifier.padding(vertical = 8.dp))
                     ParentContactSection(parent)
-                    HorizontalDivider(modifier = Modifier.padding(vertical = 8.dp))
-                    LinkedStudentsPreviewSection(
-                        students = uiState.linkedStudents,
-                        onViewAllClick = onViewAllStudentsClick
-                    )
+
                     HorizontalDivider(modifier = Modifier.padding(vertical = 8.dp))
                     NavigationRowSection(
                         onInformationClick = onParentInformationClick,
@@ -233,78 +229,6 @@ fun ParentContactSection(parent: Parent) {
     }
 }
 
-@Composable
-fun LinkedStudentsPreviewSection(
-    students: List<Student>,
-    onViewAllClick: () -> Unit
-) {
-    Column(
-        modifier = Modifier
-            .fillMaxWidth()
-            .padding(16.dp)
-    ) {
-        Row(
-            modifier = Modifier.fillMaxWidth(),
-            horizontalArrangement = Arrangement.SpaceBetween,
-            verticalAlignment = Alignment.CenterVertically
-        ) {
-            Row(verticalAlignment = Alignment.CenterVertically) {
-                Text(
-                    text = "Linked Students",
-                    style = MaterialTheme.typography.titleMedium,
-                    fontWeight = FontWeight.Bold
-                )
-                Spacer(modifier = Modifier.width(8.dp))
-                Box(
-                    modifier = Modifier
-                        .clip(CircleShape)
-                        .background(MaterialTheme.colorScheme.secondaryContainer)
-                        .padding(horizontal = 8.dp, vertical = 2.dp)
-                ) {
-                    Text(
-                        text = students.size.toString(),
-                        style = MaterialTheme.typography.labelSmall,
-                        color = MaterialTheme.colorScheme.onSecondaryContainer
-                    )
-                }
-            }
-            
-            TextButton(onClick = onViewAllClick) {
-                Text("View all →")
-            }
-        }
-        
-        Spacer(modifier = Modifier.height(8.dp))
-        
-        if (students.isEmpty()) {
-            Text(
-                text = "No linked students found.",
-                style = MaterialTheme.typography.bodyMedium,
-                color = MaterialTheme.colorScheme.onSurfaceVariant,
-                modifier = Modifier.padding(vertical = 8.dp)
-            )
-        } else {
-            students.take(3).forEach { student ->
-                Column(
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .padding(vertical = 8.dp)
-                ) {
-                    Text(
-                        text = "${student.firstName} ${student.lastName}",
-                        style = MaterialTheme.typography.bodyLarge,
-                        fontWeight = FontWeight.SemiBold
-                    )
-                    Text(
-                        text = student.registrationNumber,
-                        style = MaterialTheme.typography.bodyMedium,
-                        color = MaterialTheme.colorScheme.onSurfaceVariant
-                    )
-                }
-            }
-        }
-    }
-}
 
 @Composable
 fun NavigationRowSection(
