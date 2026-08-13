@@ -58,6 +58,18 @@ interface ApiService {
     @GET("api/subjects/count")
     suspend fun getSubjectsCount(): Response<ApiResponse<Int>>
 
+    @GET("api/academic-years/")
+    suspend fun getAcademicYears(): Response<ApiResponse<List<AcademicYear>>>
+
+    @GET("api/classes/")
+    suspend fun getClasses(): Response<ApiResponse<List<com.school.gdsportal.data.remote.SchoolClass>>>
+
+    @GET("api/sections/class/{classId}/{academicYearId}")
+    suspend fun getSections(
+        @Path("classId") classId: Int,
+        @Path("academicYearId") academicYearId: Int
+    ): Response<ApiResponse<List<com.school.gdsportal.data.remote.Section>>>
+
     @GET("api/students/directory")
     suspend fun getStudentsDirectory(
         @Query("q") query: String?,

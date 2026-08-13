@@ -15,7 +15,7 @@ data class Role(
 )
 
 data class AcademicYear(
-    val id: Int,
+    val academicYearId: Int,
     val yearName: String,
     val startDate: String,
     val endDate: String,
@@ -42,4 +42,20 @@ data class TeacherAttendance(
 
 data class NotificationCountResponse(
     val count: Int
+)
+
+data class SchoolClass(
+    val classId: Int,
+    val className: String,
+    val numericLevel: Int,
+    val description: String?
+)
+
+data class Section(
+    val sectionId: Int,
+    val classId: Int,
+    val academicYearId: Int,
+    val sectionName: String,
+    val capacity: Int?,
+    val roomNumber: String?
 )
