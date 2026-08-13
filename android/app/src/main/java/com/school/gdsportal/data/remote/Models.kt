@@ -92,3 +92,19 @@ data class Parent(
     val occupation: String?,
     val active: Boolean
 )
+
+data class CreateStudentRequest(
+    val email: String,
+    val username: String?,
+    val password: String,
+    val student: CreateStudentData
+)
+
+data class CreateStudentData(
+    val firstName: String,
+    val lastName: String,
+    val registrationNumber: String,
+    val admissionDate: String,
+    val gender: String,
+    val dateOfBirth: String?
+)
