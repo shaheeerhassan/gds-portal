@@ -59,3 +59,26 @@ data class Section(
     val capacity: Int?,
     val roomNumber: String?
 )
+
+data class Student(
+    val studentId: Long,
+    val userId: Long,
+    val registrationNumber: String,
+    val firstName: String,
+    val lastName: String,
+    val dateOfBirth: String?,
+    val gender: String?,
+    val admissionDate: String?,
+    val isActive: Boolean
+)
+
+data class Enrollment(
+    val studentClassId: Long,
+    val studentId: Long,
+    val classId: Int,
+    val sectionId: Int,
+    val academicYearId: Int,
+    val rollNumber: String?,
+    val enrollmentDate: String?,
+    val isActive: Boolean
+)

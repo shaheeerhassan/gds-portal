@@ -80,4 +80,10 @@ interface ApiService {
         @Query("page") page: Int,
         @Query("size") size: Int
     ): Response<ApiResponse<PaginatedResponse<StudentDirectoryDTO>>>
+
+    @GET("api/students/{studentId}")
+    suspend fun getStudent(@Path("studentId") studentId: Long): Response<ApiResponse<com.school.gdsportal.data.remote.Student>>
+
+    @GET("api/enrollments/current/{studentId}")
+    suspend fun getCurrentEnrollment(@Path("studentId") studentId: Long): Response<ApiResponse<com.school.gdsportal.data.remote.Enrollment>>
 }

@@ -104,8 +104,22 @@ fun AdminAppWrapper(
                 StudentPlaceholderScreen(title = "Create Student", onBack = { navController.navigateUp() })
             }
             composable("students/{studentId}") { backStackEntry ->
-                val studentId = backStackEntry.arguments?.getString("studentId")
-                StudentPlaceholderScreen(title = "Student Profile ($studentId)", onBack = { navController.navigateUp() })
+                val studentId = backStackEntry.arguments?.getString("studentId")?.toLongOrNull() ?: 0L
+                val factory = com.school.gdsportal.ui.admin.students.profile.StudentProfileViewModel.provideFactory(
+                    studentId = studentId,
+                    apiService = appContainer.apiService
+                )
+                val profileViewModel: com.school.gdsportal.ui.admin.students.profile.StudentProfileViewModel = viewModel(factory = factory)
+                
+                com.school.gdsportal.ui.admin.students.profile.StudentProfileScreen(
+                    viewModel = profileViewModel,
+                    onBackClick = { navController.navigateUp() },
+                    onEditClick = { navController.navigate("students/$studentId/edit") },
+                    onPersonalClick = { navController.navigate("students/$studentId/personal") },
+                    onEnrollmentClick = { navController.navigate("students/$studentId/enrollment") },
+                    onParentsClick = { navController.navigate("students/$studentId/parents") },
+                    onEnrollClick = { navController.navigate("students/$studentId/enroll") }
+                )
             }
             composable("students/{studentId}/personal") { backStackEntry ->
                 val studentId = backStackEntry.arguments?.getString("studentId")
