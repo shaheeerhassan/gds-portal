@@ -1,0 +1,57 @@
+package com.school.gdsportal.network
+
+import retrofit2.http.GET
+import retrofit2.http.POST
+import retrofit2.http.Body
+import retrofit2.http.Path
+import retrofit2.Response
+import com.google.gson.JsonObject
+
+// Placeholder API Service. You will provide Data Classes later.
+import com.school.gdsportal.data.remote.LoginRequest
+import com.school.gdsportal.data.remote.LoginResponse
+import com.school.gdsportal.data.remote.User
+import com.school.gdsportal.data.remote.AcademicYear
+import com.school.gdsportal.data.remote.Announcement
+import com.school.gdsportal.data.remote.TeacherAttendance
+import com.school.gdsportal.data.remote.NotificationCountResponse
+
+import com.school.gdsportal.data.remote.ApiResponse
+
+interface ApiService {
+    @POST("api/auth/login")
+    suspend fun login(@Body credentials: LoginRequest): Response<ApiResponse<LoginResponse>>
+    
+    @GET("api/users/me")
+    suspend fun getCurrentUser(): Response<ApiResponse<User>>
+
+    @GET("api/academic-years/current")
+    suspend fun getCurrentAcademicYear(): Response<ApiResponse<AcademicYear>>
+
+    @GET("api/students/count")
+    suspend fun getTotalStudentCount(): Response<ApiResponse<Int>>
+
+    @GET("api/attendance/students/present/count")
+    suspend fun getPresentStudentCount(): Response<ApiResponse<Int>>
+
+    @GET("api/teachers/count")
+    suspend fun getTotalTeacherCount(): Response<ApiResponse<Int>>
+
+    @GET("api/attendance/teachers/date/{date}")
+    suspend fun getTeacherAttendanceByDate(@Path("date") date: String): Response<ApiResponse<List<TeacherAttendance>>>
+
+    @GET("api/announcements/global")
+    suspend fun getGlobalAnnouncements(): Response<ApiResponse<List<Announcement>>>
+
+    @GET("api/notifications/me/unread-count")
+    suspend fun getUnreadNotificationCount(): Response<ApiResponse<Int>>
+
+    @GET("api/classes/count")
+    suspend fun getClassesCount(): Response<ApiResponse<Int>>
+
+    @GET("api/sections/count")
+    suspend fun getSectionsCount(): Response<ApiResponse<Int>>
+
+    @GET("api/subjects/count")
+    suspend fun getSubjectsCount(): Response<ApiResponse<Int>>
+}
