@@ -167,12 +167,32 @@ fun StudentsDirectoryScreen(
                     }
                     else -> {
                         LazyColumn(modifier = Modifier.fillMaxSize()) {
-                            items(uiState.students, key = { it.studentId }) { student ->
+                            items(uiState.students.size, key = { uiState.students[it].studentId }) { index ->
+                                val student = uiState.students[index]
                                 StudentRow(
                                     student = student,
                                     onClick = { onStudentClick(student.studentId) }
                                 )
                                 HorizontalDivider()
+                                
+                                if (index >= uiState.students.size - 2 && uiState.hasNextPage && !uiState.isFetchingNextPage) {
+                                    LaunchedEffect(index) {
+                                        viewModel.loadNextPage()
+                                    }
+                                }
+                            }
+                            
+                            if (uiState.isFetchingNextPage) {
+                                item {
+                                    Box(
+                                        modifier = Modifier
+                                            .fillMaxWidth()
+                                            .padding(16.dp),
+                                        contentAlignment = Alignment.Center
+                                    ) {
+                                        CircularProgressIndicator(modifier = Modifier.size(24.dp))
+                                    }
+                                }
                             }
                         }
                     }

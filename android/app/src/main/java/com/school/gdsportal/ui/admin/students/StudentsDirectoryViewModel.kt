@@ -22,6 +22,9 @@ data class StudentsDirectoryUiState(
     val error: String? = null,
     val students: List<StudentDirectoryDTO> = emptyList(),
     val totalStudents: Int = 0,
+    val currentPage: Int = 0,
+    val hasNextPage: Boolean = false,
+    val isFetchingNextPage: Boolean = false,
 
     // Filter options
     val academicYears: List<AcademicYear> = emptyList(),
@@ -190,18 +193,33 @@ class StudentsDirectoryViewModel(
     }
 
     fun retry() {
-        loadData(isDebounced = false)
+        loadData(isDebounced = false, isLoadMore = false)
     }
 
-    private fun loadData(isDebounced: Boolean) {
-        searchJob?.cancel()
+    fun loadNextPage() {
+        val state = _uiState.value
+        if (!state.hasNextPage || state.isFetchingNextPage || state.isLoading) return
+        loadData(isDebounced = false, isLoadMore = true)
+    }
+
+    private fun loadData(isDebounced: Boolean, isLoadMore: Boolean = false) {
+        if (!isLoadMore) {
+            searchJob?.cancel()
+        }
         
-        searchJob = viewModelScope.launch {
+        val job = viewModelScope.launch {
             if (isDebounced) {
                 delay(500)
             }
             
-            _uiState.update { it.copy(isLoading = true, error = null) }
+            val state = _uiState.value
+            val targetPage = if (isLoadMore) state.currentPage + 1 else 0
+
+            if (isLoadMore) {
+                _uiState.update { it.copy(isFetchingNextPage = true, error = null) }
+            } else {
+                _uiState.update { it.copy(isLoading = true, error = null) }
+            }
             
             try {
                 val state = _uiState.value
@@ -213,23 +231,34 @@ class StudentsDirectoryViewModel(
                     classId = state.appliedClass?.classId,
                     sectionId = state.appliedSection?.sectionId,
                     enrolled = state.appliedEnrollmentStatus,
-                    page = 0,
+                    page = targetPage,
                     size = 20
                 )
                 
                 if (response.isSuccessful) {
                     val paginatedResponse = response.body()?.data
+                    val newItems = paginatedResponse?.content ?: emptyList()
                     _uiState.update {
+                        val updatedList = if (isLoadMore) {
+                            (it.students + newItems).distinctBy { student -> student.studentId }
+                        } else {
+                            newItems
+                        }
+                        
                         it.copy(
                             isLoading = false,
-                            students = paginatedResponse?.content ?: emptyList(),
-                            totalStudents = paginatedResponse?.totalElements ?: 0
+                            isFetchingNextPage = false,
+                            students = updatedList,
+                            totalStudents = paginatedResponse?.totalElements ?: it.totalStudents,
+                            currentPage = paginatedResponse?.currentPage ?: targetPage,
+                            hasNextPage = paginatedResponse?.hasNext ?: false
                         )
                     }
                 } else {
                     _uiState.update {
                         it.copy(
                             isLoading = false,
+                            isFetchingNextPage = false,
                             error = "Failed to load students. Please try again."
                         )
                     }
@@ -239,11 +268,16 @@ class StudentsDirectoryViewModel(
                     _uiState.update {
                         it.copy(
                             isLoading = false,
+                            isFetchingNextPage = false,
                             error = "Unable to load students. Please check your connection."
                         )
                     }
                 }
             }
+        }
+        
+        if (!isLoadMore) {
+            searchJob = job
         }
     }
 
