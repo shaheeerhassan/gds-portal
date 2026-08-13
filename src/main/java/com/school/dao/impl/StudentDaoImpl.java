@@ -16,11 +16,11 @@ public class StudentDaoImpl implements StudentDao {
     private static final String SELECT_BY_ID = "SELECT * FROM students WHERE student_id = ?";
     private static final String SELECT_BY_USER_ID = "SELECT * FROM students WHERE user_id = ?";
     private static final String SELECT_BY_REGISTRATION = "SELECT * FROM students WHERE registration_number = ?";
-    private static final String SELECT_ALL = "SELECT * FROM students ORDER BY student_id";
-    private static final String SELECT_BY_NAME = "SELECT * FROM students WHERE first_name LIKE ? OR last_name LIKE ? ORDER BY student_id";
+    private static final String SELECT_ALL = "SELECT * FROM students WHERE is_active = TRUE ORDER BY student_id";
+    private static final String SELECT_BY_NAME = "SELECT * FROM students WHERE (first_name LIKE ? OR last_name LIKE ?) AND is_active = TRUE ORDER BY student_id";
     private static final String SELECT_BY_CLASS = "SELECT DISTINCT s.* FROM students s JOIN student_classes sc ON s.student_id = sc.student_id WHERE sc.class_id = ? AND sc.academic_year_id = ? AND sc.is_active = TRUE ORDER BY s.student_id";
     private static final String SELECT_BY_SECTION = "SELECT DISTINCT s.* FROM students s JOIN student_classes sc ON s.student_id = sc.student_id WHERE sc.section_id = ? AND sc.academic_year_id = (SELECT academic_year_id FROM sections WHERE section_id = ?) AND sc.is_active = TRUE ORDER BY s.student_id";
-    private static final String SELECT_BY_PARENT = "SELECT DISTINCT s.* FROM students s JOIN student_parent_links spl ON s.student_id = spl.student_id WHERE spl.parent_id = ? ORDER BY s.student_id";
+    private static final String SELECT_BY_PARENT = "SELECT DISTINCT s.* FROM students s JOIN student_parent_links spl ON s.student_id = spl.student_id WHERE spl.parent_id = ? AND s.is_active = TRUE ORDER BY s.student_id";
     private static final String UPDATE = "UPDATE students SET registration_number = ?, first_name = ?, last_name = ?, date_of_birth = ?, gender = ?, admission_date = ? WHERE student_id = ?";
     private static final String UPDATE_STATUS = "UPDATE students SET is_active = ? WHERE student_id = ?";
     private static final String COUNT_ACTIVE = "SELECT COUNT(*) FROM students WHERE is_active = TRUE";
@@ -289,18 +289,27 @@ public class StudentDaoImpl implements StudentDao {
     public List<StudentDirectoryDTO> getStudentDirectory(String query, Integer academicYearId, Integer classId, Integer sectionId, Boolean isEnrolled, int offset, int limit) {
         StringBuilder sql = new StringBuilder(
             "SELECT s.student_id, s.registration_number, s.first_name, s.last_name, s.is_active, " +
-            "sc.academic_year_id, ay.name as academic_year_name, sc.class_id, c.name as class_name, " +
-            "sc.section_id, sec.name as section_name, sc.roll_number " +
+            "sc.academic_year_id, ay.year_name as academic_year_name, sc.class_id, c.class_name as class_name, " +
+            "sc.section_id, sec.section_name as section_name, sc.roll_number " +
             "FROM students s " +
-            "LEFT JOIN student_classes sc ON s.student_id = sc.student_id AND sc.academic_year_id = ? AND sc.is_active = TRUE " +
+            "LEFT JOIN student_classes sc ON s.student_id = sc.student_id AND sc.is_active = TRUE "
+        );
+
+        if (academicYearId != null) {
+            sql.append("AND sc.academic_year_id = ? ");
+        }
+
+        sql.append(
             "LEFT JOIN academic_years ay ON sc.academic_year_id = ay.academic_year_id " +
             "LEFT JOIN classes c ON sc.class_id = c.class_id " +
             "LEFT JOIN sections sec ON sc.section_id = sec.section_id " +
-            "WHERE 1=1 "
+            "WHERE s.is_active = TRUE "
         );
 
         List<Object> params = new ArrayList<>();
-        params.add(academicYearId != null ? academicYearId : 0);
+        if (academicYearId != null) {
+            params.add(academicYearId);
+        }
 
         if (query != null && !query.trim().isEmpty()) {
             sql.append("AND (s.first_name LIKE ? OR s.last_name LIKE ? OR CONCAT(s.first_name, ' ', s.last_name) LIKE ? OR s.registration_number LIKE ?) ");
@@ -372,14 +381,21 @@ public class StudentDaoImpl implements StudentDao {
     @Override
     public int countStudentDirectory(String query, Integer academicYearId, Integer classId, Integer sectionId, Boolean isEnrolled) {
         StringBuilder sql = new StringBuilder(
-            "SELECT COUNT(s.student_id) " +
+            "SELECT COUNT(DISTINCT s.student_id) " +
             "FROM students s " +
-            "LEFT JOIN student_classes sc ON s.student_id = sc.student_id AND sc.academic_year_id = ? AND sc.is_active = TRUE " +
-            "WHERE 1=1 "
+            "LEFT JOIN student_classes sc ON s.student_id = sc.student_id AND sc.is_active = TRUE "
         );
 
+        if (academicYearId != null) {
+            sql.append("AND sc.academic_year_id = ? ");
+        }
+
+        sql.append("WHERE s.is_active = TRUE ");
+
         List<Object> params = new ArrayList<>();
-        params.add(academicYearId != null ? academicYearId : 0);
+        if (academicYearId != null) {
+            params.add(academicYearId);
+        }
 
         if (query != null && !query.trim().isEmpty()) {
             sql.append("AND (s.first_name LIKE ? OR s.last_name LIKE ? OR CONCAT(s.first_name, ' ', s.last_name) LIKE ? OR s.registration_number LIKE ?) ");

@@ -114,9 +114,23 @@ public class ParentServiceImpl implements ParentService {
 
     @Override
     public void deactivateParent(long parentId) {
-        validateId(parentId);
-        if (!parentDao.deleteParent(parentId))
-            throw new ResourceNotFoundException("Parent not found.");
+        if (!parentDao.deleteParent(parentId)) {
+            throw new ResourceNotFoundException("Parent not found with ID: " + parentId);
+        }
+    }
+
+    @Override
+    public com.school.web.dto.response.PaginatedResponse<com.school.web.dto.response.ParentDirectoryDTO> getParentsDirectory(String query, int page, int size) {
+        if (page < 0) page = 0;
+        if (size <= 0) size = 20;
+
+        int offset = page * size;
+        List<com.school.web.dto.response.ParentDirectoryDTO> content = parentDao.getParentsDirectory(query, offset, size);
+        int totalElements = parentDao.countParentsDirectory(query);
+        int totalPages = (int) Math.ceil((double) totalElements / size);
+
+        boolean hasNext = page < (totalPages - 1);
+        return new com.school.web.dto.response.PaginatedResponse<>(content, totalElements, totalPages, page, size, hasNext);
     }
 
     @Override
