@@ -4,6 +4,7 @@ import com.school.dao.impl.ClassDaoImpl;
 import com.school.dao.interfaces.ClassDao;
 import com.school.exceptions.DuplicateResourceException;
 import com.school.exceptions.ResourceNotFoundException;
+import com.school.exceptions.ValidationException;
 import com.school.model.Class;
 import com.school.service.interfaces.ClassService;
 
@@ -72,8 +73,13 @@ public class ClassServiceImpl implements ClassService {
 
     @Override
     public void deleteClass(int classId) {
-        validateId(classId);
-        if (!classDao.deleteClass(classId))
-            throw new ResourceNotFoundException("Class not found.");
+        if (!classDao.deleteClass(classId)) {
+            throw new ValidationException("Failed to delete class. It may not exist.");
+        }
+    }
+
+    @Override
+    public int getClassCount() {
+        return classDao.getClassCount();
     }
 }

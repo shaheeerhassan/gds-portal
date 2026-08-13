@@ -31,10 +31,16 @@ public class SubjectController extends BaseServlet {
 
         switch (path) {
             case "/":
-            case "":
+            case "": {
                 RoleGuard.requireRole(req, ROLE_ADMIN, ROLE_PRINCIPAL, ROLE_TEACHER);
                 writeJson(resp, subjectService.getAllSubjects());
                 return;
+            }
+            case "/count": {
+                RoleGuard.requireRole(req, ROLE_ADMIN, ROLE_PRINCIPAL, ROLE_TEACHER);
+                writeJson(resp, subjectService.getSubjectCount());
+                return;
+            }
             default:
                 if (path.startsWith("/")) {
                     RoleGuard.requireRole(req, ROLE_ADMIN, ROLE_PRINCIPAL, ROLE_TEACHER);

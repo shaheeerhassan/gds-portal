@@ -58,6 +58,26 @@ public class StudentController extends BaseServlet {
                 writeJson(resp, studentService.getActiveStudentCount());
                 return;
             }
+            case "/directory": {
+                RoleGuard.requireRole(req, ROLE_ADMIN, ROLE_PRINCIPAL, ROLE_TEACHER);
+                String q = req.getParameter("q");
+                String academicYearIdStr = req.getParameter("academicYearId");
+                String classIdStr = req.getParameter("classId");
+                String sectionIdStr = req.getParameter("sectionId");
+                String enrolledStr = req.getParameter("enrolled");
+                String pageStr = req.getParameter("page");
+                String sizeStr = req.getParameter("size");
+
+                Integer academicYearId = (academicYearIdStr != null && !academicYearIdStr.isEmpty()) ? Integer.parseInt(academicYearIdStr) : null;
+                Integer classId = (classIdStr != null && !classIdStr.isEmpty()) ? Integer.parseInt(classIdStr) : null;
+                Integer sectionId = (sectionIdStr != null && !sectionIdStr.isEmpty()) ? Integer.parseInt(sectionIdStr) : null;
+                Boolean enrolled = (enrolledStr != null && !enrolledStr.isEmpty()) ? Boolean.parseBoolean(enrolledStr) : null;
+                int page = (pageStr != null && !pageStr.isEmpty()) ? Integer.parseInt(pageStr) : 0;
+                int size = (sizeStr != null && !sizeStr.isEmpty()) ? Integer.parseInt(sizeStr) : 20;
+
+                writeJson(resp, studentService.getStudentDirectory(q, academicYearId, classId, sectionId, enrolled, page, size));
+                return;
+            }
             default:
                 if (path.startsWith("/class/")) {
                     RoleGuard.requireRole(req, ROLE_ADMIN, ROLE_PRINCIPAL, ROLE_TEACHER);

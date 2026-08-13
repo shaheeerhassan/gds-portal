@@ -10,4 +10,5 @@ public interface SubjectDao {
     List<Subject> getAllSubjects();
     boolean updateSubject(Subject subject);
     boolean deleteSubject(int subjectId);
+    int getSubjectCount();
 }

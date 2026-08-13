@@ -3,6 +3,7 @@ package com.school.service.impl;
 import com.school.dao.impl.SubjectDaoImpl;
 import com.school.dao.interfaces.SubjectDao;
 import com.school.exceptions.ResourceNotFoundException;
+import com.school.exceptions.ValidationException;
 import com.school.model.Subject;
 import com.school.service.interfaces.SubjectService;
 
@@ -56,7 +57,13 @@ public class SubjectServiceImpl implements SubjectService {
     @Override
     public void deleteSubject(int subjectId) {
         validateId(subjectId);
-        if (!subjectDao.deleteSubject(subjectId))
-            throw new ResourceNotFoundException("Subject not found.");
+        if (!subjectDao.deleteSubject(subjectId)) {
+            throw new ValidationException("Failed to delete subject. It may not exist.");
+        }
+    }
+
+    @Override
+    public int getSubjectCount() {
+        return subjectDao.getSubjectCount();
     }
 }

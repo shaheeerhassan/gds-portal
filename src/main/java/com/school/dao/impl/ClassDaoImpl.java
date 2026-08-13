@@ -118,6 +118,20 @@ public class ClassDaoImpl implements ClassDao {
         }
     }
 
+    @Override
+    public int getClassCount() {
+        try (Connection cn = getDataSource().getConnection();
+             PreparedStatement ps = cn.prepareStatement("SELECT COUNT(*) FROM classes");
+             ResultSet resultSet = ps.executeQuery()) {
+            if (resultSet.next()) {
+                return resultSet.getInt(1);
+            }
+            return 0;
+        } catch (SQLException e) {
+            throw new DaoException("Error counting classes", e);
+        }
+    }
+
     private Class mapRow(ResultSet resultSet) throws SQLException {
         Class c = new Class();
         c.setClassId(resultSet.getInt("class_id"));
