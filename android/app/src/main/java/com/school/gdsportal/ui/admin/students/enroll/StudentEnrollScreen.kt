@@ -173,7 +173,7 @@ fun StudentEnrollScreen(
                 OutlinedTextField(
                     value = uiState.rollNumber,
                     onValueChange = { viewModel.updateRollNumber(it) },
-                    label = { Text("Roll Number (Optional)") },
+                    label = { Text("Roll Number *") },
                     modifier = Modifier.fillMaxWidth(),
                     singleLine = true
                 )

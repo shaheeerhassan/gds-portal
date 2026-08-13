@@ -169,7 +169,7 @@ fun StudentTransferScreen(
                 OutlinedTextField(
                     value = uiState.rollNumber,
                     onValueChange = { viewModel.updateRollNumber(it) },
-                    label = { Text("New Roll Number (Optional)") },
+                    label = { Text("New Roll Number *") },
                     modifier = Modifier.fillMaxWidth(),
                     singleLine = true
                 )

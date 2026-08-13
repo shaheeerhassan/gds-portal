@@ -38,7 +38,7 @@ data class StudentTransferUiState(
     val rollNumber: String = ""
 ) {
     val isFormValid: Boolean
-        get() = selectedClass != null && selectedSection != null
+        get() = selectedClass != null && selectedSection != null && rollNumber.isNotBlank()
 }
 
 class StudentTransferViewModel(

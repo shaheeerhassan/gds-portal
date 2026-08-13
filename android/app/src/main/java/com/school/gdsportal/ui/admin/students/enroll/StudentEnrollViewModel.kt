@@ -35,7 +35,8 @@ data class StudentEnrollUiState(
     val isFormValid: Boolean
         get() = selectedAcademicYear != null &&
                 selectedClass != null &&
-                selectedSection != null
+                selectedSection != null &&
+                rollNumber.isNotBlank()
 }
 
 class StudentEnrollViewModel(
