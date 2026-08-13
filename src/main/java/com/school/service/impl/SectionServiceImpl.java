@@ -67,8 +67,13 @@ public class SectionServiceImpl implements SectionService {
 
     @Override
     public void deleteSection(int sectionId) {
-        validateId(sectionId);
-        if (!sectionDao.deleteSection(sectionId))
-            throw new ResourceNotFoundException("Section not found.");
+        if (!sectionDao.deleteSection(sectionId)) {
+            throw new ValidationException("Failed to delete section. It may not exist.");
+        }
+    }
+
+    @Override
+    public int getSectionCount() {
+        return sectionDao.getSectionCount();
     }
 }

@@ -10,4 +10,5 @@ public interface SectionDao {
     boolean updateSection(Section section);
     boolean deleteSection(int sectionId);
     List<Section> getAllSections();
+    int getSectionCount();
 }

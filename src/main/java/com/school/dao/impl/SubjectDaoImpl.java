@@ -100,6 +100,20 @@ public class SubjectDaoImpl implements SubjectDao {
         }
     }
 
+    @Override
+    public int getSubjectCount() {
+        try (Connection cn = getDataSource().getConnection();
+             PreparedStatement ps = cn.prepareStatement("SELECT COUNT(*) FROM subjects");
+             ResultSet rs = ps.executeQuery()) {
+            if (rs.next()) {
+                return rs.getInt(1);
+            }
+            return 0;
+        } catch (SQLException e) {
+            throw new DaoException("Error counting subjects", e);
+        }
+    }
+
     private Subject mapRow(ResultSet resultSet) throws SQLException {
         Subject subject = new Subject();
         subject.setSubjectId(resultSet.getInt("subject_id"));

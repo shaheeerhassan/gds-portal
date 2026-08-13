@@ -31,10 +31,16 @@ public class ClassController extends BaseServlet {
 
         switch (path) {
             case "/":
-            case "":
+            case "": {
                 RoleGuard.requireRole(req, ROLE_ADMIN, ROLE_PRINCIPAL, ROLE_TEACHER);
                 writeJson(resp, classService.getAllClasses());
                 return;
+            }
+            case "/count": {
+                RoleGuard.requireRole(req, ROLE_ADMIN, ROLE_PRINCIPAL, ROLE_TEACHER);
+                writeJson(resp, classService.getClassCount());
+                return;
+            }
             default:
                 if (path.startsWith("/level/")) {
                     RoleGuard.requireRole(req, ROLE_ADMIN, ROLE_PRINCIPAL, ROLE_TEACHER);

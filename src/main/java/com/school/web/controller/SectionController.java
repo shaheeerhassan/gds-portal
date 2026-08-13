@@ -31,10 +31,16 @@ public class SectionController extends BaseServlet {
 
         switch (path) {
             case "/":
-            case "":
+            case "": {
                 RoleGuard.requireRole(req, ROLE_ADMIN, ROLE_PRINCIPAL, ROLE_TEACHER);
                 writeJson(resp, sectionService.getAllSections());
                 return;
+            }
+            case "/count": {
+                RoleGuard.requireRole(req, ROLE_ADMIN, ROLE_PRINCIPAL, ROLE_TEACHER);
+                writeJson(resp, sectionService.getSectionCount());
+                return;
+            }
             default:
                 if (path.startsWith("/class/")) {
                     RoleGuard.requireRole(req, ROLE_ADMIN, ROLE_PRINCIPAL, ROLE_TEACHER);
