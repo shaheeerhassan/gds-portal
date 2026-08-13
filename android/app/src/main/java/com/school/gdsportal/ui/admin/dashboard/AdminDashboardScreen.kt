@@ -22,6 +22,7 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import com.school.gdsportal.data.remote.Announcement
+import com.school.gdsportal.ui.admin.components.AdminTopAppBar
 import java.text.SimpleDateFormat
 import java.util.Locale
 
@@ -29,8 +30,7 @@ import java.util.Locale
 @Composable
 fun AdminDashboardScreen(
     viewModel: AdminDashboardViewModel,
-    onNavigateToProfile: () -> Unit,
-    onNavigateToNotifications: () -> Unit
+    onMenuClick: () -> Unit
 ) {
     val uiState by viewModel.uiState.collectAsState()
 
@@ -38,50 +38,9 @@ fun AdminDashboardScreen(
         modifier = Modifier.fillMaxSize(),
         containerColor = MaterialTheme.colorScheme.background,
         topBar = {
-            TopAppBar(
-                title = { },
-                colors = TopAppBarDefaults.topAppBarColors(
-                    containerColor = MaterialTheme.colorScheme.background
-                ),
-                navigationIcon = {
-                    Box(
-                        modifier = Modifier
-                            .padding(start = 16.dp)
-                            .size(40.dp)
-                            .clip(CircleShape)
-                            .background(MaterialTheme.colorScheme.primary)
-                            .clickable { onNavigateToProfile() },
-                        contentAlignment = Alignment.Center
-                    ) {
-                        Text(
-                            text = uiState.user?.firstName?.firstOrNull()?.toString() ?: "A",
-                            color = MaterialTheme.colorScheme.onPrimary,
-                            style = MaterialTheme.typography.titleLarge
-                        )
-                    }
-                },
-                actions = {
-                    Box(
-                        modifier = Modifier
-                            .padding(end = 16.dp)
-                            .clickable { onNavigateToNotifications() }
-                    ) {
-                        Icon(
-                            imageVector = Icons.Default.Notifications,
-                            contentDescription = "Notifications",
-                            tint = MaterialTheme.colorScheme.onBackground
-                        )
-                        if (uiState.unreadNotifications > 0) {
-                            Box(
-                                modifier = Modifier
-                                    .size(10.dp)
-                                    .clip(CircleShape)
-                                    .background(MaterialTheme.colorScheme.error)
-                                    .align(Alignment.TopEnd)
-                            )
-                        }
-                    }
-                }
+            AdminTopAppBar(
+                title = "GDS Portal",
+                onMenuClick = onMenuClick
             )
         }
     ) { innerPadding ->

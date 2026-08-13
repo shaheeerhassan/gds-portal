@@ -15,6 +15,9 @@ import com.school.gdsportal.data.remote.AcademicYear
 import com.school.gdsportal.data.remote.Announcement
 import com.school.gdsportal.data.remote.TeacherAttendance
 import com.school.gdsportal.data.remote.NotificationCountResponse
+import retrofit2.http.Query
+import com.school.gdsportal.data.remote.dto.StudentDirectoryDTO
+import com.school.gdsportal.data.remote.dto.PaginatedResponse
 
 import com.school.gdsportal.data.remote.ApiResponse
 
@@ -54,4 +57,15 @@ interface ApiService {
 
     @GET("api/subjects/count")
     suspend fun getSubjectsCount(): Response<ApiResponse<Int>>
+
+    @GET("api/students/directory")
+    suspend fun getStudentsDirectory(
+        @Query("q") query: String?,
+        @Query("academicYearId") academicYearId: Int?,
+        @Query("classId") classId: Int?,
+        @Query("sectionId") sectionId: Int?,
+        @Query("enrolled") enrolled: Boolean?,
+        @Query("page") page: Int,
+        @Query("size") size: Int
+    ): Response<PaginatedResponse<StudentDirectoryDTO>>
 }
