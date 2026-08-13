@@ -122,8 +122,17 @@ fun AdminAppWrapper(
                 )
             }
             composable("students/{studentId}/personal") { backStackEntry ->
-                val studentId = backStackEntry.arguments?.getString("studentId")
-                StudentPlaceholderScreen(title = "Personal Information ($studentId)", onBack = { navController.navigateUp() })
+                val studentId = backStackEntry.arguments?.getString("studentId")?.toLongOrNull() ?: 0L
+                val factory = com.school.gdsportal.ui.admin.students.personal.StudentPersonalViewModel.provideFactory(
+                    studentId = studentId,
+                    apiService = appContainer.apiService
+                )
+                val personalViewModel: com.school.gdsportal.ui.admin.students.personal.StudentPersonalViewModel = viewModel(factory = factory)
+                
+                com.school.gdsportal.ui.admin.students.personal.StudentPersonalScreen(
+                    viewModel = personalViewModel,
+                    onBackClick = { navController.navigateUp() }
+                )
             }
             composable("students/{studentId}/edit") { backStackEntry ->
                 val studentId = backStackEntry.arguments?.getString("studentId")

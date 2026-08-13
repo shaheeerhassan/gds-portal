@@ -103,7 +103,7 @@ fun StudentProfileScreen(
                     )
 
                     val enrollment = uiState.enrollment
-                    if (enrollment != null && enrollment.isActive) {
+                    if (enrollment != null && enrollment.active) {
                         AcademicStatusCard(
                             academicYear = uiState.academicYear?.yearName ?: "-",
                             className = uiState.schoolClass?.className ?: "-",
@@ -180,8 +180,8 @@ private fun StudentHeader(student: Student) {
         
         Spacer(modifier = Modifier.height(8.dp))
         
-        val statusText = if (student.isActive) "Active" else "Inactive"
-        val statusColor = if (student.isActive) Color(0xFF4CAF50) else MaterialTheme.colorScheme.error
+        val statusText = if (student.active) "Active" else "Inactive"
+        val statusColor = if (student.active) Color(0xFF4CAF50) else MaterialTheme.colorScheme.error
         
         Surface(
             color = statusColor.copy(alpha = 0.1f),

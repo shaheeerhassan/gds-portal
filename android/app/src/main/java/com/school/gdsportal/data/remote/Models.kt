@@ -69,7 +69,7 @@ data class Student(
     val dateOfBirth: String?,
     val gender: String?,
     val admissionDate: String?,
-    val isActive: Boolean
+    val active: Boolean
 )
 
 data class Enrollment(
@@ -80,5 +80,5 @@ data class Enrollment(
     val academicYearId: Int,
     val rollNumber: String?,
     val enrollmentDate: String?,
-    val isActive: Boolean
+    val active: Boolean
 )
