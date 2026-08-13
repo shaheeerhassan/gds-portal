@@ -136,3 +136,12 @@ data class LinkParentRequest(
     val relationshipType: String,
     val primaryContact: Boolean
 )
+
+
+data class ParentDirectoryDTO(
+    val parentId: Long,
+    val firstName: String,
+    val lastName: String,
+    val phone: String?,
+    val occupation: String?
+)

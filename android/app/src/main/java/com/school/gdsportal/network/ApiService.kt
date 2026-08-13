@@ -93,6 +93,13 @@ interface ApiService {
     @GET("api/parents/student/{studentId}")
     suspend fun getParentsByStudentId(@Path("studentId") studentId: Long): Response<ApiResponse<List<com.school.gdsportal.data.remote.Parent>>>
 
+    @GET("api/parents/directory")
+    suspend fun getParentsDirectory(
+        @Query("q") query: String?,
+        @Query("page") page: Int,
+        @Query("size") size: Int
+    ): Response<ApiResponse<PaginatedResponse<com.school.gdsportal.data.remote.ParentDirectoryDTO>>>
+
 
     @retrofit2.http.GET("api/users/{userId}")
     suspend fun getUser(

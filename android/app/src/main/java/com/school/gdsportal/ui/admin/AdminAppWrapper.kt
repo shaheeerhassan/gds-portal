@@ -225,6 +225,35 @@ fun AdminAppWrapper(
                 StudentPlaceholderScreen(title = "Link Parent ($studentId)", onBack = { navController.navigateUp() })
             }
 
+            // Parent Module Routes
+            composable("parents") {
+                val factory = com.school.gdsportal.ui.admin.parents.ParentsDirectoryViewModelFactory(appContainer.apiService)
+                val parentsViewModel: com.school.gdsportal.ui.admin.parents.ParentsDirectoryViewModel = viewModel(factory = factory)
+                com.school.gdsportal.ui.admin.parents.ParentsDirectoryScreen(
+                    viewModel = parentsViewModel,
+                    onMenuClick = { coroutineScope.launch { drawerState.open() } },
+                    onParentClick = { parentId ->
+                        navController.navigate("parents/$parentId")
+                    }
+                )
+            }
+            composable("parents/{parentId}") { backStackEntry ->
+                val parentId = backStackEntry.arguments?.getString("parentId")
+                ParentPlaceholderScreen(title = "Parent Profile ($parentId)", onBack = { navController.navigateUp() })
+            }
+            composable("parents/{parentId}/information") { backStackEntry ->
+                val parentId = backStackEntry.arguments?.getString("parentId")
+                ParentPlaceholderScreen(title = "Parent Information ($parentId)", onBack = { navController.navigateUp() })
+            }
+            composable("parents/{parentId}/edit") { backStackEntry ->
+                val parentId = backStackEntry.arguments?.getString("parentId")
+                ParentPlaceholderScreen(title = "Edit Parent ($parentId)", onBack = { navController.navigateUp() })
+            }
+            composable("parents/{parentId}/students") { backStackEntry ->
+                val parentId = backStackEntry.arguments?.getString("parentId")
+                ParentPlaceholderScreen(title = "Linked Students ($parentId)", onBack = { navController.navigateUp() })
+            }
+
             composable("admin_academics_landing") {
                 AcademicsLandingScreen(
                     onBack = { navController.navigateUp() },
@@ -280,6 +309,23 @@ fun AdminAppWrapper(
 
 @Composable
 private fun StudentPlaceholderScreen(title: String, onBack: () -> Unit) {
+    Column(
+        modifier = Modifier.fillMaxSize().padding(16.dp)
+    ) {
+        IconButton(onClick = onBack) {
+            Icon(
+                imageVector = Icons.Default.ArrowBack,
+                contentDescription = "Back"
+            )
+        }
+        Text(text = title, style = MaterialTheme.typography.headlineMedium)
+        Spacer(modifier = Modifier.height(16.dp))
+        Text(text = "Coming soon")
+    }
+}
+
+@Composable
+private fun ParentPlaceholderScreen(title: String, onBack: () -> Unit) {
     Column(
         modifier = Modifier.fillMaxSize().padding(16.dp)
     ) {
