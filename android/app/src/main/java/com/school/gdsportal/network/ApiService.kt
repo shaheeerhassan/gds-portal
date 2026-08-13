@@ -119,4 +119,15 @@ interface ApiService {
         @Path("studentId") studentId: Long,
         @Path("academicYearId") academicYearId: Int
     ): Response<ApiResponse<String>>
+
+    @retrofit2.http.POST("api/parents/link")
+    suspend fun linkParent(
+        @Body request: com.school.gdsportal.data.remote.LinkParentRequest
+    ): Response<ApiResponse<String>>
+
+    @retrofit2.http.DELETE("api/parents/link/{parentId}/{studentId}")
+    suspend fun unlinkParent(
+        @Path("parentId") parentId: Long,
+        @Path("studentId") studentId: Long
+    ): Response<ApiResponse<String>>
 }

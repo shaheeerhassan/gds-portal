@@ -65,6 +65,44 @@ class StudentParentsViewModel(
         }
     }
 
+    fun linkParent(parentId: Long, relationshipType: String, isPrimaryContact: Boolean) {
+        viewModelScope.launch {
+            _uiState.update { it.copy(isLoading = true, error = null) }
+            try {
+                val request = com.school.gdsportal.data.remote.LinkParentRequest(
+                    studentId = studentId,
+                    parentId = parentId,
+                    relationshipType = relationshipType,
+                    primaryContact = isPrimaryContact
+                )
+                val response = apiService.linkParent(request)
+                if (response.isSuccessful) {
+                    loadData()
+                } else {
+                    _uiState.update { it.copy(isLoading = false, error = "Failed to link parent") }
+                }
+            } catch (e: Exception) {
+                _uiState.update { it.copy(isLoading = false, error = "Network error while linking parent") }
+            }
+        }
+    }
+
+    fun unlinkParent(parentId: Long) {
+        viewModelScope.launch {
+            _uiState.update { it.copy(isLoading = true, error = null) }
+            try {
+                val response = apiService.unlinkParent(parentId, studentId)
+                if (response.isSuccessful) {
+                    loadData()
+                } else {
+                    _uiState.update { it.copy(isLoading = false, error = "Failed to unlink parent") }
+                }
+            } catch (e: Exception) {
+                _uiState.update { it.copy(isLoading = false, error = "Network error while unlinking parent") }
+            }
+        }
+    }
+
     companion object {
         fun provideFactory(studentId: Long, apiService: ApiService): ViewModelProvider.Factory = object : ViewModelProvider.Factory {
             @Suppress("UNCHECKED_CAST")

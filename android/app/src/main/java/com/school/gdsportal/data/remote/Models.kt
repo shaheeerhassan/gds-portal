@@ -123,3 +123,10 @@ data class TransferStudentRequest(
     val newSectionId: Int,
     val rollNumber: String?
 )
+
+data class LinkParentRequest(
+    val studentId: Long,
+    val parentId: Long,
+    val relationshipType: String,
+    val primaryContact: Boolean
+)
