@@ -103,4 +103,9 @@ interface ApiService {
     suspend fun createStudent(
         @Body request: com.school.gdsportal.data.remote.CreateStudentRequest
     ): Response<ApiResponse<com.school.gdsportal.data.remote.Student>>
+
+    @retrofit2.http.POST("api/enrollments/enroll")
+    suspend fun enrollStudent(
+        @Body request: com.school.gdsportal.data.remote.EnrollStudentRequest
+    ): Response<ApiResponse<com.school.gdsportal.data.remote.Enrollment>>
 }

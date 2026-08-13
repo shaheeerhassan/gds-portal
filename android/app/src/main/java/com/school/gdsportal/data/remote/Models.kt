@@ -108,3 +108,11 @@ data class CreateStudentData(
     val gender: String,
     val dateOfBirth: String?
 )
+
+data class EnrollStudentRequest(
+    val studentId: Long,
+    val classId: Int,
+    val sectionId: Int,
+    val academicYearId: Int,
+    val rollNumber: String?
+)
