@@ -102,7 +102,12 @@ interface ApiService {
     @retrofit2.http.POST("api/students/")
     suspend fun createStudent(
         @Body request: com.school.gdsportal.data.remote.CreateStudentRequest
-    ): Response<ApiResponse<com.school.gdsportal.data.remote.Student>>
+    ): Response<ApiResponse<com.school.gdsportal.data.remote.CreateStudentData>>
+
+    @retrofit2.http.DELETE("api/students/{studentId}")
+    suspend fun deleteStudent(
+        @Path("studentId") studentId: Long
+    ): Response<ApiResponse<String>>
 
     @retrofit2.http.POST("api/enrollments/enroll")
     suspend fun enrollStudent(

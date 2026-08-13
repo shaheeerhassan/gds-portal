@@ -36,6 +36,7 @@ fun StudentProfileScreen(
     val uiState by viewModel.uiState.collectAsState()
     var showMenu by remember { mutableStateOf(false) }
     var showEndEnrollmentDialog by remember { mutableStateOf(false) }
+    var showDeactivateDialog by remember { mutableStateOf(false) }
 
     Scaffold(
         topBar = {
@@ -78,6 +79,16 @@ fun StudentProfileScreen(
                                     }
                                 )
                             }
+                            
+                            if (uiState.student?.active == true) {
+                                DropdownMenuItem(
+                                    text = { Text("Delete Student", color = MaterialTheme.colorScheme.error) },
+                                    onClick = {
+                                        showMenu = false
+                                        showDeactivateDialog = true
+                                    }
+                                )
+                            }
                         }
                     }
                 }
@@ -102,6 +113,30 @@ fun StudentProfileScreen(
                 },
                 dismissButton = {
                     TextButton(onClick = { showEndEnrollmentDialog = false }) {
+                        Text("Cancel")
+                    }
+                }
+            )
+        }
+        
+        if (showDeactivateDialog) {
+            AlertDialog(
+                onDismissRequest = { showDeactivateDialog = false },
+                title = { Text("Delete Student?") },
+                text = { Text("This will permanently delete the student from the system and end any active enrollments. They will no longer be able to log in. Are you sure?") },
+                confirmButton = {
+                    TextButton(
+                        onClick = {
+                            showDeactivateDialog = false
+                            viewModel.deleteStudent(onSuccess = { onBackClick() })
+                        },
+                        colors = ButtonDefaults.textButtonColors(contentColor = MaterialTheme.colorScheme.error)
+                    ) {
+                        Text("Delete")
+                    }
+                },
+                dismissButton = {
+                    TextButton(onClick = { showDeactivateDialog = false }) {
                         Text("Cancel")
                     }
                 }

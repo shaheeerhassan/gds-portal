@@ -120,6 +120,26 @@ class StudentProfileViewModel(
         }
     }
 
+    fun deleteStudent(onSuccess: () -> Unit) {
+        viewModelScope.launch {
+            _uiState.update { it.copy(isLoading = true, error = null) }
+            try {
+                val response = apiService.deleteStudent(studentId)
+                if (response.isSuccessful) {
+                    onSuccess()
+                } else {
+                    _uiState.update { 
+                        it.copy(isLoading = false, error = "Failed to delete student.")
+                    }
+                }
+            } catch (e: Exception) {
+                _uiState.update { 
+                    it.copy(isLoading = false, error = "Network error while deleting student.")
+                }
+            }
+        }
+    }
+
     companion object {
         fun provideFactory(studentId: Long, apiService: ApiService): ViewModelProvider.Factory = object : ViewModelProvider.Factory {
             @Suppress("UNCHECKED_CAST")
