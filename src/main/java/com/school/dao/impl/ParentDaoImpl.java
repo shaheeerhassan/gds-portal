@@ -21,6 +21,9 @@ public class ParentDaoImpl implements ParentDao {
     private static final String LINK_INSERT = "INSERT INTO student_parent_links (student_id, parent_id, relationship_type, is_primary_contact) VALUES (?, ?, ?, ?)";
     private static final String LINK_DELETE = "DELETE FROM student_parent_links WHERE parent_id = ? AND student_id = ?";
     private static final String CLEAR_PRIMARY = "UPDATE student_parent_links SET is_primary_contact = FALSE WHERE student_id = ?";
+    
+    private static final String SEARCH_BASE_SQL = "FROM parents WHERE is_active = TRUE";
+    private static final String SEARCH_CONDITION = " AND (LOWER(first_name) LIKE ? OR LOWER(last_name) LIKE ? OR LOWER(CONCAT(first_name, ' ', last_name)) LIKE ? OR phone LIKE ?)";
 
     @Override
     public boolean insertParent(Parent parent) {
@@ -186,6 +189,82 @@ public class ParentDaoImpl implements ParentDao {
         } catch (SQLException e) {
             throw new DaoException("Error deleting parent", e);
         }
+    }
+
+    @Override
+    public List<com.school.web.dto.response.ParentDirectoryDTO> getParentsDirectory(String query, int offset, int limit) {
+        List<com.school.web.dto.response.ParentDirectoryDTO> parents = new ArrayList<>();
+        StringBuilder sql = new StringBuilder("SELECT parent_id, first_name, last_name, phone, occupation ");
+        sql.append(SEARCH_BASE_SQL);
+
+        boolean hasQuery = query != null && !query.trim().isEmpty();
+        if (hasQuery) {
+            sql.append(SEARCH_CONDITION);
+        }
+
+        sql.append(" ORDER BY first_name, last_name LIMIT ? OFFSET ?");
+
+        try (Connection cn = getDataSource().getConnection();
+             PreparedStatement ps = cn.prepareStatement(sql.toString())) {
+
+            int paramIndex = 1;
+            if (hasQuery) {
+                String likeQuery = "%" + query.trim().toLowerCase() + "%";
+                ps.setString(paramIndex++, likeQuery);
+                ps.setString(paramIndex++, likeQuery);
+                ps.setString(paramIndex++, likeQuery);
+                ps.setString(paramIndex++, likeQuery);
+            }
+            ps.setInt(paramIndex++, limit);
+            ps.setInt(paramIndex, offset);
+
+            try (ResultSet rs = ps.executeQuery()) {
+                while (rs.next()) {
+                    parents.add(new com.school.web.dto.response.ParentDirectoryDTO(
+                            rs.getLong("parent_id"),
+                            rs.getString("first_name"),
+                            rs.getString("last_name"),
+                            rs.getString("phone"),
+                            rs.getString("occupation")
+                    ));
+                }
+            }
+        } catch (SQLException e) {
+            throw new DaoException("Error fetching parent directory", e);
+        }
+        return parents;
+    }
+
+    @Override
+    public int countParentsDirectory(String query) {
+        StringBuilder sql = new StringBuilder("SELECT COUNT(*) ");
+        sql.append(SEARCH_BASE_SQL);
+
+        boolean hasQuery = query != null && !query.trim().isEmpty();
+        if (hasQuery) {
+            sql.append(SEARCH_CONDITION);
+        }
+
+        try (Connection cn = getDataSource().getConnection();
+             PreparedStatement ps = cn.prepareStatement(sql.toString())) {
+
+            if (hasQuery) {
+                String likeQuery = "%" + query.trim().toLowerCase() + "%";
+                ps.setString(1, likeQuery);
+                ps.setString(2, likeQuery);
+                ps.setString(3, likeQuery);
+                ps.setString(4, likeQuery);
+            }
+
+            try (ResultSet rs = ps.executeQuery()) {
+                if (rs.next()) {
+                    return rs.getInt(1);
+                }
+            }
+        } catch (SQLException e) {
+            throw new DaoException("Error counting parent directory", e);
+        }
+        return 0;
     }
 
     private Parent mapRow(ResultSet resultSet) throws SQLException {

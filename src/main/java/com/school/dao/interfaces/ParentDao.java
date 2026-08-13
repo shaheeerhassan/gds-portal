@@ -15,6 +15,9 @@ public interface ParentDao {
     Parent getParentById(long parentId);
     List<Parent> getParentsByStudentId(long studentId);
     Parent getParentByUserId(long userId);
+    
+    List<com.school.web.dto.response.ParentDirectoryDTO> getParentsDirectory(String query, int offset, int limit);
+    int countParentsDirectory(String query);
 
     boolean updateParentDetails(Parent parent);
     boolean deleteParent(long parentId);

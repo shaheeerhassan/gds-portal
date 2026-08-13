@@ -14,6 +14,8 @@ public interface ParentService {
     void updateParent(Parent parent);
     void deactivateParent(long parentId);
 
+    com.school.web.dto.response.PaginatedResponse<com.school.web.dto.response.ParentDirectoryDTO> getParentsDirectory(String query, int page, int size);
+
     void linkParentToStudent(long studentId, long parentId,
                              StudentParentLink.RelationshipType relationshipType, boolean isPrimaryContact);
     void unlinkParentFromStudent(long parentId, long studentId);
