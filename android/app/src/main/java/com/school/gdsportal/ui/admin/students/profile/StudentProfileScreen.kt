@@ -30,7 +30,8 @@ fun StudentProfileScreen(
     onPersonalClick: () -> Unit,
     onEnrollmentClick: () -> Unit,
     onParentsClick: () -> Unit,
-    onEnrollClick: () -> Unit
+    onEnrollClick: () -> Unit,
+    onTransferClick: () -> Unit
 ) {
     val uiState by viewModel.uiState.collectAsState()
     var showMenu by remember { mutableStateOf(false) }
@@ -60,6 +61,15 @@ fun StudentProfileScreen(
                                     onEditClick()
                                 }
                             )
+                            if (uiState.enrollment?.active == true) {
+                                DropdownMenuItem(
+                                    text = { Text("Transfer Student") },
+                                    onClick = {
+                                        showMenu = false
+                                        onTransferClick()
+                                    }
+                                )
+                            }
                         }
                     }
                 }

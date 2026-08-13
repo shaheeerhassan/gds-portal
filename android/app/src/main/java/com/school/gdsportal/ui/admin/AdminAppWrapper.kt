@@ -126,7 +126,8 @@ fun AdminAppWrapper(
                     onPersonalClick = { navController.navigate("students/$studentId/personal") },
                     onEnrollmentClick = { navController.navigate("students/$studentId/enrollment") },
                     onParentsClick = { navController.navigate("students/$studentId/parents") },
-                    onEnrollClick = { navController.navigate("students/$studentId/enroll") }
+                    onEnrollClick = { navController.navigate("students/$studentId/enroll") },
+                    onTransferClick = { navController.navigate("students/$studentId/transfer") }
                 )
             }
             composable("students/{studentId}/personal") { backStackEntry ->
@@ -182,8 +183,17 @@ fun AdminAppWrapper(
                 )
             }
             composable("students/{studentId}/transfer") { backStackEntry ->
-                val studentId = backStackEntry.arguments?.getString("studentId")
-                StudentPlaceholderScreen(title = "Transfer Student ($studentId)", onBack = { navController.navigateUp() })
+                val studentId = backStackEntry.arguments?.getString("studentId")?.toLongOrNull() ?: 0L
+                val factory = com.school.gdsportal.ui.admin.students.transfer.StudentTransferViewModel.provideFactory(
+                    studentId = studentId,
+                    apiService = appContainer.apiService
+                )
+                val transferViewModel: com.school.gdsportal.ui.admin.students.transfer.StudentTransferViewModel = viewModel(factory = factory)
+                
+                com.school.gdsportal.ui.admin.students.transfer.StudentTransferScreen(
+                    viewModel = transferViewModel,
+                    onBackClick = { navController.navigateUp() }
+                )
             }
             composable("students/{studentId}/promote") { backStackEntry ->
                 val studentId = backStackEntry.arguments?.getString("studentId")

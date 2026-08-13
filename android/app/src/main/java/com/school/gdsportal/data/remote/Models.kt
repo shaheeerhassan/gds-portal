@@ -116,3 +116,10 @@ data class EnrollStudentRequest(
     val academicYearId: Int,
     val rollNumber: String?
 )
+
+data class TransferStudentRequest(
+    val studentId: Long,
+    val academicYearId: Int,
+    val newSectionId: Int,
+    val rollNumber: String?
+)
