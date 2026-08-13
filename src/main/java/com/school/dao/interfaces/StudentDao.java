@@ -3,6 +3,7 @@ package com.school.dao.interfaces;
 import com.school.model.Student;
 import java.sql.Connection;
 import java.util.List;
+import com.school.web.dto.response.StudentDirectoryDTO;
 
 public interface StudentDao {
     boolean insertStudent(Student student);
@@ -21,4 +22,7 @@ public interface StudentDao {
     boolean updateStudentDetails(Student student);
     boolean deleteStudent(long studentId, boolean isActive);
     int countActiveStudents();
+
+    List<StudentDirectoryDTO> getStudentDirectory(String query, Integer academicYearId, Integer classId, Integer sectionId, Boolean isEnrolled, int offset, int limit);
+    int countStudentDirectory(String query, Integer academicYearId, Integer classId, Integer sectionId, Boolean isEnrolled);
 }
