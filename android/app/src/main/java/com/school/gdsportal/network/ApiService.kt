@@ -67,5 +67,5 @@ interface ApiService {
         @Query("enrolled") enrolled: Boolean?,
         @Query("page") page: Int,
         @Query("size") size: Int
-    ): Response<PaginatedResponse<StudentDirectoryDTO>>
+    ): Response<ApiResponse<PaginatedResponse<StudentDirectoryDTO>>>
 }

@@ -10,7 +10,7 @@ fun PeopleLandingScreen(onBack: () -> Unit, onNavigate: (String) -> Unit) {
         title = "People",
         description = "Manage people and accounts",
         rows = listOf(
-            NavigationRowData("Students", "admin_students_list", isImplemented = true),
+            NavigationRowData("Students", "students", isImplemented = true),
             NavigationRowData("Teachers", "admin_teachers_list", isImplemented = false),
             NavigationRowData("Parents", "admin_parents_list", isImplemented = false),
             NavigationRowData("Principals", "admin_principals_list", isImplemented = false),

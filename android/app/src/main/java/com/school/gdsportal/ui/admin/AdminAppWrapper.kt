@@ -1,10 +1,18 @@
 package com.school.gdsportal.ui.admin
 
+import androidx.compose.foundation.layout.*
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.ArrowBack
 import androidx.compose.material3.DrawerValue
+import androidx.compose.material3.Icon
+import androidx.compose.material3.IconButton
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.ModalNavigationDrawer
+import androidx.compose.material3.Text
 import androidx.compose.material3.rememberDrawerState
 import androidx.compose.runtime.*
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.unit.dp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
@@ -77,18 +85,69 @@ fun AdminAppWrapper(
                 )
             }
 
-            composable("admin_students_list") {
+
+            // Student Module Routes
+            composable("students") {
                 val studentsViewModel: com.school.gdsportal.ui.admin.students.StudentsDirectoryViewModel = viewModel(
-                    factory = com.school.gdsportal.ui.admin.students.StudentsDirectoryViewModel.provideFactory(appContainer.apiService)
+                    factory = com.school.gdsportal.ui.admin.students.StudentsDirectoryViewModel.provideFactory(
+                        appContainer.apiService
+                    )
                 )
                 com.school.gdsportal.ui.admin.students.StudentsDirectoryScreen(
                     viewModel = studentsViewModel,
-                    onMenuClick = openDrawer,
-                    onStudentClick = { /* TODO: Student Profile */ },
-                    onAddStudentClick = { /* TODO: Add Student */ }
+                    onBackClick = { navController.navigateUp() },
+                    onAddStudentClick = { navController.navigate("students/create") },
+                    onStudentClick = { studentId -> navController.navigate("students/$studentId") }
                 )
             }
-            
+            composable("students/create") {
+                StudentPlaceholderScreen(title = "Create Student", onBack = { navController.navigateUp() })
+            }
+            composable("students/{studentId}") { backStackEntry ->
+                val studentId = backStackEntry.arguments?.getString("studentId")
+                StudentPlaceholderScreen(title = "Student Profile ($studentId)", onBack = { navController.navigateUp() })
+            }
+            composable("students/{studentId}/personal") { backStackEntry ->
+                val studentId = backStackEntry.arguments?.getString("studentId")
+                StudentPlaceholderScreen(title = "Personal Information ($studentId)", onBack = { navController.navigateUp() })
+            }
+            composable("students/{studentId}/edit") { backStackEntry ->
+                val studentId = backStackEntry.arguments?.getString("studentId")
+                StudentPlaceholderScreen(title = "Edit Student ($studentId)", onBack = { navController.navigateUp() })
+            }
+            composable("students/{studentId}/enrollment") { backStackEntry ->
+                val studentId = backStackEntry.arguments?.getString("studentId")
+                StudentPlaceholderScreen(title = "Academic Enrollment ($studentId)", onBack = { navController.navigateUp() })
+            }
+            composable("students/{studentId}/enroll") { backStackEntry ->
+                val studentId = backStackEntry.arguments?.getString("studentId")
+                StudentPlaceholderScreen(title = "Enroll Student ($studentId)", onBack = { navController.navigateUp() })
+            }
+            composable("students/{studentId}/transfer") { backStackEntry ->
+                val studentId = backStackEntry.arguments?.getString("studentId")
+                StudentPlaceholderScreen(title = "Transfer Student ($studentId)", onBack = { navController.navigateUp() })
+            }
+            composable("students/{studentId}/promote") { backStackEntry ->
+                val studentId = backStackEntry.arguments?.getString("studentId")
+                StudentPlaceholderScreen(title = "Promote Student ($studentId)", onBack = { navController.navigateUp() })
+            }
+            composable("students/{studentId}/end-enrollment") { backStackEntry ->
+                val studentId = backStackEntry.arguments?.getString("studentId")
+                StudentPlaceholderScreen(title = "End Enrollment ($studentId)", onBack = { navController.navigateUp() })
+            }
+            composable("students/{studentId}/roll-number") { backStackEntry ->
+                val studentId = backStackEntry.arguments?.getString("studentId")
+                StudentPlaceholderScreen(title = "Change Roll Number ($studentId)", onBack = { navController.navigateUp() })
+            }
+            composable("students/{studentId}/parents") { backStackEntry ->
+                val studentId = backStackEntry.arguments?.getString("studentId")
+                StudentPlaceholderScreen(title = "Parents & Guardians ($studentId)", onBack = { navController.navigateUp() })
+            }
+            composable("students/{studentId}/parents/link") { backStackEntry ->
+                val studentId = backStackEntry.arguments?.getString("studentId")
+                StudentPlaceholderScreen(title = "Link Parent ($studentId)", onBack = { navController.navigateUp() })
+            }
+
             composable("admin_academics_landing") {
                 AcademicsLandingScreen(
                     onBack = { navController.navigateUp() },
@@ -139,5 +198,22 @@ fun AdminAppWrapper(
                 )
             }
         }
+    }
+}
+
+@Composable
+private fun StudentPlaceholderScreen(title: String, onBack: () -> Unit) {
+    Column(
+        modifier = Modifier.fillMaxSize().padding(16.dp)
+    ) {
+        IconButton(onClick = onBack) {
+            Icon(
+                imageVector = Icons.Default.ArrowBack,
+                contentDescription = "Back"
+            )
+        }
+        Text(text = title, style = MaterialTheme.typography.headlineMedium)
+        Spacer(modifier = Modifier.height(16.dp))
+        Text(text = "Coming soon")
     }
 }
