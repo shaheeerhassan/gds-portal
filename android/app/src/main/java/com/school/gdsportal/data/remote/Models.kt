@@ -1,12 +1,18 @@
 package com.school.gdsportal.data.remote
 
 data class User(
-    val id: Int,
-    val username: String,
+    val userId: Long,
+    val username: String?,
     val email: String,
-    val firstName: String,
-    val lastName: String,
-    val role: Role? = null
+    val firstName: String?,
+    val lastName: String?,
+    val roleId: Int? = null,
+    val active: Boolean = true
+)
+
+data class UpdateUserStatusRequest(
+    val userId: Long,
+    val active: Boolean
 )
 
 data class Role(

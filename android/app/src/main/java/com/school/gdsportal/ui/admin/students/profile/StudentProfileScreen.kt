@@ -37,6 +37,7 @@ fun StudentProfileScreen(
     var showMenu by remember { mutableStateOf(false) }
     var showEndEnrollmentDialog by remember { mutableStateOf(false) }
     var showDeactivateDialog by remember { mutableStateOf(false) }
+    var showLoginAccessDialog by remember { mutableStateOf(false) }
 
     Scaffold(
         topBar = {
@@ -89,6 +90,22 @@ fun StudentProfileScreen(
                                     }
                                 )
                             }
+                            
+                            if (uiState.user != null) {
+                                val isUserActive = uiState.user!!.active
+                                DropdownMenuItem(
+                                    text = { 
+                                        Text(
+                                            if (isUserActive) "Disable Login Access" else "Enable Login Access", 
+                                            color = if (isUserActive) MaterialTheme.colorScheme.error else MaterialTheme.colorScheme.primary
+                                        ) 
+                                    },
+                                    onClick = {
+                                        showMenu = false
+                                        showLoginAccessDialog = true
+                                    }
+                                )
+                            }
                         }
                     }
                 }
@@ -137,6 +154,40 @@ fun StudentProfileScreen(
                 },
                 dismissButton = {
                     TextButton(onClick = { showDeactivateDialog = false }) {
+                        Text("Cancel")
+                    }
+                }
+            )
+        }
+        
+        if (showLoginAccessDialog && uiState.user != null) {
+            val isUserActive = uiState.user!!.active
+            AlertDialog(
+                onDismissRequest = { showLoginAccessDialog = false },
+                title = { Text(if (isUserActive) "Disable Login Access?" else "Enable Login Access?") },
+                text = { 
+                    Text(
+                        if (isUserActive) 
+                            "This will prevent the student from logging into the portal, but they will remain active in the system (e.g., for suspensions). Are you sure?"
+                        else
+                            "This will restore the student's ability to log into the portal. Are you sure?"
+                    )
+                },
+                confirmButton = {
+                    TextButton(
+                        onClick = {
+                            showLoginAccessDialog = false
+                            viewModel.updateUserStatus(!isUserActive)
+                        },
+                        colors = ButtonDefaults.textButtonColors(
+                            contentColor = if (isUserActive) MaterialTheme.colorScheme.error else MaterialTheme.colorScheme.primary
+                        )
+                    ) {
+                        Text(if (isUserActive) "Disable" else "Enable")
+                    }
+                },
+                dismissButton = {
+                    TextButton(onClick = { showLoginAccessDialog = false }) {
                         Text("Cancel")
                     }
                 }

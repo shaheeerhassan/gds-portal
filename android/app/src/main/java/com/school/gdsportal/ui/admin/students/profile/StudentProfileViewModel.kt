@@ -19,6 +19,7 @@ data class StudentProfileUiState(
     val isLoading: Boolean = true,
     val error: String? = null,
     val student: Student? = null,
+    val user: com.school.gdsportal.data.remote.User? = null,
     val enrollment: Enrollment? = null,
     val academicYear: AcademicYear? = null,
     val schoolClass: SchoolClass? = null,
@@ -46,41 +47,53 @@ class StudentProfileViewModel(
             _uiState.update { it.copy(isLoading = true, error = null) }
             try {
                 // 1. Fetch Student Info
-                val studentRes = apiService.getStudent(studentId)
-                if (!studentRes.isSuccessful || studentRes.body()?.data == null) {
+                val studentResponse = apiService.getStudent(studentId)
+                if (studentResponse.isSuccessful && studentResponse.body()?.data != null) {
+                    val student = studentResponse.body()!!.data!!
+                    
+                    var user: com.school.gdsportal.data.remote.User? = null
+                    try {
+                        val userRes = apiService.getUser(student.userId)
+                        if (userRes.isSuccessful) {
+                            user = userRes.body()?.data
+                        }
+                    } catch (e: Exception) {
+                        // ignore
+                    }
+
+                    _uiState.update { it.copy(student = student, user = user) }
+
+                    // 2. Fetch Enrollment Info
+                    val enrollRes = apiService.getCurrentEnrollment(studentId)
+                    val enrollment = if (enrollRes.isSuccessful) enrollRes.body()?.data else null
+                    
+                    if (enrollment != null) {
+                        _uiState.update { it.copy(enrollment = enrollment) }
+                        
+                        // 3. Resolve Academic Year Name
+                        val yearsRes = apiService.getAcademicYears()
+                        if (yearsRes.isSuccessful) {
+                            val year = yearsRes.body()?.data?.find { it.academicYearId == enrollment.academicYearId }
+                            _uiState.update { it.copy(academicYear = year) }
+                        }
+
+                        // 4. Resolve Class Name
+                        val classesRes = apiService.getClasses()
+                        if (classesRes.isSuccessful) {
+                            val cls = classesRes.body()?.data?.find { it.classId == enrollment.classId }
+                            _uiState.update { it.copy(schoolClass = cls) }
+                        }
+
+                        // 5. Resolve Section Name
+                        val sectionRes = apiService.getSections(enrollment.classId, enrollment.academicYearId)
+                        if (sectionRes.isSuccessful) {
+                            val sec = sectionRes.body()?.data?.find { it.sectionId == enrollment.sectionId }
+                            _uiState.update { it.copy(section = sec) }
+                        }
+                    }
+                } else {
                     _uiState.update { it.copy(isLoading = false, error = "Failed to load student profile.") }
                     return@launch
-                }
-                val student = studentRes.body()!!.data
-                _uiState.update { it.copy(student = student) }
-
-                // 2. Fetch Enrollment Info
-                val enrollRes = apiService.getCurrentEnrollment(studentId)
-                val enrollment = if (enrollRes.isSuccessful) enrollRes.body()?.data else null
-                
-                if (enrollment != null) {
-                    _uiState.update { it.copy(enrollment = enrollment) }
-                    
-                    // 3. Resolve Academic Year Name
-                    val yearsRes = apiService.getAcademicYears()
-                    if (yearsRes.isSuccessful) {
-                        val year = yearsRes.body()?.data?.find { it.academicYearId == enrollment.academicYearId }
-                        _uiState.update { it.copy(academicYear = year) }
-                    }
-
-                    // 4. Resolve Class Name
-                    val classesRes = apiService.getClasses()
-                    if (classesRes.isSuccessful) {
-                        val cls = classesRes.body()?.data?.find { it.classId == enrollment.classId }
-                        _uiState.update { it.copy(schoolClass = cls) }
-                    }
-
-                    // 5. Resolve Section Name
-                    val sectionRes = apiService.getSections(enrollment.classId, enrollment.academicYearId)
-                    if (sectionRes.isSuccessful) {
-                        val sec = sectionRes.body()?.data?.find { it.sectionId == enrollment.sectionId }
-                        _uiState.update { it.copy(section = sec) }
-                    }
                 }
                 
                 _uiState.update { it.copy(isLoading = false) }
@@ -135,6 +148,28 @@ class StudentProfileViewModel(
             } catch (e: Exception) {
                 _uiState.update { 
                     it.copy(isLoading = false, error = "Network error while deleting student.")
+                }
+            }
+        }
+    }
+
+    fun updateUserStatus(active: Boolean) {
+        val user = _uiState.value.user ?: return
+        viewModelScope.launch {
+            _uiState.update { it.copy(isLoading = true, error = null) }
+            try {
+                val req = com.school.gdsportal.data.remote.UpdateUserStatusRequest(user.userId, active)
+                val response = apiService.updateUserStatus(req)
+                if (response.isSuccessful) {
+                    loadProfileData() // reload to get new status
+                } else {
+                    _uiState.update { 
+                        it.copy(isLoading = false, error = "Failed to update user login status.")
+                    }
+                }
+            } catch (e: Exception) {
+                _uiState.update { 
+                    it.copy(isLoading = false, error = "Network error while updating user login status.")
                 }
             }
         }
