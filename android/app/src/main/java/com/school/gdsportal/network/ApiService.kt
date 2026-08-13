@@ -92,4 +92,10 @@ interface ApiService {
 
     @GET("api/parents/student/{studentId}")
     suspend fun getParentsByStudentId(@Path("studentId") studentId: Long): Response<ApiResponse<List<com.school.gdsportal.data.remote.Parent>>>
+
+    @retrofit2.http.PUT("api/students/{studentId}")
+    suspend fun updateStudent(
+        @Path("studentId") studentId: Long,
+        @Body student: com.school.gdsportal.data.remote.Student
+    ): Response<ApiResponse<String>>
 }
