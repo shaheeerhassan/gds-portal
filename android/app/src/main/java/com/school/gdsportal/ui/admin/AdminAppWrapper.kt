@@ -139,8 +139,17 @@ fun AdminAppWrapper(
                 StudentPlaceholderScreen(title = "Edit Student ($studentId)", onBack = { navController.navigateUp() })
             }
             composable("students/{studentId}/enrollment") { backStackEntry ->
-                val studentId = backStackEntry.arguments?.getString("studentId")
-                StudentPlaceholderScreen(title = "Academic Enrollment ($studentId)", onBack = { navController.navigateUp() })
+                val studentId = backStackEntry.arguments?.getString("studentId")?.toLongOrNull() ?: 0L
+                val factory = com.school.gdsportal.ui.admin.students.enrollment.StudentEnrollmentViewModel.provideFactory(
+                    studentId = studentId,
+                    apiService = appContainer.apiService
+                )
+                val enrollmentViewModel: com.school.gdsportal.ui.admin.students.enrollment.StudentEnrollmentViewModel = viewModel(factory = factory)
+                
+                com.school.gdsportal.ui.admin.students.enrollment.StudentEnrollmentScreen(
+                    viewModel = enrollmentViewModel,
+                    onBackClick = { navController.navigateUp() }
+                )
             }
             composable("students/{studentId}/enroll") { backStackEntry ->
                 val studentId = backStackEntry.arguments?.getString("studentId")
@@ -163,8 +172,17 @@ fun AdminAppWrapper(
                 StudentPlaceholderScreen(title = "Change Roll Number ($studentId)", onBack = { navController.navigateUp() })
             }
             composable("students/{studentId}/parents") { backStackEntry ->
-                val studentId = backStackEntry.arguments?.getString("studentId")
-                StudentPlaceholderScreen(title = "Parents & Guardians ($studentId)", onBack = { navController.navigateUp() })
+                val studentId = backStackEntry.arguments?.getString("studentId")?.toLongOrNull() ?: 0L
+                val factory = com.school.gdsportal.ui.admin.students.parents.StudentParentsViewModel.provideFactory(
+                    studentId = studentId,
+                    apiService = appContainer.apiService
+                )
+                val parentsViewModel: com.school.gdsportal.ui.admin.students.parents.StudentParentsViewModel = viewModel(factory = factory)
+                
+                com.school.gdsportal.ui.admin.students.parents.StudentParentsScreen(
+                    viewModel = parentsViewModel,
+                    onBackClick = { navController.navigateUp() }
+                )
             }
             composable("students/{studentId}/parents/link") { backStackEntry ->
                 val studentId = backStackEntry.arguments?.getString("studentId")

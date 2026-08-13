@@ -86,4 +86,10 @@ interface ApiService {
 
     @GET("api/enrollments/current/{studentId}")
     suspend fun getCurrentEnrollment(@Path("studentId") studentId: Long): Response<ApiResponse<com.school.gdsportal.data.remote.Enrollment>>
+
+    @GET("api/enrollments/student/{studentId}")
+    suspend fun getEnrollmentHistory(@Path("studentId") studentId: Long): Response<ApiResponse<List<com.school.gdsportal.data.remote.Enrollment>>>
+
+    @GET("api/parents/student/{studentId}")
+    suspend fun getParentsByStudentId(@Path("studentId") studentId: Long): Response<ApiResponse<List<com.school.gdsportal.data.remote.Parent>>>
 }

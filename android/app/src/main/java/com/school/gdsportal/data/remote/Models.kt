@@ -82,3 +82,13 @@ data class Enrollment(
     val enrollmentDate: String?,
     val active: Boolean
 )
+
+data class Parent(
+    val parentId: Long,
+    val userId: Long,
+    val firstName: String,
+    val lastName: String,
+    val phone: String?,
+    val occupation: String?,
+    val active: Boolean
+)
