@@ -7,6 +7,7 @@ import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material.icons.filled.ChevronRight
 import androidx.compose.material.icons.filled.Clear
 import androidx.compose.material.icons.filled.Menu
@@ -24,7 +25,7 @@ import com.school.gdsportal.data.remote.ParentDirectoryDTO
 @Composable
 fun ParentsDirectoryScreen(
     viewModel: ParentsDirectoryViewModel,
-    onMenuClick: () -> Unit,
+    onBackClick: () -> Unit,
     onParentClick: (Long) -> Unit
 ) {
     val uiState by viewModel.uiState.collectAsState()
@@ -34,8 +35,8 @@ fun ParentsDirectoryScreen(
             TopAppBar(
                 title = { Text("Parents") },
                 navigationIcon = {
-                    IconButton(onClick = onMenuClick) {
-                        Icon(Icons.Default.Menu, contentDescription = "Menu")
+                    IconButton(onClick = onBackClick) {
+                        Icon(Icons.AutoMirrored.Filled.ArrowBack, contentDescription = "Back")
                     }
                 }
             )

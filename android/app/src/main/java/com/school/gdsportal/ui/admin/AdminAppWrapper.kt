@@ -231,15 +231,26 @@ fun AdminAppWrapper(
                 val parentsViewModel: com.school.gdsportal.ui.admin.parents.ParentsDirectoryViewModel = viewModel(factory = factory)
                 com.school.gdsportal.ui.admin.parents.ParentsDirectoryScreen(
                     viewModel = parentsViewModel,
-                    onMenuClick = { coroutineScope.launch { drawerState.open() } },
+                    onBackClick = { navController.navigateUp() },
                     onParentClick = { parentId ->
                         navController.navigate("parents/$parentId")
                     }
                 )
             }
             composable("parents/{parentId}") { backStackEntry ->
-                val parentId = backStackEntry.arguments?.getString("parentId")
-                ParentPlaceholderScreen(title = "Parent Profile ($parentId)", onBack = { navController.navigateUp() })
+                val parentIdStr = backStackEntry.arguments?.getString("parentId")
+                val parentId = parentIdStr?.toLongOrNull() ?: 0L
+                val factory = com.school.gdsportal.ui.admin.parents.ParentProfileViewModel.Companion.provideFactory(
+                    parentId = parentId,
+                    apiService = appContainer.apiService
+                )
+                val viewModel: com.school.gdsportal.ui.admin.parents.ParentProfileViewModel = viewModel(factory = factory)
+                com.school.gdsportal.ui.admin.parents.ParentProfileScreen(
+                    viewModel = viewModel,
+                    onBackClick = { navController.navigateUp() },
+                    onViewAllStudentsClick = { navController.navigate("parents/$parentId/students") },
+                    onParentInformationClick = { navController.navigate("parents/$parentId/information") }
+                )
             }
             composable("parents/{parentId}/information") { backStackEntry ->
                 val parentId = backStackEntry.arguments?.getString("parentId")
