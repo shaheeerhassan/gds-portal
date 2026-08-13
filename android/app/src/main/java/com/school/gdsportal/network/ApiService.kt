@@ -113,4 +113,10 @@ interface ApiService {
     suspend fun transferStudent(
         @Body request: com.school.gdsportal.data.remote.TransferStudentRequest
     ): Response<ApiResponse<String>>
+
+    @retrofit2.http.PUT("api/enrollments/end/{studentId}/{academicYearId}")
+    suspend fun endEnrollment(
+        @Path("studentId") studentId: Long,
+        @Path("academicYearId") academicYearId: Int
+    ): Response<ApiResponse<String>>
 }

@@ -35,6 +35,7 @@ fun StudentProfileScreen(
 ) {
     val uiState by viewModel.uiState.collectAsState()
     var showMenu by remember { mutableStateOf(false) }
+    var showEndEnrollmentDialog by remember { mutableStateOf(false) }
 
     Scaffold(
         topBar = {
@@ -69,6 +70,13 @@ fun StudentProfileScreen(
                                         onTransferClick()
                                     }
                                 )
+                                DropdownMenuItem(
+                                    text = { Text("End Enrollment", color = MaterialTheme.colorScheme.error) },
+                                    onClick = {
+                                        showMenu = false
+                                        showEndEnrollmentDialog = true
+                                    }
+                                )
                             }
                         }
                     }
@@ -76,6 +84,30 @@ fun StudentProfileScreen(
             )
         }
     ) { padding ->
+        if (showEndEnrollmentDialog) {
+            AlertDialog(
+                onDismissRequest = { showEndEnrollmentDialog = false },
+                title = { Text("End Enrollment?") },
+                text = { Text("This will remove the student from their current active class and section. Are you sure you want to end their enrollment for this academic year?") },
+                confirmButton = {
+                    TextButton(
+                        onClick = {
+                            showEndEnrollmentDialog = false
+                            viewModel.endEnrollment()
+                        },
+                        colors = ButtonDefaults.textButtonColors(contentColor = MaterialTheme.colorScheme.error)
+                    ) {
+                        Text("End Enrollment")
+                    }
+                },
+                dismissButton = {
+                    TextButton(onClick = { showEndEnrollmentDialog = false }) {
+                        Text("Cancel")
+                    }
+                }
+            )
+        }
+
         if (uiState.isLoading) {
             Box(modifier = Modifier.fillMaxSize().padding(padding), contentAlignment = Alignment.Center) {
                 CircularProgressIndicator()

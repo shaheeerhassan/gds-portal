@@ -96,6 +96,30 @@ class StudentProfileViewModel(
         }
     }
 
+    fun endEnrollment() {
+        val currentEnrollment = _uiState.value.enrollment
+        if (currentEnrollment == null || !currentEnrollment.active) return
+        
+        viewModelScope.launch {
+            _uiState.update { it.copy(isLoading = true, error = null) }
+            try {
+                val response = apiService.endEnrollment(studentId, currentEnrollment.academicYearId)
+                if (response.isSuccessful) {
+                    // Reload data to reflect the unenrolled state
+                    loadProfileData()
+                } else {
+                    _uiState.update { 
+                        it.copy(isLoading = false, error = "Failed to end enrollment.")
+                    }
+                }
+            } catch (e: Exception) {
+                _uiState.update { 
+                    it.copy(isLoading = false, error = "Network error while ending enrollment.")
+                }
+            }
+        }
+    }
+
     companion object {
         fun provideFactory(studentId: Long, apiService: ApiService): ViewModelProvider.Factory = object : ViewModelProvider.Factory {
             @Suppress("UNCHECKED_CAST")
