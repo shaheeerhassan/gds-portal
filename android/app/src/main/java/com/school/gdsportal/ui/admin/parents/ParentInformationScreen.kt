@@ -1,22 +1,16 @@
 package com.school.gdsportal.ui.admin.parents
 
-import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
-import androidx.compose.material.icons.outlined.Person
-import androidx.compose.material.icons.outlined.Phone
-import androidx.compose.material.icons.outlined.WorkOutline
-import androidx.compose.material.icons.outlined.Info
 import androidx.compose.material3.*
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 
@@ -41,7 +35,7 @@ fun ParentInformationScreen(
         }
     ) { paddingValues ->
         if (uiState.isLoading) {
-            Box(modifier = Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
+            Box(modifier = Modifier.fillMaxSize().padding(paddingValues), contentAlignment = Alignment.Center) {
                 CircularProgressIndicator()
             }
         } else if (uiState.error != null) {
@@ -58,7 +52,7 @@ fun ParentInformationScreen(
                     color = MaterialTheme.colorScheme.error,
                     style = MaterialTheme.typography.bodyLarge
                 )
-                Spacer(modifier = Modifier.height(8.dp))
+                Spacer(modifier = Modifier.height(16.dp))
                 Button(onClick = viewModel::retry) {
                     Text("Retry")
                 }
@@ -70,72 +64,26 @@ fun ParentInformationScreen(
                     modifier = Modifier
                         .fillMaxSize()
                         .padding(paddingValues)
-                        .verticalScroll(rememberScrollState())
                         .padding(16.dp)
+                        .verticalScroll(rememberScrollState())
                 ) {
-                    Text(
-                        text = "Personal Details",
-                        style = MaterialTheme.typography.titleMedium,
-                        color = MaterialTheme.colorScheme.primary,
-                        fontWeight = FontWeight.Bold,
-                        modifier = Modifier.padding(bottom = 16.dp)
-                    )
+                    InfoCard("Personal Details") {
+                        InfoRow(label = "First Name", value = parent.firstName)
+                        InfoRow(label = "Last Name", value = parent.lastName)
+                    }
 
-                    InfoCard(
-                        icon = Icons.Outlined.Person,
-                        label = "First Name",
-                        value = parent.firstName
-                    )
+                    Spacer(modifier = Modifier.height(16.dp))
 
-                    InfoCard(
-                        icon = Icons.Outlined.Person,
-                        label = "Last Name",
-                        value = parent.lastName
-                    )
+                    InfoCard("Contact & Occupation") {
+                        InfoRow(label = "Phone Number", value = parent.phone?.takeIf { it.isNotBlank() } ?: "-")
+                        InfoRow(label = "Occupation", value = parent.occupation?.takeIf { it.isNotBlank() } ?: "-")
+                    }
 
-                    HorizontalDivider(modifier = Modifier.padding(vertical = 16.dp))
+                    Spacer(modifier = Modifier.height(16.dp))
 
-                    Text(
-                        text = "Contact & Occupation",
-                        style = MaterialTheme.typography.titleMedium,
-                        color = MaterialTheme.colorScheme.primary,
-                        fontWeight = FontWeight.Bold,
-                        modifier = Modifier.padding(bottom = 16.dp)
-                    )
-
-                    InfoCard(
-                        icon = Icons.Outlined.Phone,
-                        label = "Phone Number",
-                        value = parent.phone?.takeIf { it.isNotBlank() } ?: "Not provided"
-                    )
-
-                    InfoCard(
-                        icon = Icons.Outlined.WorkOutline,
-                        label = "Occupation",
-                        value = parent.occupation?.takeIf { it.isNotBlank() } ?: "Not provided"
-                    )
-
-                    HorizontalDivider(modifier = Modifier.padding(vertical = 16.dp))
-
-                    Text(
-                        text = "Account Information",
-                        style = MaterialTheme.typography.titleMedium,
-                        color = MaterialTheme.colorScheme.primary,
-                        fontWeight = FontWeight.Bold,
-                        modifier = Modifier.padding(bottom = 16.dp)
-                    )
-
-                    InfoCard(
-                        icon = Icons.Outlined.Info,
-                        label = "Account Status",
-                        value = if (parent.active) "Active" else "Inactive"
-                    )
-                    
-                    InfoCard(
-                        icon = Icons.Outlined.Info,
-                        label = "User ID",
-                        value = parent.userId.toString()
-                    )
+                    InfoCard("Account Information") {
+                        InfoRow(label = "Account Status", value = if (parent.active) "Active" else "Inactive")
+                    }
                 }
             }
         }
@@ -143,44 +91,28 @@ fun ParentInformationScreen(
 }
 
 @Composable
-fun InfoCard(
-    icon: ImageVector,
-    label: String,
-    value: String
-) {
-    Row(
-        modifier = Modifier
-            .fillMaxWidth()
-            .padding(vertical = 8.dp),
-        verticalAlignment = Alignment.CenterVertically
+private fun InfoCard(title: String, content: @Composable ColumnScope.() -> Unit) {
+    Card(
+        modifier = Modifier.fillMaxWidth(),
+        colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surfaceVariant)
     ) {
-        Box(
-            modifier = Modifier
-                .size(40.dp)
-                .background(
-                    color = MaterialTheme.colorScheme.surfaceVariant,
-                    shape = MaterialTheme.shapes.small
-                ),
-            contentAlignment = Alignment.Center
-        ) {
-            Icon(
-                imageVector = icon,
-                contentDescription = null,
-                tint = MaterialTheme.colorScheme.onSurfaceVariant
-            )
-        }
-        Spacer(modifier = Modifier.width(16.dp))
-        Column {
+        Column(modifier = Modifier.padding(16.dp)) {
             Text(
-                text = label,
-                style = MaterialTheme.typography.bodySmall,
-                color = MaterialTheme.colorScheme.onSurfaceVariant
+                text = title.uppercase(),
+                style = MaterialTheme.typography.labelMedium,
+                color = MaterialTheme.colorScheme.primary,
+                modifier = Modifier.padding(bottom = 16.dp)
             )
-            Text(
-                text = value,
-                style = MaterialTheme.typography.bodyLarge,
-                fontWeight = FontWeight.Medium
-            )
+            content()
         }
+    }
+}
+
+@Composable
+private fun InfoRow(label: String, value: String) {
+    Column(modifier = Modifier.padding(bottom = 12.dp)) {
+        Text(text = label, style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.onSurfaceVariant)
+        Spacer(modifier = Modifier.height(2.dp))
+        Text(text = value, style = MaterialTheme.typography.bodyLarge, fontWeight = FontWeight.Medium)
     }
 }
