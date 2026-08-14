@@ -5,6 +5,7 @@ import com.school.dao.impl.SectionDaoImpl;
 import com.school.dao.interfaces.ClassTeacherAssignmentDao;
 import com.school.dao.interfaces.SectionDao;
 import com.school.exceptions.ResourceNotFoundException;
+import com.school.exceptions.ValidationException;
 import com.school.model.ClassTeacherAssignment;
 import com.school.model.Section;
 import com.school.service.interfaces.ClassTeacherAssignmentService;
@@ -26,6 +27,15 @@ public class ClassTeacherAssignmentServiceImpl implements ClassTeacherAssignment
     @Override
     public void assignClassTeacher(ClassTeacherAssignment assignment) {
         validateId(assignment.getTeacherId(), assignment.getSectionId(), assignment.getAcademicYearId());
+
+        ClassTeacherAssignment currentForTeacher = classTeacherAssignmentDao.getCurrentAssignmentForTeacher(assignment.getTeacherId(), assignment.getAcademicYearId());
+        if (currentForTeacher != null && currentForTeacher.getSectionId() != assignment.getSectionId()) {
+            throw new ValidationException("This teacher is already assigned as a class teacher for another section.");
+        }
+
+        if (currentForTeacher != null) {
+            return;
+        }
 
         classTeacherAssignmentDao.deleteClassTeacher(assignment.getSectionId(), assignment.getAcademicYearId());
 

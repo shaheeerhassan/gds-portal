@@ -3,7 +3,6 @@ package com.school.model;
 import lombok.*;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
-import java.time.LocalTime;
 
 @NoArgsConstructor
 @AllArgsConstructor
@@ -15,7 +14,5 @@ public class TeacherAttendance {
     private long teacherId;
     private LocalDate attendanceDate;
     private Status status;
-    private LocalTime checkInTime;
-    private LocalTime checkOutTime;
     private LocalDateTime markedAt;
 }
