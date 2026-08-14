@@ -28,7 +28,8 @@ fun ParentProfileScreen(
     viewModel: ParentProfileViewModel,
     onBackClick: () -> Unit,
     onViewAllStudentsClick: () -> Unit,
-    onParentInformationClick: () -> Unit
+    onParentInformationClick: () -> Unit,
+    onEditParentClick: () -> Unit
 ) {
     val uiState by viewModel.uiState.collectAsState()
     var showMenu by remember { mutableStateOf(false) }
@@ -55,7 +56,7 @@ fun ParentProfileScreen(
                                 text = { Text("Edit Parent") },
                                 onClick = { 
                                     showMenu = false
-                                    // TODO: Navigate to Edit Parent
+                                    onEditParentClick()
                                 }
                             )
                             DropdownMenuItem(

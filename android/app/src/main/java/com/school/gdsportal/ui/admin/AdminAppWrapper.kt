@@ -249,7 +249,8 @@ fun AdminAppWrapper(
                     viewModel = viewModel,
                     onBackClick = { navController.navigateUp() },
                     onViewAllStudentsClick = { navController.navigate("parents/$parentId/students") },
-                    onParentInformationClick = { navController.navigate("parents/$parentId/information") }
+                    onParentInformationClick = { navController.navigate("parents/$parentId/information") },
+                    onEditParentClick = { navController.navigate("parents/$parentId/edit") }
                 )
             }
             composable("parents/{parentId}/information") { backStackEntry ->
@@ -266,8 +267,17 @@ fun AdminAppWrapper(
                 )
             }
             composable("parents/{parentId}/edit") { backStackEntry ->
-                val parentId = backStackEntry.arguments?.getString("parentId")
-                ParentPlaceholderScreen(title = "Edit Parent ($parentId)", onBack = { navController.navigateUp() })
+                val parentIdStr = backStackEntry.arguments?.getString("parentId")
+                val parentId = parentIdStr?.toLongOrNull() ?: 0L
+                val factory = com.school.gdsportal.ui.admin.parents.ParentEditViewModel.Companion.provideFactory(
+                    parentId = parentId,
+                    apiService = appContainer.apiService
+                )
+                val viewModel: com.school.gdsportal.ui.admin.parents.ParentEditViewModel = viewModel(factory = factory)
+                com.school.gdsportal.ui.admin.parents.ParentEditScreen(
+                    viewModel = viewModel,
+                    onBackClick = { navController.navigateUp() }
+                )
             }
             composable("parents/{parentId}/students") { backStackEntry ->
                 val parentIdStr = backStackEntry.arguments?.getString("parentId")
