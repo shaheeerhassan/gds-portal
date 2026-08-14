@@ -65,7 +65,7 @@ fun TeacherProfileScreen(
                         )
                         HorizontalDivider()
                         DropdownMenuItem(
-                            text = { Text("Deactivate Teacher", color = MaterialTheme.colorScheme.error) },
+                            text = { Text("Delete Teacher", color = MaterialTheme.colorScheme.error) },
                             onClick = {
                                 expandedMenu = false
                                 showDeactivateDialog = true
@@ -80,8 +80,8 @@ fun TeacherProfileScreen(
         if (showDeactivateDialog) {
             AlertDialog(
                 onDismissRequest = { showDeactivateDialog = false },
-                title = { Text("Deactivate Teacher?") },
-                text = { Text("This will deactivate the teacher and disable their access to the portal. Their records and historical data will remain available.") },
+                title = { Text("Delete Teacher?") },
+                text = { Text("This will delete the teacher and disable their access to the portal. Their records and historical data will remain available.") },
                 confirmButton = {
                     Button(
                         onClick = { 
@@ -93,7 +93,7 @@ fun TeacherProfileScreen(
                         if (uiState.isDeactivating) {
                             CircularProgressIndicator(modifier = Modifier.size(16.dp), color = MaterialTheme.colorScheme.onError)
                         } else {
-                            Text("Deactivate")
+                            Text("Delete")
                         }
                     }
                 },
