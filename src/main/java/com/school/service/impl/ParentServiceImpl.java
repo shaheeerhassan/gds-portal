@@ -11,6 +11,8 @@ import com.school.model.User;
 import com.school.service.interfaces.ParentService;
 import com.school.service.interfaces.RoleService;
 import com.school.service.interfaces.UserService;
+import com.school.web.dto.response.PaginatedResponse;
+import com.school.web.dto.response.ParentDirectoryDTO;
 
 import java.sql.Connection;
 import java.sql.SQLException;
@@ -120,7 +122,7 @@ public class ParentServiceImpl implements ParentService {
     }
 
     @Override
-    public com.school.web.dto.response.PaginatedResponse<com.school.web.dto.response.ParentDirectoryDTO> getParentsDirectory(String query, int page, int size) {
+    public PaginatedResponse<ParentDirectoryDTO> getParentsDirectory(String query, int page, int size) {
         if (page < 0) page = 0;
         if (size <= 0) size = 20;
 
