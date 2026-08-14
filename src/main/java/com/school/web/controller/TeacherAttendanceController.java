@@ -14,10 +14,11 @@ import com.school.web.auth.RoleGuard;
 import jakarta.servlet.annotation.WebServlet;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
+import lombok.Getter;
+import lombok.Setter;
 
 import java.io.IOException;
 import java.time.LocalDate;
-import java.time.LocalTime;
 import java.util.List;
 
 @WebServlet(urlPatterns = "/api/attendance/teachers/*")
@@ -92,24 +93,6 @@ public class TeacherAttendanceController extends BaseServlet {
             writeStatusMessage(resp, "Attendance status updated.");
             return;
         }
-        if (path.startsWith("/check-in/")) {
-            long attendanceId = parseLong(path.substring("/check-in/".length()));
-            TimeRequest request = readBody(req, TimeRequest.class);
-            if (request == null || request.getTime() == null)
-                throw new ValidationException("time is required.");
-            teacherAttendanceService.checkIn(attendanceId, parseTime(request.getTime()));
-            writeStatusMessage(resp, "Checked in.");
-            return;
-        }
-        if (path.startsWith("/check-out/")) {
-            long attendanceId = parseLong(path.substring("/check-out/".length()));
-            TimeRequest request = readBody(req, TimeRequest.class);
-            if (request == null || request.getTime() == null)
-                throw new ValidationException("time is required.");
-            teacherAttendanceService.checkOut(attendanceId, parseTime(request.getTime()));
-            writeStatusMessage(resp, "Checked out.");
-            return;
-        }
         throw new ValidationException("Unsupported path: " + path);
     }
 
@@ -139,47 +122,15 @@ public class TeacherAttendanceController extends BaseServlet {
         }
     }
 
-    private LocalTime parseTime(String value) {
-        try {
-            return LocalTime.parse(value);
-        } catch (java.time.format.DateTimeParseException e) {
-            throw new ValidationException("Invalid time: " + value);
-        }
-    }
-
+    @Getter
+    @Setter
     public static class MarkAttendanceRequest {
         private List<TeacherAttendance> records;
-
-        public List<TeacherAttendance> getRecords() {
-            return records;
-        }
-
-        public void setRecords(List<TeacherAttendance> records) {
-            this.records = records;
-        }
     }
 
+    @Getter
+    @Setter
     public static class StatusRequest {
         private String status;
-
-        public String getStatus() {
-            return status;
-        }
-
-        public void setStatus(String status) {
-            this.status = status;
-        }
-    }
-
-    public static class TimeRequest {
-        private String time;
-
-        public String getTime() {
-            return time;
-        }
-
-        public void setTime(String time) {
-            this.time = time;
-        }
     }
 }
