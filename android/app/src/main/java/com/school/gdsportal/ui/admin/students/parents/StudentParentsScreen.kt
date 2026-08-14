@@ -23,7 +23,8 @@ import com.school.gdsportal.data.remote.Parent
 @Composable
 fun StudentParentsScreen(
     viewModel: StudentParentsViewModel,
-    onBackClick: () -> Unit
+    onBackClick: () -> Unit,
+    onAddParentClick: () -> Unit
 ) {
     val uiState by viewModel.uiState.collectAsState()
 
@@ -76,22 +77,9 @@ fun StudentParentsScreen(
                 }
             }
         }
-        
-        var showLinkDialog by androidx.compose.runtime.remember { androidx.compose.runtime.mutableStateOf(false) }
-        
-        if (showLinkDialog) {
-            LinkParentDialog(
-                onDismiss = { showLinkDialog = false },
-                onConfirm = { parentId, relType, isPrimary -> 
-                    showLinkDialog = false
-                    viewModel.linkParent(parentId, relType, isPrimary)
-                }
-            )
-        }
-        
         Box(modifier = Modifier.fillMaxSize().padding(padding)) {
             FloatingActionButton(
-                onClick = { showLinkDialog = true },
+                onClick = onAddParentClick,
                 modifier = Modifier
                     .align(Alignment.BottomEnd)
                     .padding(16.dp),
@@ -103,91 +91,6 @@ fun StudentParentsScreen(
     }
 }
 
-@OptIn(ExperimentalMaterial3Api::class)
-@Composable
-private fun LinkParentDialog(
-    onDismiss: () -> Unit,
-    onConfirm: (Long, String, Boolean) -> Unit
-) {
-    var parentIdStr by androidx.compose.runtime.remember { androidx.compose.runtime.mutableStateOf("") }
-    var expanded by androidx.compose.runtime.remember { androidx.compose.runtime.mutableStateOf(false) }
-    var selectedRel by androidx.compose.runtime.remember { androidx.compose.runtime.mutableStateOf("FATHER") }
-    var isPrimary by androidx.compose.runtime.remember { androidx.compose.runtime.mutableStateOf(false) }
-    
-    val relTypes = listOf("FATHER", "MOTHER", "GUARDIAN", "OTHER")
-
-    AlertDialog(
-        onDismissRequest = onDismiss,
-        title = { Text("Link Parent") },
-        text = {
-            Column(verticalArrangement = Arrangement.spacedBy(8.dp)) {
-                OutlinedTextField(
-                    value = parentIdStr,
-                    onValueChange = { parentIdStr = it },
-                    label = { Text("Parent ID *") },
-                    singleLine = true,
-                    modifier = Modifier.fillMaxWidth()
-                )
-                
-                ExposedDropdownMenuBox(
-                    expanded = expanded,
-                    onExpandedChange = { expanded = it }
-                ) {
-                    OutlinedTextField(
-                        value = selectedRel,
-                        onValueChange = {},
-                        readOnly = true,
-                        label = { Text("Relationship *") },
-                        trailingIcon = { ExposedDropdownMenuDefaults.TrailingIcon(expanded = expanded) },
-                        colors = ExposedDropdownMenuDefaults.outlinedTextFieldColors(),
-                        modifier = Modifier.fillMaxWidth().menuAnchor()
-                    )
-                    ExposedDropdownMenu(
-                        expanded = expanded,
-                        onDismissRequest = { expanded = false }
-                    ) {
-                        relTypes.forEach { rel ->
-                            DropdownMenuItem(
-                                text = { Text(rel) },
-                                onClick = {
-                                    selectedRel = rel
-                                    expanded = false
-                                }
-                            )
-                        }
-                    }
-                }
-                
-                Row(
-                    verticalAlignment = Alignment.CenterVertically,
-                    modifier = Modifier.fillMaxWidth().padding(top = 8.dp)
-                ) {
-                    Checkbox(
-                        checked = isPrimary,
-                        onCheckedChange = { isPrimary = it }
-                    )
-                    Text("Primary Contact")
-                }
-            }
-        },
-        confirmButton = {
-            Button(
-                onClick = { 
-                    val pid = parentIdStr.toLongOrNull()
-                    if (pid != null) {
-                        onConfirm(pid, selectedRel, isPrimary)
-                    }
-                },
-                enabled = parentIdStr.isNotBlank() && parentIdStr.toLongOrNull() != null
-            ) {
-                Text("Link")
-            }
-        },
-        dismissButton = {
-            TextButton(onClick = onDismiss) { Text("Cancel") }
-        }
-    )
-}
 
 @Composable
 private fun ParentCard(parent: Parent, onUnlinkClick: () -> Unit) {

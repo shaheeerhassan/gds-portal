@@ -106,6 +106,21 @@ interface ApiService {
         @Query("size") size: Int
     ): Response<ApiResponse<PaginatedResponse<com.school.gdsportal.data.remote.ParentDirectoryDTO>>>
 
+    @retrofit2.http.POST("api/parents/")
+    suspend fun createParent(
+        @Body request: com.school.gdsportal.data.remote.CreateParentRequest
+    ): Response<ApiResponse<com.school.gdsportal.data.remote.Parent>>
+
+    @retrofit2.http.POST("api/parents/link")
+    suspend fun linkParent(
+        @Body request: com.school.gdsportal.data.remote.LinkParentRequest
+    ): Response<ApiResponse<String>>
+
+    @retrofit2.http.DELETE("api/parents/link/{parentId}/{studentId}")
+    suspend fun unlinkParent(
+        @Path("parentId") parentId: Long,
+        @Path("studentId") studentId: Long
+    ): Response<ApiResponse<String>>
 
     @retrofit2.http.GET("api/users/{userId}")
     suspend fun getUser(
@@ -160,14 +175,5 @@ interface ApiService {
         @Path("academicYearId") academicYearId: Int
     ): Response<ApiResponse<String>>
 
-    @retrofit2.http.POST("api/parents/link")
-    suspend fun linkParent(
-        @Body request: com.school.gdsportal.data.remote.LinkParentRequest
-    ): Response<ApiResponse<String>>
-
-    @retrofit2.http.DELETE("api/parents/link/{parentId}/{studentId}")
-    suspend fun unlinkParent(
-        @Path("parentId") parentId: Long,
-        @Path("studentId") studentId: Long
-    ): Response<ApiResponse<String>>
+    // Removed duplicates
 }

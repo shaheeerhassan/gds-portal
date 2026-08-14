@@ -217,6 +217,20 @@ fun AdminAppWrapper(
                 
                 com.school.gdsportal.ui.admin.students.parents.StudentParentsScreen(
                     viewModel = parentsViewModel,
+                    onBackClick = { navController.navigateUp() },
+                    onAddParentClick = { navController.navigate("students/$studentId/parents/add") }
+                )
+            }
+            composable("students/{studentId}/parents/add") { backStackEntry ->
+                val studentIdStr = backStackEntry.arguments?.getString("studentId")
+                val studentId = studentIdStr?.toLongOrNull() ?: 0L
+                val factory = com.school.gdsportal.ui.admin.students.parents.AddParentViewModel.Companion.provideFactory(
+                    studentId = studentId,
+                    apiService = appContainer.apiService
+                )
+                val viewModel: com.school.gdsportal.ui.admin.students.parents.AddParentViewModel = viewModel(factory = factory)
+                com.school.gdsportal.ui.admin.students.parents.AddParentScreen(
+                    viewModel = viewModel,
                     onBackClick = { navController.navigateUp() }
                 )
             }
