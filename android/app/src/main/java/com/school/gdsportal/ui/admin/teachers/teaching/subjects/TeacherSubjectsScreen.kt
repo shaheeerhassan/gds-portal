@@ -28,7 +28,7 @@ fun TeacherSubjectsScreen(
     Scaffold(
         topBar = {
             TopAppBar(
-                title = { Text("Assigned Subjects") },
+                title = { Text("Teaching Assignments") },
                 navigationIcon = {
                     IconButton(onClick = onBackClick) {
                         Icon(Icons.Default.ArrowBack, contentDescription = "Back")
@@ -38,7 +38,7 @@ fun TeacherSubjectsScreen(
         },
         floatingActionButton = {
             FloatingActionButton(onClick = onAssignClick) {
-                Icon(Icons.Default.Add, contentDescription = "Assign Subject")
+                Icon(Icons.Default.Add, contentDescription = "Assign Class & Subject")
             }
         }
     ) { padding ->
@@ -62,7 +62,7 @@ fun TeacherSubjectsScreen(
                 }
             } else if (uiState.assignments.isEmpty()) {
                 Text(
-                    text = "No subjects assigned yet.",
+                    text = "No teaching assignments yet.",
                     style = MaterialTheme.typography.bodyLarge,
                     modifier = Modifier.align(Alignment.Center)
                 )
@@ -90,7 +90,7 @@ fun TeacherSubjectsScreen(
             AlertDialog(
                 onDismissRequest = { showDeleteDialog = null },
                 title = { Text("Remove Assignment") },
-                text = { Text("Are you sure you want to remove ${showDeleteDialog!!.subjectName} from ${showDeleteDialog!!.className} Section ${showDeleteDialog!!.sectionName}?") },
+                text = { Text("Are you sure you want to remove ${showDeleteDialog!!.subjectName} from ${showDeleteDialog!!.className ?: "Unknown Grade"} Section ${showDeleteDialog!!.sectionName}?") },
                 confirmButton = {
                     TextButton(
                         onClick = {
@@ -136,7 +136,7 @@ private fun TeacherSubjectCard(
                 Spacer(modifier = Modifier.height(4.dp))
                 Spacer(modifier = Modifier.height(4.dp))
                 Text(
-                    text = "${assignment.className} - Section ${assignment.sectionName}",
+                    text = "${assignment.className ?: "Unknown Grade"} - Section ${assignment.sectionName}",
                     style = MaterialTheme.typography.bodyMedium,
                     color = MaterialTheme.colorScheme.onSurfaceVariant
                 )

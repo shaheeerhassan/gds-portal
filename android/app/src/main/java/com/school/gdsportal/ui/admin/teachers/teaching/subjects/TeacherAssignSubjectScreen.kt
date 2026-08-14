@@ -35,7 +35,7 @@ fun TeacherAssignSubjectScreen(
     Scaffold(
         topBar = {
             TopAppBar(
-                title = { Text("Assign Subject") },
+                title = { Text("Assign Class & Subject") },
                 navigationIcon = {
                     IconButton(onClick = onBackClick) {
                         Icon(Icons.Default.ArrowBack, contentDescription = "Back")

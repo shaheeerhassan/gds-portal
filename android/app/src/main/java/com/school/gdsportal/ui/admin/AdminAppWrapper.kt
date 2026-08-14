@@ -334,7 +334,7 @@ fun AdminAppWrapper(
                     onBackClick = { navController.navigateUp() },
                     onEditTeacherClick = { navController.navigate("teachers/$teacherId/edit") },
                     onPersonalInformationClick = { navController.navigate("teachers/$teacherId/information") },
-                    onTeachingAssignmentsClick = { navController.navigate("teachers/$teacherId/teaching") },
+                    onTeachingAssignmentsClick = { navController.navigate("teachers/$teacherId/subjects") },
                     onClassTeacherClick = { navController.navigate("teachers/$teacherId/class-teacher") },
                     onAttendanceClick = { navController.navigate("teachers/$teacherId/attendance") }
                 )
@@ -357,43 +357,7 @@ fun AdminAppWrapper(
                 val teacherId = backStackEntry.arguments?.getString("teacherId")
                 TeacherPlaceholderScreen(title = "Edit Teacher ($teacherId)", onBack = { navController.navigateUp() })
             }
-            composable("teachers/{teacherId}/teaching") { backStackEntry ->
-                val teacherIdStr = backStackEntry.arguments?.getString("teacherId")
-                val teacherId = teacherIdStr?.toLongOrNull() ?: 0L
-                com.school.gdsportal.ui.admin.teachers.teaching.TeacherTeachingHubScreen(
-                    onBackClick = { navController.navigateUp() },
-                    onClassesClick = { navController.navigate("teachers/$teacherId/classes") },
-                    onSubjectsClick = { navController.navigate("teachers/$teacherId/subjects") }
-                )
-            }
-            composable("teachers/{teacherId}/classes") { backStackEntry ->
-                val teacherIdStr = backStackEntry.arguments?.getString("teacherId")
-                val teacherId = teacherIdStr?.toLongOrNull() ?: 0L
-                val factory = com.school.gdsportal.ui.admin.teachers.teaching.classes.TeacherClassesViewModel.Companion.provideFactory(
-                    teacherId = teacherId,
-                    apiService = appContainer.apiService
-                )
-                val viewModel: com.school.gdsportal.ui.admin.teachers.teaching.classes.TeacherClassesViewModel = androidx.lifecycle.viewmodel.compose.viewModel(factory = factory)
-                com.school.gdsportal.ui.admin.teachers.teaching.classes.TeacherClassesScreen(
-                    viewModel = viewModel,
-                    onBackClick = { navController.navigateUp() },
-                    onAssignClick = { navController.navigate("teachers/$teacherId/classes/assign") }
-                )
-            }
-            composable("teachers/{teacherId}/classes/assign") { backStackEntry ->
-                val teacherIdStr = backStackEntry.arguments?.getString("teacherId")
-                val teacherId = teacherIdStr?.toLongOrNull() ?: 0L
-                val factory = com.school.gdsportal.ui.admin.teachers.teaching.classes.TeacherAssignClassViewModel.Companion.provideFactory(
-                    teacherId = teacherId,
-                    apiService = appContainer.apiService
-                )
-                val viewModel: com.school.gdsportal.ui.admin.teachers.teaching.classes.TeacherAssignClassViewModel = androidx.lifecycle.viewmodel.compose.viewModel(factory = factory)
-                com.school.gdsportal.ui.admin.teachers.teaching.classes.TeacherAssignClassScreen(
-                    viewModel = viewModel,
-                    onBackClick = { navController.navigateUp() },
-                    onAssignSuccess = { navController.navigateUp() }
-                )
-            }
+
             composable("teachers/{teacherId}/subjects") { backStackEntry ->
                 val teacherIdStr = backStackEntry.arguments?.getString("teacherId")
                 val teacherId = teacherIdStr?.toLongOrNull() ?: 0L

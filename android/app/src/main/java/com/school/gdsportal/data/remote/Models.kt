@@ -182,8 +182,8 @@ data class TeacherSubjectDTO(
     val teacherId: Long,
     val subjectId: Int,
     val subjectName: String,
-    val classId: Int,
-    val className: String,
+    val classId: Int?,
+    val className: String?,
     val sectionId: Int,
     val sectionName: String,
     val academicYearId: Int
