@@ -243,3 +243,20 @@ data class ClassTeacherAssignment(
     val removedDate: String?,
     val isActive: Boolean
 )
+
+data class Principal(
+    val principalId: Long,
+    val userId: Long,
+    val employeeId: String,
+    val firstName: String,
+    val lastName: String,
+    val phone: String,
+    val isActive: Boolean
+)
+
+data class CreatePrincipalRequest(
+    val email: String,
+    val username: String,
+    val password: String,
+    val principal: Principal
+)

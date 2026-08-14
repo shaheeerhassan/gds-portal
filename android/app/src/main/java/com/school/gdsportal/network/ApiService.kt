@@ -62,6 +62,25 @@ interface ApiService {
     @DELETE("api/teachers/{teacherId}")
     suspend fun deactivateTeacher(@Path("teacherId") teacherId: Long): Response<ApiResponse<Void>>
 
+    // Principals
+    @GET("api/principals")
+    suspend fun getPrincipals(): Response<ApiResponse<List<com.school.gdsportal.data.remote.Principal>>>
+
+    @GET("api/principals/{principalId}")
+    suspend fun getPrincipalById(@Path("principalId") principalId: Long): Response<ApiResponse<com.school.gdsportal.data.remote.Principal>>
+
+    @POST("api/principals")
+    suspend fun createPrincipal(@Body request: com.school.gdsportal.data.remote.CreatePrincipalRequest): Response<ApiResponse<com.school.gdsportal.data.remote.Principal>>
+
+    @PUT("api/principals/{principalId}")
+    suspend fun updatePrincipal(
+        @Path("principalId") principalId: Long,
+        @Body principal: com.school.gdsportal.data.remote.Principal
+    ): Response<ApiResponse<Void>>
+
+    @DELETE("api/principals/{principalId}")
+    suspend fun deactivatePrincipal(@Path("principalId") principalId: Long): Response<ApiResponse<Void>>
+
     @GET("api/class-teachers/teacher/{teacherId}/history")
     suspend fun getClassTeacherHistory(@Path("teacherId") teacherId: Long): Response<ApiResponse<List<ClassTeacherAssignment>>>
 

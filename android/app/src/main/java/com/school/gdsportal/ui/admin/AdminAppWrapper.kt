@@ -239,6 +239,59 @@ fun AdminAppWrapper(
                 StudentPlaceholderScreen(title = "Link Parent ($studentId)", onBack = { navController.navigateUp() })
             }
 
+            // Principals Module Routes
+            composable("principals") {
+                val factory = com.school.gdsportal.ui.admin.principals.PrincipalsDirectoryViewModel.Factory(appContainer.apiService)
+                val principalsViewModel: com.school.gdsportal.ui.admin.principals.PrincipalsDirectoryViewModel = viewModel(factory = factory)
+                com.school.gdsportal.ui.admin.principals.PrincipalsDirectoryScreen(
+                    viewModel = principalsViewModel,
+                    onBackClick = { navController.navigateUp() },
+                    onAddPrincipalClick = { navController.navigate("principals/create") },
+                    onPrincipalClick = { principalId ->
+                        navController.navigate("principals/$principalId")
+                    }
+                )
+            }
+            composable("principals/create") {
+                val factory = com.school.gdsportal.ui.admin.principals.PrincipalCreateViewModel.provideFactory(appContainer.apiService)
+                val viewModel: com.school.gdsportal.ui.admin.principals.PrincipalCreateViewModel = viewModel(factory = factory)
+                com.school.gdsportal.ui.admin.principals.PrincipalCreateScreen(
+                    viewModel = viewModel,
+                    onBackClick = { navController.navigateUp() },
+                    onPrincipalCreated = { principalId ->
+                        navController.popBackStack()
+                        navController.navigate("principals/$principalId")
+                    }
+                )
+            }
+            composable("principals/{principalId}") { backStackEntry ->
+                val principalIdStr = backStackEntry.arguments?.getString("principalId")
+                val principalId = principalIdStr?.toLongOrNull() ?: 0L
+                val factory = com.school.gdsportal.ui.admin.principals.PrincipalProfileViewModel.Factory(
+                    principalId = principalId,
+                    apiService = appContainer.apiService
+                )
+                val viewModel: com.school.gdsportal.ui.admin.principals.PrincipalProfileViewModel = viewModel(factory = factory)
+                com.school.gdsportal.ui.admin.principals.PrincipalProfileScreen(
+                    viewModel = viewModel,
+                    onBackClick = { navController.navigateUp() },
+                    onEditPrincipalClick = { navController.navigate("principals/$principalId/edit") }
+                )
+            }
+            composable("principals/{principalId}/edit") { backStackEntry ->
+                val principalIdStr = backStackEntry.arguments?.getString("principalId")
+                val principalId = principalIdStr?.toLongOrNull() ?: 0L
+                val factory = com.school.gdsportal.ui.admin.principals.PrincipalEditViewModel.provideFactory(
+                    principalId = principalId,
+                    apiService = appContainer.apiService
+                )
+                val viewModel: com.school.gdsportal.ui.admin.principals.PrincipalEditViewModel = viewModel(factory = factory)
+                com.school.gdsportal.ui.admin.principals.PrincipalEditScreen(
+                    viewModel = viewModel,
+                    onBackClick = { navController.navigateUp() }
+                )
+            }
+
             // Parent Module Routes
             composable("parents") {
                 val factory = com.school.gdsportal.ui.admin.parents.ParentsDirectoryViewModelFactory(appContainer.apiService)
