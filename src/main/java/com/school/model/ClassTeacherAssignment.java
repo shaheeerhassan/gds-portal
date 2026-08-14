@@ -1,6 +1,6 @@
 package com.school.model;
 
-import com.fasterxml.jackson.annotation.JsonAlias;
+import com.fasterxml.jackson.annotation.JsonProperty;
 import lombok.*;
 import java.time.LocalDate;
 
@@ -15,6 +15,6 @@ public class ClassTeacherAssignment {
     private int academicYearId;
     private LocalDate assignedDate;
     private LocalDate removedDate;
-    @JsonAlias("isActive")
+    @JsonProperty("isActive")
     private boolean isActive;
 }

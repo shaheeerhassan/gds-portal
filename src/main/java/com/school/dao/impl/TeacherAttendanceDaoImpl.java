@@ -20,6 +20,7 @@ public class TeacherAttendanceDaoImpl implements TeacherAttendanceDao {
     private static final String UPDATE_STATUS = "UPDATE teacher_attendance SET status = ? WHERE attendance_id = ?";
     private static final String COUNT_EXISTS = "SELECT COUNT(*) FROM teacher_attendance WHERE teacher_id = ? AND attendance_date = ?";
 
+
     @Override
     public boolean insertTeacherAttendance(List<TeacherAttendance> attendanceRecords) {
         Connection cn = null;
@@ -79,6 +80,10 @@ public class TeacherAttendanceDaoImpl implements TeacherAttendanceDao {
         }
     }
 
+<<<<<<< Updated upstream
+=======
+
+>>>>>>> Stashed changes
 
     @Override
     public boolean existsAttendance(long teacherId, LocalDate date) {
