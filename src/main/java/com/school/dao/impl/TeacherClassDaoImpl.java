@@ -20,6 +20,7 @@ public class TeacherClassDaoImpl implements TeacherClassDao {
         "WHERE tc.teacher_id = ? AND tc.academic_year_id = ? " +
         "ORDER BY c.numeric_level, s.section_name";
     private static final String DELETE = "DELETE FROM teacher_classes WHERE teacher_class_id = ?";
+    private static final String DELETE_BY_COMPOSITE = "DELETE FROM teacher_classes WHERE teacher_id = ? AND class_id = ? AND section_id = ? AND academic_year_id = ?";
     private static final String COUNT_ASSIGNED = "SELECT COUNT(*) FROM teacher_classes WHERE teacher_id = ? AND class_id = ? AND section_id = ? AND academic_year_id = ?";
 
     @Override
@@ -55,6 +56,22 @@ public class TeacherClassDaoImpl implements TeacherClassDao {
             return false;
         } catch (SQLException e) {
             throw new DaoException("Error checking teacher class assignment", e);
+        }
+    }
+
+    @Override
+    public boolean unassignTeacherClass(long teacherId, int classId, int sectionId, int academicYearId) {
+        try (Connection cn = getDataSource().getConnection();
+             PreparedStatement ps = cn.prepareStatement(DELETE_BY_COMPOSITE)) {
+
+            ps.setLong(1, teacherId);
+            ps.setInt(2, classId);
+            ps.setInt(3, sectionId);
+            ps.setInt(4, academicYearId);
+
+            return ps.executeUpdate() > 0;
+        } catch (SQLException e) {
+            throw new DaoException("Error unassigning teacher class by composite key", e);
         }
     }
 

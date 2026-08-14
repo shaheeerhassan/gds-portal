@@ -23,6 +23,15 @@ public class TeacherSubjectDaoImpl implements TeacherSubjectDao {
         "ORDER BY s.subject_name, c.numeric_level, sec.section_name";
     private static final String DELETE = "DELETE FROM teacher_subjects WHERE teacher_subject_id = ?";
     private static final String COUNT_ASSIGNED = "SELECT COUNT(*) FROM teacher_subjects WHERE teacher_id = ? AND subject_id = ? AND section_id = ? AND academic_year_id = ?";
+    private static final String COUNT_BY_SECTION_SUBJECT = "SELECT COUNT(*) FROM teacher_subjects WHERE subject_id = ? AND section_id = ? AND academic_year_id = ?";
+    private static final String COUNT_OTHER_SUBJECTS = "SELECT COUNT(*) FROM teacher_subjects WHERE teacher_id = ? AND section_id = ? AND academic_year_id = ? AND teacher_subject_id != ?";
+    private static final String SELECT_BY_ID = 
+        "SELECT ts.teacher_subject_id, ts.teacher_id, ts.subject_id, s.subject_name, ts.section_id, sec.section_name, c.class_id, c.class_name, ts.academic_year_id " +
+        "FROM teacher_subjects ts " +
+        "JOIN subjects s ON ts.subject_id = s.subject_id " +
+        "JOIN sections sec ON ts.section_id = sec.section_id " +
+        "JOIN classes c ON sec.class_id = c.class_id " +
+        "WHERE ts.teacher_subject_id = ?";
 
     @Override
     public boolean assignTeacherSubject(long teacherId, int subjectId, int sectionId, int academicYearId) {
@@ -62,6 +71,45 @@ public class TeacherSubjectDaoImpl implements TeacherSubjectDao {
     }
 
     @Override
+    public boolean isSubjectAssignedInSection(int subjectId, int sectionId, int academicYearId) {
+        try (Connection cn = getDataSource().getConnection();
+             PreparedStatement ps = cn.prepareStatement(COUNT_BY_SECTION_SUBJECT)) {
+
+            ps.setInt(1, subjectId);
+            ps.setInt(2, sectionId);
+            ps.setInt(3, academicYearId);
+
+            try (ResultSet resultSet = ps.executeQuery()) {
+                if (resultSet.next())
+                    return resultSet.getInt(1) > 0;
+            }
+            return false;
+        } catch (SQLException e) {
+            throw new DaoException("Error checking if subject is assigned in section", e);
+        }
+    }
+
+    @Override
+    public boolean hasOtherSubjectsInSection(long teacherId, int sectionId, int academicYearId, long excludeTeacherSubjectId) {
+        try (Connection cn = getDataSource().getConnection();
+             PreparedStatement ps = cn.prepareStatement(COUNT_OTHER_SUBJECTS)) {
+
+            ps.setLong(1, teacherId);
+            ps.setInt(2, sectionId);
+            ps.setInt(3, academicYearId);
+            ps.setLong(4, excludeTeacherSubjectId);
+
+            try (ResultSet resultSet = ps.executeQuery()) {
+                if (resultSet.next())
+                    return resultSet.getInt(1) > 0;
+            }
+            return false;
+        } catch (SQLException e) {
+            throw new DaoException("Error checking other subjects in section", e);
+        }
+    }
+
+    @Override
     public List<TeacherSubjectDTO> getTeacherSubjects(long teacherId, int academicYearId) {
         try (Connection cn = getDataSource().getConnection();
              PreparedStatement ps = cn.prepareStatement(SELECT_BY_TEACHER)) {
@@ -87,7 +135,35 @@ public class TeacherSubjectDaoImpl implements TeacherSubjectDao {
                 return assignments;
             }
         } catch (SQLException e) {
-            throw new DaoException("Error fetching teacher subjects", e);
+            throw new DaoException("Error getting teacher subjects", e);
+        }
+    }
+
+    @Override
+    public TeacherSubjectDTO getTeacherSubjectById(long teacherSubjectId) {
+        try (Connection cn = getDataSource().getConnection();
+             PreparedStatement ps = cn.prepareStatement(SELECT_BY_ID)) {
+
+            ps.setLong(1, teacherSubjectId);
+
+            try (ResultSet resultSet = ps.executeQuery()) {
+                if (resultSet.next()) {
+                    TeacherSubjectDTO dto = new TeacherSubjectDTO();
+                    dto.setTeacherSubjectId(resultSet.getLong("teacher_subject_id"));
+                    dto.setTeacherId(resultSet.getLong("teacher_id"));
+                    dto.setSubjectId(resultSet.getInt("subject_id"));
+                    dto.setSubjectName(resultSet.getString("subject_name"));
+                    dto.setClassId(resultSet.getInt("class_id"));
+                    dto.setClassName(resultSet.getString("class_name"));
+                    dto.setSectionId(resultSet.getInt("section_id"));
+                    dto.setSectionName(resultSet.getString("section_name"));
+                    dto.setAcademicYearId(resultSet.getInt("academic_year_id"));
+                    return dto;
+                }
+            }
+            return null;
+        } catch (SQLException e) {
+            throw new DaoException("Error getting teacher subject by id", e);
         }
     }
 
