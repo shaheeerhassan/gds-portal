@@ -162,7 +162,15 @@ class AddParentViewModel(
                     val createdParent = response.body()!!.data!!
                     linkParent(createdParent.parentId, state.relationship, state.isPrimaryContact)
                 } else {
-                    _uiState.update { it.copy(isSubmitting = false, submitError = "Failed to create parent: ${response.message()}") }
+                    val errorMsg = try {
+                        val errorStr = response.errorBody()?.string()
+                        if (!errorStr.isNullOrEmpty()) {
+                            org.json.JSONObject(errorStr).optString("message", response.message())
+                        } else response.message()
+                    } catch (e: Exception) {
+                        response.message()
+                    }
+                    _uiState.update { it.copy(isSubmitting = false, submitError = errorMsg) }
                 }
             } catch (e: Exception) {
                 _uiState.update { it.copy(isSubmitting = false, submitError = e.localizedMessage ?: "Network error creating parent") }
@@ -184,7 +192,15 @@ class AddParentViewModel(
                 if (response.isSuccessful) {
                     _uiState.update { it.copy(isSubmitting = false, success = true) }
                 } else {
-                    _uiState.update { it.copy(isSubmitting = false, submitError = "Failed to link parent") }
+                    val errorMsg = try {
+                        val errorStr = response.errorBody()?.string()
+                        if (!errorStr.isNullOrEmpty()) {
+                            org.json.JSONObject(errorStr).optString("message", response.message())
+                        } else response.message()
+                    } catch (e: Exception) {
+                        response.message()
+                    }
+                    _uiState.update { it.copy(isSubmitting = false, submitError = errorMsg) }
                 }
             } catch (e: Exception) {
                 _uiState.update { it.copy(isSubmitting = false, submitError = "Network error linking parent") }
