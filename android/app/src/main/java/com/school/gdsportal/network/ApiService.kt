@@ -44,6 +44,9 @@ interface ApiService {
     @GET("api/teachers/")
     suspend fun getAllTeachers(): Response<ApiResponse<List<Teacher>>>
 
+    @GET("api/teachers/{teacherId}")
+    suspend fun getTeacherById(@Path("teacherId") teacherId: Long): Response<ApiResponse<Teacher>>
+
     @GET("api/teachers/search/{term}")
     suspend fun searchTeachers(@Path("term") term: String): Response<ApiResponse<List<Teacher>>>
 

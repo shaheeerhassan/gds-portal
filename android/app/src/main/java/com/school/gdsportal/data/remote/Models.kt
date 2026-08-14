@@ -157,5 +157,5 @@ data class Teacher(
     val dateOfBirth: String?,
     val hireDate: String,
     val qualification: String?,
-    val isActive: Boolean
+    val active: Boolean
 )
