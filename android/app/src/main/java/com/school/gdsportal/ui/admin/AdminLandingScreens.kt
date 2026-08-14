@@ -78,7 +78,7 @@ fun AttendanceLandingScreen(onBack: () -> Unit, onNavigate: (String) -> Unit) {
         description = "Monitor and manage attendance",
         rows = listOf(
             NavigationRowData("Student Attendance", "admin_student_attendance", isImplemented = false),
-            NavigationRowData("Teacher Attendance", "admin_teacher_attendance", isImplemented = false)
+            NavigationRowData("Teacher Attendance", "admin_teacher_attendance", isImplemented = true)
         ),
         onBackClick = onBack,
         onRowClick = onNavigate

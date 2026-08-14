@@ -27,11 +27,17 @@ fun TeacherProfileScreen(
     onEditTeacherClick: () -> Unit,
     onPersonalInformationClick: () -> Unit,
     onTeachingAssignmentsClick: () -> Unit,
-    onClassTeacherClick: () -> Unit,
-    onAttendanceClick: () -> Unit
+    onClassTeacherClick: () -> Unit
 ) {
     val uiState by viewModel.uiState.collectAsState()
     var expandedMenu by remember { mutableStateOf(false) }
+    var showDeactivateDialog by remember { mutableStateOf(false) }
+
+    LaunchedEffect(uiState.deactivateSuccess) {
+        if (uiState.deactivateSuccess) {
+            onBackClick() // Navigate back to directory
+        }
+    }
 
     Scaffold(
         topBar = {
@@ -57,11 +63,12 @@ fun TeacherProfileScreen(
                                 onEditTeacherClick()
                             }
                         )
+                        HorizontalDivider()
                         DropdownMenuItem(
-                            text = { Text("Delete Teacher", color = MaterialTheme.colorScheme.error) },
+                            text = { Text("Deactivate Teacher", color = MaterialTheme.colorScheme.error) },
                             onClick = {
                                 expandedMenu = false
-                                // onDeleteTeacherClick() // not implemented yet
+                                showDeactivateDialog = true
                             }
                         )
                     }
@@ -69,22 +76,49 @@ fun TeacherProfileScreen(
             )
         }
     ) { paddingValues ->
+        
+        if (showDeactivateDialog) {
+            AlertDialog(
+                onDismissRequest = { showDeactivateDialog = false },
+                title = { Text("Deactivate Teacher?") },
+                text = { Text("This will deactivate the teacher and disable their access to the portal. Their records and historical data will remain available.") },
+                confirmButton = {
+                    Button(
+                        onClick = { 
+                            showDeactivateDialog = false
+                            viewModel.deactivateTeacher()
+                        },
+                        colors = ButtonDefaults.buttonColors(containerColor = MaterialTheme.colorScheme.error)
+                    ) {
+                        if (uiState.isDeactivating) {
+                            CircularProgressIndicator(modifier = Modifier.size(16.dp), color = MaterialTheme.colorScheme.onError)
+                        } else {
+                            Text("Deactivate")
+                        }
+                    }
+                },
+                dismissButton = {
+                    TextButton(onClick = { showDeactivateDialog = false }) {
+                        Text("Cancel")
+                    }
+                }
+            )
+        }
+
         Box(
             modifier = Modifier
                 .fillMaxSize()
                 .padding(paddingValues)
         ) {
-            when (val state = uiState) {
-                is TeacherProfileUiState.Loading -> {
-                    CircularProgressIndicator(modifier = Modifier.align(Alignment.Center))
-                }
-                is TeacherProfileUiState.Error -> {
+            if (uiState.isLoading) {
+                CircularProgressIndicator(modifier = Modifier.align(Alignment.Center))
+            } else if (uiState.error != null) {
                     Column(
                         modifier = Modifier.align(Alignment.Center),
                         horizontalAlignment = Alignment.CenterHorizontally
                     ) {
                         Text(
-                            text = state.message,
+                            text = uiState.error!!,
                             color = MaterialTheme.colorScheme.error,
                             modifier = Modifier.padding(horizontal = 16.dp)
                         )
@@ -92,12 +126,11 @@ fun TeacherProfileScreen(
                         Button(onClick = { viewModel.loadTeacherProfile() }) {
                             Text("Retry")
                         }
-                    }
                 }
-                is TeacherProfileUiState.Success -> {
-                    val teacher = state.teacher
-                    Column(
-                        modifier = Modifier
+            } else if (uiState.teacher != null) {
+                val teacher = uiState.teacher!!
+                Column(
+                    modifier = Modifier
                             .fillMaxSize()
                             .verticalScroll(rememberScrollState()),
                         horizontalAlignment = Alignment.CenterHorizontally
@@ -191,18 +224,26 @@ fun TeacherProfileScreen(
                             onClick = onClassTeacherClick
                         )
                         HorizontalDivider()
-                        ProfileNavigationRow(
-                            title = "Attendance",
-                            onClick = onAttendanceClick
-                        )
-                        HorizontalDivider()
                     }
                 }
-            }
+
+                if (uiState.deactivateError != null) {
+                    Snackbar(
+                        modifier = Modifier
+                            .align(Alignment.BottomCenter)
+                            .padding(16.dp),
+                        action = {
+                            TextButton(onClick = { viewModel.dismissDeactivateError() }) {
+                                Text("Dismiss", color = MaterialTheme.colorScheme.inversePrimary)
+                            }
+                        }
+                    ) {
+                        Text(uiState.deactivateError!!)
+                    }
+                }
         }
     }
 }
-
 @Composable
 private fun ProfileNavigationRow(title: String, onClick: () -> Unit) {
     Row(

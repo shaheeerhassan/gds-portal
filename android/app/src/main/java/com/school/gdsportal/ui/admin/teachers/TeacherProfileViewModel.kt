@@ -9,18 +9,21 @@ import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.launch
 
-sealed class TeacherProfileUiState {
-    object Loading : TeacherProfileUiState()
-    data class Success(val teacher: Teacher) : TeacherProfileUiState()
-    data class Error(val message: String) : TeacherProfileUiState()
-}
+data class TeacherProfileUiState(
+    val isLoading: Boolean = true,
+    val teacher: Teacher? = null,
+    val error: String? = null,
+    val isDeactivating: Boolean = false,
+    val deactivateSuccess: Boolean = false,
+    val deactivateError: String? = null
+)
 
 class TeacherProfileViewModel(
     private val teacherId: Long,
     private val apiService: ApiService
 ) : ViewModel() {
 
-    private val _uiState = MutableStateFlow<TeacherProfileUiState>(TeacherProfileUiState.Loading)
+    private val _uiState = MutableStateFlow(TeacherProfileUiState())
     val uiState: StateFlow<TeacherProfileUiState> = _uiState
 
     init {
@@ -29,23 +32,43 @@ class TeacherProfileViewModel(
 
     fun loadTeacherProfile() {
         viewModelScope.launch {
-            _uiState.value = TeacherProfileUiState.Loading
+            _uiState.value = _uiState.value.copy(isLoading = true, error = null)
             try {
                 val response = apiService.getTeacherById(teacherId)
                 if (response.isSuccessful) {
                     val teacher = response.body()?.data
                     if (teacher != null) {
-                        _uiState.value = TeacherProfileUiState.Success(teacher)
+                        _uiState.value = _uiState.value.copy(isLoading = false, teacher = teacher)
                     } else {
-                        _uiState.value = TeacherProfileUiState.Error("Teacher not found")
+                        _uiState.value = _uiState.value.copy(isLoading = false, error = "Teacher not found")
                     }
                 } else {
-                    _uiState.value = TeacherProfileUiState.Error("Failed to load teacher: ${response.message()}")
+                    _uiState.value = _uiState.value.copy(isLoading = false, error = "Failed to load teacher: ${response.message()}")
                 }
             } catch (e: Exception) {
-                _uiState.value = TeacherProfileUiState.Error("Network error: ${e.message}")
+                _uiState.value = _uiState.value.copy(isLoading = false, error = "Network error: ${e.message}")
             }
         }
+    }
+
+    fun deactivateTeacher() {
+        viewModelScope.launch {
+            _uiState.value = _uiState.value.copy(isDeactivating = true, deactivateError = null)
+            try {
+                val response = apiService.deactivateTeacher(teacherId)
+                if (response.isSuccessful) {
+                    _uiState.value = _uiState.value.copy(isDeactivating = false, deactivateSuccess = true)
+                } else {
+                    _uiState.value = _uiState.value.copy(isDeactivating = false, deactivateError = "Failed to deactivate teacher")
+                }
+            } catch (e: Exception) {
+                _uiState.value = _uiState.value.copy(isDeactivating = false, deactivateError = "Network error: ${e.message}")
+            }
+        }
+    }
+
+    fun dismissDeactivateError() {
+        _uiState.value = _uiState.value.copy(deactivateError = null)
     }
 
     class Factory(

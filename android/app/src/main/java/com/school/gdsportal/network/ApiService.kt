@@ -21,6 +21,7 @@ import com.school.gdsportal.data.remote.NotificationCountResponse
 import retrofit2.http.Query
 import com.school.gdsportal.data.remote.dto.StudentDirectoryDTO
 import com.school.gdsportal.data.remote.dto.PaginatedResponse
+import com.school.gdsportal.data.remote.ClassTeacherAssignment
 
 import com.school.gdsportal.data.remote.ApiResponse
 
@@ -58,11 +59,44 @@ interface ApiService {
         @Body teacher: com.school.gdsportal.data.remote.TeacherProfileFields
     ): Response<ApiResponse<Void>>
 
-    @GET("api/teachers/search/{term}")
-    suspend fun searchTeachers(@Path("term") term: String): Response<ApiResponse<List<Teacher>>>
+    @DELETE("api/teachers/{teacherId}")
+    suspend fun deactivateTeacher(@Path("teacherId") teacherId: Long): Response<ApiResponse<Void>>
+
+    @GET("api/class-teachers/teacher/{teacherId}/history")
+    suspend fun getClassTeacherHistory(@Path("teacherId") teacherId: Long): Response<ApiResponse<List<ClassTeacherAssignment>>>
+
+    @POST("api/class-teachers")
+    suspend fun assignClassTeacher(@Body assignment: ClassTeacherAssignment): Response<ApiResponse<Void>>
+
+    @DELETE("api/class-teachers/section/{sectionId}/year/{academicYearId}")
+    suspend fun removeClassTeacher(
+        @Path("sectionId") sectionId: Int,
+        @Path("academicYearId") academicYearId: Int
+    ): Response<ApiResponse<Void>>
+
+    @GET("api/attendance/teachers/teacher/{teacherId}")
+    suspend fun getTeacherAttendance(
+        @Path("teacherId") teacherId: Long,
+        @Query("startDate") startDate: String,
+        @Query("endDate") endDate: String
+    ): Response<ApiResponse<List<TeacherAttendance>>>
+
+    @retrofit2.http.POST("api/attendance/teachers/")
+    suspend fun markTeacherAttendance(
+        @Body request: com.school.gdsportal.data.remote.MarkTeacherAttendanceRequest
+    ): Response<ApiResponse<String>>
+
+    @retrofit2.http.PUT("api/attendance/teachers/status/{attendanceId}")
+    suspend fun updateTeacherAttendanceStatus(
+        @Path("attendanceId") attendanceId: Long,
+        @Body request: com.school.gdsportal.data.remote.TeacherAttendanceStatusRequest
+    ): Response<ApiResponse<String>>
 
     @GET("api/attendance/teachers/date/{date}")
     suspend fun getTeacherAttendanceByDate(@Path("date") date: String): Response<ApiResponse<List<TeacherAttendance>>>
+
+    @GET("api/teachers/search/{term}")
+    suspend fun searchTeachers(@Path("term") term: String): Response<ApiResponse<List<Teacher>>>
 
     @GET("api/announcements/global")
     suspend fun getGlobalAnnouncements(): Response<ApiResponse<List<Announcement>>>
@@ -90,6 +124,9 @@ interface ApiService {
         @Path("classId") classId: Int,
         @Path("academicYearId") academicYearId: Int
     ): Response<ApiResponse<List<com.school.gdsportal.data.remote.Section>>>
+
+    @GET("api/sections/")
+    suspend fun getAllSections(): Response<ApiResponse<List<com.school.gdsportal.data.remote.Section>>>
 
     @GET("api/students/directory")
     suspend fun getStudentsDirectory(

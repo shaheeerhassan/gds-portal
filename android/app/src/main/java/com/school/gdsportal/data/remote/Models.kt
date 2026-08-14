@@ -38,12 +38,25 @@ data class Announcement(
 )
 
 data class TeacherAttendance(
-    val id: Int,
-    val teacherId: Int,
-    val date: String,
+    val attendanceId: Long,
+    val teacherId: Long,
+    val attendanceDate: String,
     val status: String,
-    val checkInTime: String? = null,
-    val checkOutTime: String? = null
+    val markedAt: String? = null
+)
+
+data class MarkTeacherAttendanceRequest(
+    val records: List<TeacherAttendanceRecord>
+)
+
+data class TeacherAttendanceRecord(
+    val teacherId: Long,
+    val attendanceDate: String,
+    val status: String
+)
+
+data class TeacherAttendanceStatusRequest(
+    val status: String
 )
 
 data class NotificationCountResponse(
@@ -219,4 +232,14 @@ data class TeacherProfileFields(
     val dateOfBirth: String?,
     val gender: String?,
     val qualification: String?
+)
+
+data class ClassTeacherAssignment(
+    val assignmentId: Long,
+    val teacherId: Long,
+    val sectionId: Int,
+    val academicYearId: Int,
+    val assignedDate: String?,
+    val removedDate: String?,
+    val isActive: Boolean
 )

@@ -347,8 +347,7 @@ fun AdminAppWrapper(
                     onEditTeacherClick = { navController.navigate("teachers/$teacherId/edit") },
                     onPersonalInformationClick = { navController.navigate("teachers/$teacherId/information") },
                     onTeachingAssignmentsClick = { navController.navigate("teachers/$teacherId/subjects") },
-                    onClassTeacherClick = { navController.navigate("teachers/$teacherId/class-teacher") },
-                    onAttendanceClick = { navController.navigate("teachers/$teacherId/attendance") }
+                    onClassTeacherClick = { navController.navigate("teachers/$teacherId/class-teacher") }
                 )
             }
             composable("teachers/{teacherId}/information") { backStackEntry ->
@@ -408,16 +407,45 @@ fun AdminAppWrapper(
                 )
             }
             composable("teachers/{teacherId}/class-teacher") { backStackEntry ->
-                val teacherId = backStackEntry.arguments?.getString("teacherId")
-                TeacherPlaceholderScreen(title = "Class Teacher Assignment ($teacherId)", onBack = { navController.navigateUp() })
+                val teacherIdStr = backStackEntry.arguments?.getString("teacherId")
+                val teacherId = teacherIdStr?.toLongOrNull() ?: 0L
+                val factory = com.school.gdsportal.ui.admin.teachers.teaching.class_teacher.ClassTeacherViewModel.Companion.provideFactory(
+                    teacherId = teacherId,
+                    apiService = appContainer.apiService
+                )
+                val viewModel: com.school.gdsportal.ui.admin.teachers.teaching.class_teacher.ClassTeacherViewModel = androidx.lifecycle.viewmodel.compose.viewModel(factory = factory)
+                com.school.gdsportal.ui.admin.teachers.teaching.class_teacher.ClassTeacherScreen(
+                    viewModel = viewModel,
+                    onBackClick = { navController.navigateUp() },
+                    onAssignClick = { navController.navigate("teachers/$teacherId/class-teacher/assign") }
+                )
             }
-            composable("teachers/{teacherId}/class-teacher/history") { backStackEntry ->
-                val teacherId = backStackEntry.arguments?.getString("teacherId")
-                TeacherPlaceholderScreen(title = "Class Teacher History ($teacherId)", onBack = { navController.navigateUp() })
+            composable("teachers/{teacherId}/class-teacher/assign") { backStackEntry ->
+                val teacherIdStr = backStackEntry.arguments?.getString("teacherId")
+                val teacherId = teacherIdStr?.toLongOrNull() ?: 0L
+                // We could potentially share the ViewModel, but getting it from the nav graph requires hilt/navGraphViewModels.
+                // Recreating it here is fine since it's lightweight, or we can share via remember.
+                // The instructions say "prefer a dedicated form route". Re-instantiating the VM will load data again, which is perfectly acceptable.
+                val factory = com.school.gdsportal.ui.admin.teachers.teaching.class_teacher.ClassTeacherViewModel.Companion.provideFactory(
+                    teacherId = teacherId,
+                    apiService = appContainer.apiService
+                )
+                val viewModel: com.school.gdsportal.ui.admin.teachers.teaching.class_teacher.ClassTeacherViewModel = androidx.lifecycle.viewmodel.compose.viewModel(factory = factory)
+                com.school.gdsportal.ui.admin.teachers.teaching.class_teacher.ClassTeacherAssignScreen(
+                    viewModel = viewModel,
+                    onBackClick = { navController.navigateUp() },
+                    onAssignSuccess = { navController.navigateUp() }
+                )
             }
-            composable("teachers/{teacherId}/attendance") { backStackEntry ->
-                val teacherId = backStackEntry.arguments?.getString("teacherId")
-                TeacherPlaceholderScreen(title = "Teacher Attendance ($teacherId)", onBack = { navController.navigateUp() })
+            composable("admin_teacher_attendance") {
+                val factory = com.school.gdsportal.ui.admin.teachers.attendance.TeacherAttendanceViewModel.Companion.provideFactory(
+                    apiService = appContainer.apiService
+                )
+                val viewModel: com.school.gdsportal.ui.admin.teachers.attendance.TeacherAttendanceViewModel = androidx.lifecycle.viewmodel.compose.viewModel(factory = factory)
+                com.school.gdsportal.ui.admin.teachers.attendance.TeacherAttendanceScreen(
+                    viewModel = viewModel,
+                    onBackClick = { navController.navigateUp() }
+                )
             }
 
             composable("admin_academics_landing") {
@@ -444,7 +472,7 @@ fun AdminAppWrapper(
             composable("admin_attendance_landing") {
                 AttendanceLandingScreen(
                     onBack = { navController.navigateUp() },
-                    onNavigate = { /* TODO Phase 2 */ }
+                    onNavigate = { route -> navController.navigate(route) }
                 )
             }
 
