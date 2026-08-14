@@ -42,7 +42,7 @@ data class AddParentUiState(
     val success: Boolean = false
 ) {
     val isCreateFormValid: Boolean
-        get() = firstName.isNotBlank() && lastName.isNotBlank() && email.isNotBlank() && username.isNotBlank() && password.isNotBlank()
+        get() = firstName.isNotBlank() && lastName.isNotBlank() && phone.isNotBlank() && email.isNotBlank() && password.isNotBlank()
 }
 
 class AddParentViewModel(

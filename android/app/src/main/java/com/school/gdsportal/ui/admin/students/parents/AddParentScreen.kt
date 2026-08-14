@@ -172,7 +172,7 @@ private fun CreateNewTab(viewModel: AddParentViewModel, uiState: AddParentUiStat
         OutlinedTextField(
             value = uiState.phone,
             onValueChange = { viewModel.updateCreateField("phone", it) },
-            label = { Text("Phone Number") },
+            label = { Text("Phone Number *") },
             modifier = Modifier.fillMaxWidth(),
             singleLine = true
         )
@@ -199,7 +199,7 @@ private fun CreateNewTab(viewModel: AddParentViewModel, uiState: AddParentUiStat
         OutlinedTextField(
             value = uiState.username,
             onValueChange = { viewModel.updateCreateField("username", it) },
-            label = { Text("Username *") },
+            label = { Text("Username") },
             modifier = Modifier.fillMaxWidth(),
             singleLine = true
         )
