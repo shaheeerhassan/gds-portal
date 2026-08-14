@@ -90,7 +90,7 @@ fun TeacherSubjectsScreen(
             AlertDialog(
                 onDismissRequest = { showDeleteDialog = null },
                 title = { Text("Remove Assignment") },
-                text = { Text("Are you sure you want to remove ${showDeleteDialog!!.subjectName} from Section ${showDeleteDialog!!.sectionName}?") },
+                text = { Text("Are you sure you want to remove ${showDeleteDialog!!.subjectName} from ${showDeleteDialog!!.className} Section ${showDeleteDialog!!.sectionName}?") },
                 confirmButton = {
                     TextButton(
                         onClick = {
@@ -134,8 +134,9 @@ private fun TeacherSubjectCard(
                     fontWeight = FontWeight.Bold
                 )
                 Spacer(modifier = Modifier.height(4.dp))
+                Spacer(modifier = Modifier.height(4.dp))
                 Text(
-                    text = "Section: ${assignment.sectionName}",
+                    text = "${assignment.className} - Section ${assignment.sectionName}",
                     style = MaterialTheme.typography.bodyMedium,
                     color = MaterialTheme.colorScheme.onSurfaceVariant
                 )
