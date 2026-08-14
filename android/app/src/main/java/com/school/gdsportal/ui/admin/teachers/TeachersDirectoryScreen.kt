@@ -26,7 +26,7 @@ import com.school.gdsportal.data.remote.Teacher
 @Composable
 fun TeachersDirectoryScreen(
     viewModel: TeachersDirectoryViewModel,
-    onMenuClick: () -> Unit,
+    onBackClick: () -> Unit,
     onAddTeacherClick: () -> Unit,
     onTeacherClick: (Long) -> Unit
 ) {
@@ -38,8 +38,8 @@ fun TeachersDirectoryScreen(
             TopAppBar(
                 title = { Text("Teachers") },
                 navigationIcon = {
-                    IconButton(onClick = onMenuClick) {
-                        Icon(Icons.Default.Menu, contentDescription = "Menu")
+                    IconButton(onClick = onBackClick) {
+                        Icon(Icons.Default.ArrowBack, contentDescription = "Back")
                     }
                 },
                 actions = {
@@ -77,7 +77,7 @@ fun TeachersDirectoryScreen(
                         viewModel.searchTeachers(it)
                     },
                     modifier = Modifier.fillMaxWidth(),
-                    placeholder = { Text("Search by name") },
+                    placeholder = { Text("Search by name or employee id") },
                     leadingIcon = { Icon(Icons.Default.Search, contentDescription = "Search") },
                     trailingIcon = {
                         if (searchQuery.isNotEmpty()) {
@@ -96,7 +96,8 @@ fun TeachersDirectoryScreen(
 
                 // Teacher Count
                 if (uiState is TeachersDirectoryUiState.Success) {
-                    val count = (uiState as TeachersDirectoryUiState.Success).totalCount
+                    val successState = uiState as TeachersDirectoryUiState.Success
+                    val count = if (searchQuery.isNotEmpty()) successState.teachers.size else successState.totalCount
                     Text(
                         text = "$count Teachers",
                         style = MaterialTheme.typography.labelLarge,

@@ -313,7 +313,7 @@ fun AdminAppWrapper(
                 val viewModel: com.school.gdsportal.ui.admin.teachers.TeachersDirectoryViewModel = androidx.lifecycle.viewmodel.compose.viewModel(factory = factory)
                 com.school.gdsportal.ui.admin.teachers.TeachersDirectoryScreen(
                     viewModel = viewModel,
-                    onMenuClick = { coroutineScope.launch { drawerState.open() } },
+                    onBackClick = { navController.navigateUp() },
                     onAddTeacherClick = { navController.navigate("teachers/create") },
                     onTeacherClick = { teacherId -> navController.navigate("teachers/$teacherId") }
                 )
