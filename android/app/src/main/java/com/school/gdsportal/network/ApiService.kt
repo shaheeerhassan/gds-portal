@@ -2,6 +2,8 @@ package com.school.gdsportal.network
 
 import retrofit2.http.GET
 import retrofit2.http.POST
+import retrofit2.http.PUT
+import retrofit2.http.DELETE
 import retrofit2.http.Body
 import retrofit2.http.Path
 import retrofit2.Response
@@ -46,6 +48,15 @@ interface ApiService {
 
     @GET("api/teachers/{teacherId}")
     suspend fun getTeacherById(@Path("teacherId") teacherId: Long): Response<ApiResponse<Teacher>>
+
+    @POST("api/teachers")
+    suspend fun createTeacher(@Body request: com.school.gdsportal.data.remote.TeacherCreateRequest): Response<ApiResponse<Teacher>>
+
+    @PUT("api/teachers/{teacherId}")
+    suspend fun updateTeacher(
+        @Path("teacherId") teacherId: Long,
+        @Body teacher: com.school.gdsportal.data.remote.TeacherProfileFields
+    ): Response<ApiResponse<Void>>
 
     @GET("api/teachers/search/{term}")
     suspend fun searchTeachers(@Path("term") term: String): Response<ApiResponse<List<Teacher>>>

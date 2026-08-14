@@ -202,3 +202,21 @@ data class TeacherSubjectAssignRequest(
     val sectionId: Int,
     val academicYearId: Int
 )
+
+data class TeacherCreateRequest(
+    val email: String,
+    val username: String?,
+    val password: String,
+    val teacher: TeacherProfileFields
+)
+
+data class TeacherProfileFields(
+    val employeeId: String,
+    val firstName: String,
+    val lastName: String,
+    val phone: String,
+    val hireDate: String,
+    val dateOfBirth: String?,
+    val gender: String?,
+    val qualification: String?
+)

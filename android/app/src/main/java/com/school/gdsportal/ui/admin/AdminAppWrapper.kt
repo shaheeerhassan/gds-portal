@@ -319,7 +319,19 @@ fun AdminAppWrapper(
                 )
             }
             composable("teachers/create") {
-                TeacherPlaceholderScreen(title = "Create Teacher", onBack = { navController.navigateUp() })
+                val factory = com.school.gdsportal.ui.admin.teachers.create.TeacherCreateViewModel.Companion.provideFactory(
+                    apiService = appContainer.apiService
+                )
+                val viewModel: com.school.gdsportal.ui.admin.teachers.create.TeacherCreateViewModel = androidx.lifecycle.viewmodel.compose.viewModel(factory = factory)
+                com.school.gdsportal.ui.admin.teachers.create.TeacherCreateScreen(
+                    viewModel = viewModel,
+                    onBackClick = { navController.navigateUp() },
+                    onNavigateToTeacher = { createdTeacherId ->
+                        navController.navigate("teachers/$createdTeacherId") {
+                            popUpTo("teachers") { inclusive = false }
+                        }
+                    }
+                )
             }
             composable("teachers/{teacherId}") { backStackEntry ->
                 val teacherIdStr = backStackEntry.arguments?.getString("teacherId")
@@ -354,8 +366,17 @@ fun AdminAppWrapper(
                 )
             }
             composable("teachers/{teacherId}/edit") { backStackEntry ->
-                val teacherId = backStackEntry.arguments?.getString("teacherId")
-                TeacherPlaceholderScreen(title = "Edit Teacher ($teacherId)", onBack = { navController.navigateUp() })
+                val teacherIdStr = backStackEntry.arguments?.getString("teacherId")
+                val teacherId = teacherIdStr?.toLongOrNull() ?: 0L
+                val factory = com.school.gdsportal.ui.admin.teachers.edit.TeacherEditViewModel.Companion.provideFactory(
+                    teacherId = teacherId,
+                    apiService = appContainer.apiService
+                )
+                val viewModel: com.school.gdsportal.ui.admin.teachers.edit.TeacherEditViewModel = androidx.lifecycle.viewmodel.compose.viewModel(factory = factory)
+                com.school.gdsportal.ui.admin.teachers.edit.TeacherEditScreen(
+                    viewModel = viewModel,
+                    onBackClick = { navController.navigateUp() }
+                )
             }
 
             composable("teachers/{teacherId}/subjects") { backStackEntry ->
