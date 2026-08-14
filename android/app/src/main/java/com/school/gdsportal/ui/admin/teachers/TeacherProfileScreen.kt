@@ -153,33 +153,27 @@ fun TeacherProfileScreen(
                             )
                         }
                         
-                        Spacer(modifier = Modifier.height(24.dp))
-                        HorizontalDivider()
+                        Spacer(modifier = Modifier.height(16.dp))
                         
-                        // Summary info
-                        Column(
+                        // Summary info Card
+                        Card(
                             modifier = Modifier
                                 .fillMaxWidth()
-                                .padding(16.dp),
-                            horizontalAlignment = Alignment.Start
+                                .padding(horizontal = 16.dp),
+                            colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surfaceVariant)
                         ) {
-                            if (!teacher.qualification.isNullOrBlank()) {
-                                Text(
-                                    text = teacher.qualification,
-                                    style = MaterialTheme.typography.titleMedium
-                                )
-                                Spacer(modifier = Modifier.height(8.dp))
+                            Column(modifier = Modifier.padding(16.dp)) {
+                                if (!teacher.qualification.isNullOrBlank()) {
+                                    StatusRow(label = "Qualification", value = teacher.qualification)
+                                    Spacer(modifier = Modifier.height(8.dp))
+                                }
+                                
+                                val joinYear = teacher.hireDate.take(4) // assuming YYYY-MM-DD
+                                StatusRow(label = "Joined", value = joinYear)
                             }
-                            
-                            val joinYear = teacher.hireDate.take(4) // assuming YYYY-MM-DD
-                            Text(
-                                text = "Joined: $joinYear",
-                                style = MaterialTheme.typography.bodyLarge,
-                                color = MaterialTheme.colorScheme.onSurfaceVariant
-                            )
                         }
                         
-                        HorizontalDivider()
+                        Spacer(modifier = Modifier.height(24.dp))
                         
                         // Navigation Rows
                         ProfileNavigationRow(
@@ -228,5 +222,16 @@ private fun ProfileNavigationRow(title: String, onClick: () -> Unit) {
             contentDescription = "Navigate to $title",
             tint = MaterialTheme.colorScheme.onSurfaceVariant
         )
+    }
+}
+
+@Composable
+private fun StatusRow(label: String, value: String) {
+    Row(
+        modifier = Modifier.fillMaxWidth(),
+        horizontalArrangement = Arrangement.SpaceBetween
+    ) {
+        Text(text = label, style = MaterialTheme.typography.bodyMedium, color = MaterialTheme.colorScheme.onSurfaceVariant)
+        Text(text = value, style = MaterialTheme.typography.bodyLarge, fontWeight = FontWeight.Medium)
     }
 }
