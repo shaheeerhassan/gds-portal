@@ -185,5 +185,38 @@ interface ApiService {
         @Path("academicYearId") academicYearId: Int
     ): Response<ApiResponse<String>>
 
-    // Removed duplicates
+    @retrofit2.http.GET("api/teacher-classes/teacher/{teacherId}/{academicYearId}")
+    suspend fun getTeacherClasses(
+        @Path("teacherId") teacherId: Long,
+        @Path("academicYearId") academicYearId: Int
+    ): Response<ApiResponse<List<com.school.gdsportal.data.remote.TeacherClassDTO>>>
+
+    @retrofit2.http.POST("api/teacher-classes/")
+    suspend fun assignTeacherClass(
+        @Body request: com.school.gdsportal.data.remote.TeacherClassAssignRequest
+    ): Response<ApiResponse<String>>
+
+    @retrofit2.http.DELETE("api/teacher-classes/{teacherClassId}")
+    suspend fun unassignTeacherClass(
+        @Path("teacherClassId") teacherClassId: Long
+    ): Response<ApiResponse<String>>
+
+    @retrofit2.http.GET("api/teacher-subjects/teacher/{teacherId}/{academicYearId}")
+    suspend fun getTeacherSubjects(
+        @Path("teacherId") teacherId: Long,
+        @Path("academicYearId") academicYearId: Int
+    ): Response<ApiResponse<List<com.school.gdsportal.data.remote.TeacherSubjectDTO>>>
+
+    @retrofit2.http.POST("api/teacher-subjects/")
+    suspend fun assignTeacherSubject(
+        @Body request: com.school.gdsportal.data.remote.TeacherSubjectAssignRequest
+    ): Response<ApiResponse<String>>
+
+    @retrofit2.http.DELETE("api/teacher-subjects/{teacherSubjectId}")
+    suspend fun unassignTeacherSubject(
+        @Path("teacherSubjectId") teacherSubjectId: Long
+    ): Response<ApiResponse<String>>
+
+    @retrofit2.http.GET("api/subjects/")
+    suspend fun getSubjects(): Response<ApiResponse<List<com.school.gdsportal.data.remote.Subject>>>
 }

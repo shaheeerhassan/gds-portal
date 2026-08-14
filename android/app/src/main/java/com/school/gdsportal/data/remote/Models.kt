@@ -66,6 +66,13 @@ data class Section(
     val roomNumber: String?
 )
 
+data class Subject(
+    val subjectId: Int,
+    val subjectName: String,
+    val subjectCode: String,
+    val description: String?
+)
+
 data class Student(
     val studentId: Long,
     val userId: Long,
@@ -158,4 +165,38 @@ data class Teacher(
     val hireDate: String,
     val qualification: String?,
     val active: Boolean
+)
+
+data class TeacherClassDTO(
+    val teacherClassId: Long,
+    val teacherId: Long,
+    val classId: Int,
+    val className: String,
+    val sectionId: Int,
+    val sectionName: String,
+    val academicYearId: Int
+)
+
+data class TeacherSubjectDTO(
+    val teacherSubjectId: Long,
+    val teacherId: Long,
+    val subjectId: Int,
+    val subjectName: String,
+    val sectionId: Int,
+    val sectionName: String,
+    val academicYearId: Int
+)
+
+data class TeacherClassAssignRequest(
+    val teacherId: Long,
+    val classId: Int,
+    val sectionId: Int,
+    val academicYearId: Int
+)
+
+data class TeacherSubjectAssignRequest(
+    val teacherId: Long,
+    val subjectId: Int,
+    val sectionId: Int,
+    val academicYearId: Int
 )
