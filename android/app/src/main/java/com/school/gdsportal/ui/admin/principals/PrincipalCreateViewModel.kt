@@ -92,8 +92,18 @@ class PrincipalCreateViewModel(
                     val principalId = response.body()?.data?.principalId
                     _uiState.update { it.copy(isSaving = false, saveSuccess = true, createdPrincipalId = principalId) }
                 } else {
+                    val errorMsg = try {
+                        val errorString = response.errorBody()?.string()
+                        if (errorString != null) {
+                            org.json.JSONObject(errorString).getString("message")
+                        } else {
+                            response.message()
+                        }
+                    } catch (e: Exception) {
+                        "Failed to create principal"
+                    }
                     _uiState.update { 
-                        it.copy(isSaving = false, error = "Failed to create principal. Please check details and try again.")
+                        it.copy(isSaving = false, error = errorMsg)
                     }
                 }
             } catch (e: Exception) {

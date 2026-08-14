@@ -114,9 +114,18 @@ class PrincipalEditViewModel(
                 if (response.isSuccessful) {
                     _uiState.update { it.copy(isSaving = false, saveSuccess = true) }
                 } else {
-                    val errorMsg = response.errorBody()?.string() ?: "Unknown error"
+                    val errorMsg = try {
+                        val errorString = response.errorBody()?.string()
+                        if (errorString != null) {
+                            org.json.JSONObject(errorString).getString("message")
+                        } else {
+                            response.message()
+                        }
+                    } catch (e: Exception) {
+                        "Failed to update principal"
+                    }
                     _uiState.update { 
-                        it.copy(isSaving = false, error = "Failed to update principal.\n$errorMsg")
+                        it.copy(isSaving = false, error = errorMsg)
                     }
                 }
             } catch (e: Exception) {

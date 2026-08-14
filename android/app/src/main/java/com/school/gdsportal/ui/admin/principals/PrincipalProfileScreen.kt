@@ -163,6 +163,23 @@ fun PrincipalProfileScreen(
                         color = MaterialTheme.colorScheme.onSurfaceVariant
                     )
                     
+                    Spacer(modifier = Modifier.height(8.dp))
+                    
+                    val statusText = if (principal.isActive) "Active" else "Inactive"
+                    val statusColor = if (principal.isActive) androidx.compose.ui.graphics.Color(0xFF4CAF50) else MaterialTheme.colorScheme.error
+                    
+                    Surface(
+                        color = statusColor.copy(alpha = 0.1f),
+                        shape = MaterialTheme.shapes.small
+                    ) {
+                        Text(
+                            text = statusText,
+                            color = statusColor,
+                            style = MaterialTheme.typography.labelMedium,
+                            modifier = Modifier.padding(horizontal = 8.dp, vertical = 4.dp)
+                        )
+                    }
+                    
                     Spacer(modifier = Modifier.height(32.dp))
                     
                     // Personal Information Section

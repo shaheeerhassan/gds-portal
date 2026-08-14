@@ -59,7 +59,17 @@ class PrincipalProfileViewModel(
                 if (response.isSuccessful) {
                     _uiState.value = _uiState.value.copy(isDeactivating = false, deactivateSuccess = true)
                 } else {
-                    _uiState.value = _uiState.value.copy(isDeactivating = false, deactivateError = "Failed to deactivate principal")
+                    val errorMsg = try {
+                        val errorString = response.errorBody()?.string()
+                        if (errorString != null) {
+                            org.json.JSONObject(errorString).getString("message")
+                        } else {
+                            response.message()
+                        }
+                    } catch (e: Exception) {
+                        "Failed to deactivate principal"
+                    }
+                    _uiState.value = _uiState.value.copy(isDeactivating = false, deactivateError = errorMsg)
                 }
             } catch (e: Exception) {
                 _uiState.value = _uiState.value.copy(isDeactivating = false, deactivateError = "Network error: ${e.message}")
