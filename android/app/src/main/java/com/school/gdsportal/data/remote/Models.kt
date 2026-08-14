@@ -260,3 +260,19 @@ data class CreatePrincipalRequest(
     val password: String,
     val principal: Principal
 )
+
+data class Administrator(
+    val adminId: Long,
+    val userId: Long,
+    val employeeId: String,
+    val firstName: String,
+    val lastName: String,
+    val phone: String
+)
+
+data class CreateAdministratorRequest(
+    val email: String,
+    val username: String,
+    val password: String,
+    val administrator: Administrator
+)

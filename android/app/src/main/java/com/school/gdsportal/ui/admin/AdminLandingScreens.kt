@@ -14,7 +14,7 @@ fun PeopleLandingScreen(onBack: () -> Unit, onNavigate: (String) -> Unit) {
             NavigationRowData("Teachers", "teachers", isImplemented = true),
             NavigationRowData("Parents", "parents", isImplemented = true),
             NavigationRowData("Principals", "principals", isImplemented = true),
-            NavigationRowData("Administrators", "admin_administrators_list", isImplemented = false)
+            NavigationRowData("Administrators", "administrators", isImplemented = true)
         ),
         onBackClick = onBack,
         onRowClick = onNavigate

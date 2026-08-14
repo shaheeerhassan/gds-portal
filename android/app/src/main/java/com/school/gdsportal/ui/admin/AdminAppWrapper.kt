@@ -291,6 +291,61 @@ fun AdminAppWrapper(
                     onBackClick = { navController.navigateUp() }
                 )
             }
+            
+            // Administrators Module Routes
+            composable("administrators") {
+                val factory = com.school.gdsportal.ui.admin.administrators.AdministratorsDirectoryViewModel.Factory(appContainer.apiService)
+                val viewModel: com.school.gdsportal.ui.admin.administrators.AdministratorsDirectoryViewModel = viewModel(factory = factory)
+                com.school.gdsportal.ui.admin.administrators.AdministratorsDirectoryScreen(
+                    viewModel = viewModel,
+                    onBackClick = { navController.navigateUp() },
+                    onAddAdministratorClick = { navController.navigate("administrators/create") },
+                    onAdministratorClick = { adminId -> navController.navigate("administrators/$adminId") }
+                )
+            }
+            composable("administrators/create") {
+                val factory = com.school.gdsportal.ui.admin.administrators.AdministratorCreateViewModel.provideFactory(appContainer.apiService)
+                val viewModel: com.school.gdsportal.ui.admin.administrators.AdministratorCreateViewModel = viewModel(factory = factory)
+                com.school.gdsportal.ui.admin.administrators.AdministratorCreateScreen(
+                    viewModel = viewModel,
+                    onBackClick = { navController.navigateUp() },
+                    onAdministratorCreated = { adminId ->
+                        navController.popBackStack()
+                        if (adminId != null) {
+                            navController.navigate("administrators/$adminId")
+                        } else {
+                            navController.navigate("administrators")
+                        }
+                    }
+                )
+            }
+            composable("administrators/{adminId}") { backStackEntry ->
+                val adminIdStr = backStackEntry.arguments?.getString("adminId")
+                val adminId = adminIdStr?.toLongOrNull() ?: 0L
+                val factory = com.school.gdsportal.ui.admin.administrators.AdministratorProfileViewModel.Factory(
+                    adminId = adminId,
+                    apiService = appContainer.apiService
+                )
+                val viewModel: com.school.gdsportal.ui.admin.administrators.AdministratorProfileViewModel = viewModel(factory = factory)
+                com.school.gdsportal.ui.admin.administrators.AdministratorProfileScreen(
+                    viewModel = viewModel,
+                    onBackClick = { navController.navigateUp() },
+                    onEditAdministratorClick = { navController.navigate("administrators/$adminId/edit") }
+                )
+            }
+            composable("administrators/{adminId}/edit") { backStackEntry ->
+                val adminIdStr = backStackEntry.arguments?.getString("adminId")
+                val adminId = adminIdStr?.toLongOrNull() ?: 0L
+                val factory = com.school.gdsportal.ui.admin.administrators.AdministratorEditViewModel.provideFactory(
+                    adminId = adminId,
+                    apiService = appContainer.apiService
+                )
+                val viewModel: com.school.gdsportal.ui.admin.administrators.AdministratorEditViewModel = viewModel(factory = factory)
+                com.school.gdsportal.ui.admin.administrators.AdministratorEditScreen(
+                    viewModel = viewModel,
+                    onBackClick = { navController.navigateUp() }
+                )
+            }
 
             // Parent Module Routes
             composable("parents") {
