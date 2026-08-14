@@ -12,7 +12,7 @@ public interface TeacherDao {
     boolean insertTeacher(Teacher teacher, Connection connection);
 
     List<Teacher> getAllTeachers();
-    List<Teacher> searchTeachersByName(String name);
+    List<Teacher> searchTeachersByNameEmpId(String name);
     List<Teacher> getAllTeachersBySubject(int subjectId);
     List<Teacher> getTeachersBySection(int sectionId, int academicYearId);
 

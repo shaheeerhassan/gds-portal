@@ -53,7 +53,7 @@ public class TeacherController extends BaseServlet {
                 }
                 if (path.startsWith("/search/")) {
                     RoleGuard.requireRole(req, ROLE_ADMIN, ROLE_PRINCIPAL);
-                    writeJson(resp, teacherService.searchTeachersByName(path.substring("/search/".length())));
+                    writeJson(resp, teacherService.searchTeachersByNameEmpId(path.substring("/search/".length())));
                     return;
                 }
                 if (path.startsWith("/subject/")) {
