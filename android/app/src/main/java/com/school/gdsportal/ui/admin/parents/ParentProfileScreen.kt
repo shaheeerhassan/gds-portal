@@ -33,6 +33,7 @@ fun ParentProfileScreen(
 ) {
     val uiState by viewModel.uiState.collectAsState()
     var showMenu by remember { mutableStateOf(false) }
+    var showDeleteDialog by remember { mutableStateOf(false) }
 
     Scaffold(
         topBar = {
@@ -60,10 +61,10 @@ fun ParentProfileScreen(
                                 }
                             )
                             DropdownMenuItem(
-                                text = { Text("Delete Parent") },
+                                text = { Text("Delete Parent", color = MaterialTheme.colorScheme.error) },
                                 onClick = { 
                                     showMenu = false
-                                    // TODO: Implement Delete
+                                    showDeleteDialog = true
                                 }
                             )
                         }
@@ -72,6 +73,30 @@ fun ParentProfileScreen(
             )
         }
     ) { paddingValues ->
+        if (showDeleteDialog) {
+            AlertDialog(
+                onDismissRequest = { showDeleteDialog = false },
+                title = { Text("Delete Parent?") },
+                text = { Text("This will permanently delete the parent from the system. Are you sure?") },
+                confirmButton = {
+                    TextButton(
+                        onClick = {
+                            showDeleteDialog = false
+                            viewModel.deleteParent(onSuccess = { onBackClick() })
+                        },
+                        colors = ButtonDefaults.textButtonColors(contentColor = MaterialTheme.colorScheme.error)
+                    ) {
+                        Text("Delete")
+                    }
+                },
+                dismissButton = {
+                    TextButton(onClick = { showDeleteDialog = false }) {
+                        Text("Cancel")
+                    }
+                }
+            )
+        }
+
         if (uiState.isLoading) {
             Box(modifier = Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
                 CircularProgressIndicator()

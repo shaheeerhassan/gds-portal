@@ -123,6 +123,11 @@ interface ApiService {
         @Body parent: com.school.gdsportal.data.remote.Parent
     ): Response<ApiResponse<String>>
 
+    @retrofit2.http.DELETE("api/parents/{parentId}")
+    suspend fun deleteParent(
+        @Path("parentId") parentId: Long
+    ): Response<ApiResponse<String>>
+
     @retrofit2.http.PUT("api/students/{studentId}")
     suspend fun updateStudent(
         @Path("studentId") studentId: Long,

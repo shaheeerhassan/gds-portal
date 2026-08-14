@@ -91,6 +91,32 @@ class ParentProfileViewModel(
         }
     }
 
+    fun deleteParent(onSuccess: () -> Unit) {
+        viewModelScope.launch {
+            _uiState.update { it.copy(isLoading = true, error = null) }
+            try {
+                val response = apiService.deleteParent(parentId)
+                if (response.isSuccessful) {
+                    onSuccess()
+                } else {
+                    _uiState.update { 
+                        it.copy(
+                            isLoading = false,
+                            error = "Failed to delete parent: ${response.code()}"
+                        )
+                    }
+                }
+            } catch (e: Exception) {
+                _uiState.update { 
+                    it.copy(
+                        isLoading = false,
+                        error = e.localizedMessage ?: "An unexpected error occurred"
+                    )
+                }
+            }
+        }
+    }
+
     companion object {
         fun provideFactory(parentId: Long, apiService: ApiService): ViewModelProvider.Factory {
             return object : ViewModelProvider.Factory {
