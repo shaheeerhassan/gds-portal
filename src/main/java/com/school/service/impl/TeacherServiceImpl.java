@@ -76,9 +76,9 @@ public class TeacherServiceImpl implements TeacherService {
     }
 
     @Override
-    public List<Teacher> searchTeachersByName(String name) {
+    public List<Teacher> searchTeachersByNameEmpId(String name) {
         name = validateRequired(name, "Name");
-        return teacherDao.searchTeachersByName(name);
+        return teacherDao.searchTeachersByNameEmpId(name);
     }
 
     @Override

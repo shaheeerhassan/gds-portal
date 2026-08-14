@@ -10,7 +10,7 @@ import java.util.Map;
 public interface TeacherService {
     Teacher createTeacher(User user, String password, Teacher teacher);
     List<Teacher> getAllTeachers();
-    List<Teacher> searchTeachersByName(String name);
+    List<Teacher> searchTeachersByNameEmpId(String name);
     List<Teacher> getTeachersBySubject(int subjectId);
     List<Teacher> getTeachersBySection(int sectionId, int academicYearId);
     Map<Long, List<Section>> getAllClassTeachers();
