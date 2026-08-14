@@ -14,6 +14,7 @@ import com.school.gdsportal.data.remote.User
 import com.school.gdsportal.data.remote.AcademicYear
 import com.school.gdsportal.data.remote.Announcement
 import com.school.gdsportal.data.remote.TeacherAttendance
+import com.school.gdsportal.data.remote.Teacher
 import com.school.gdsportal.data.remote.NotificationCountResponse
 import retrofit2.http.Query
 import com.school.gdsportal.data.remote.dto.StudentDirectoryDTO
@@ -39,6 +40,12 @@ interface ApiService {
 
     @GET("api/teachers/count")
     suspend fun getTotalTeacherCount(): Response<ApiResponse<Int>>
+
+    @GET("api/teachers/")
+    suspend fun getAllTeachers(): Response<ApiResponse<List<Teacher>>>
+
+    @GET("api/teachers/search/{term}")
+    suspend fun searchTeachers(@Path("term") term: String): Response<ApiResponse<List<Teacher>>>
 
     @GET("api/attendance/teachers/date/{date}")
     suspend fun getTeacherAttendanceByDate(@Path("date") date: String): Response<ApiResponse<List<TeacherAttendance>>>

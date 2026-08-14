@@ -145,3 +145,17 @@ data class ParentDirectoryDTO(
     val phone: String?,
     val occupation: String?
 )
+
+data class Teacher(
+    val teacherId: Long,
+    val userId: Long,
+    val employeeId: String,
+    val firstName: String,
+    val lastName: String,
+    val phone: String?,
+    val gender: String,
+    val dateOfBirth: String?,
+    val hireDate: String,
+    val qualification: String?,
+    val isActive: Boolean
+)

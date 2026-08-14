@@ -307,6 +307,65 @@ fun AdminAppWrapper(
                 )
             }
 
+            // Teacher Module Routes
+            composable("teachers") {
+                val factory = com.school.gdsportal.ui.admin.teachers.TeachersDirectoryViewModel.Factory(appContainer.apiService)
+                val viewModel: com.school.gdsportal.ui.admin.teachers.TeachersDirectoryViewModel = androidx.lifecycle.viewmodel.compose.viewModel(factory = factory)
+                com.school.gdsportal.ui.admin.teachers.TeachersDirectoryScreen(
+                    viewModel = viewModel,
+                    onMenuClick = { coroutineScope.launch { drawerState.open() } },
+                    onAddTeacherClick = { navController.navigate("teachers/create") },
+                    onTeacherClick = { teacherId -> navController.navigate("teachers/$teacherId") }
+                )
+            }
+            composable("teachers/create") {
+                TeacherPlaceholderScreen(title = "Create Teacher", onBack = { navController.navigateUp() })
+            }
+            composable("teachers/{teacherId}") { backStackEntry ->
+                val teacherId = backStackEntry.arguments?.getString("teacherId")
+                TeacherPlaceholderScreen(title = "Teacher Profile ($teacherId)", onBack = { navController.navigateUp() })
+            }
+            composable("teachers/{teacherId}/information") { backStackEntry ->
+                val teacherId = backStackEntry.arguments?.getString("teacherId")
+                TeacherPlaceholderScreen(title = "Teacher Information ($teacherId)", onBack = { navController.navigateUp() })
+            }
+            composable("teachers/{teacherId}/edit") { backStackEntry ->
+                val teacherId = backStackEntry.arguments?.getString("teacherId")
+                TeacherPlaceholderScreen(title = "Edit Teacher ($teacherId)", onBack = { navController.navigateUp() })
+            }
+            composable("teachers/{teacherId}/teaching") { backStackEntry ->
+                val teacherId = backStackEntry.arguments?.getString("teacherId")
+                TeacherPlaceholderScreen(title = "Teaching Assignments ($teacherId)", onBack = { navController.navigateUp() })
+            }
+            composable("teachers/{teacherId}/classes") { backStackEntry ->
+                val teacherId = backStackEntry.arguments?.getString("teacherId")
+                TeacherPlaceholderScreen(title = "Teacher Classes ($teacherId)", onBack = { navController.navigateUp() })
+            }
+            composable("teachers/{teacherId}/classes/assign") { backStackEntry ->
+                val teacherId = backStackEntry.arguments?.getString("teacherId")
+                TeacherPlaceholderScreen(title = "Assign Teacher Class ($teacherId)", onBack = { navController.navigateUp() })
+            }
+            composable("teachers/{teacherId}/subjects") { backStackEntry ->
+                val teacherId = backStackEntry.arguments?.getString("teacherId")
+                TeacherPlaceholderScreen(title = "Teacher Subjects ($teacherId)", onBack = { navController.navigateUp() })
+            }
+            composable("teachers/{teacherId}/subjects/assign") { backStackEntry ->
+                val teacherId = backStackEntry.arguments?.getString("teacherId")
+                TeacherPlaceholderScreen(title = "Assign Teacher Subject ($teacherId)", onBack = { navController.navigateUp() })
+            }
+            composable("teachers/{teacherId}/class-teacher") { backStackEntry ->
+                val teacherId = backStackEntry.arguments?.getString("teacherId")
+                TeacherPlaceholderScreen(title = "Class Teacher Assignment ($teacherId)", onBack = { navController.navigateUp() })
+            }
+            composable("teachers/{teacherId}/class-teacher/history") { backStackEntry ->
+                val teacherId = backStackEntry.arguments?.getString("teacherId")
+                TeacherPlaceholderScreen(title = "Class Teacher History ($teacherId)", onBack = { navController.navigateUp() })
+            }
+            composable("teachers/{teacherId}/attendance") { backStackEntry ->
+                val teacherId = backStackEntry.arguments?.getString("teacherId")
+                TeacherPlaceholderScreen(title = "Teacher Attendance ($teacherId)", onBack = { navController.navigateUp() })
+            }
+
             composable("admin_academics_landing") {
                 AcademicsLandingScreen(
                     onBack = { navController.navigateUp() },
@@ -379,6 +438,23 @@ private fun StudentPlaceholderScreen(title: String, onBack: () -> Unit) {
 
 @Composable
 private fun ParentPlaceholderScreen(title: String, onBack: () -> Unit) {
+    Column(
+        modifier = Modifier.fillMaxSize().padding(16.dp)
+    ) {
+        IconButton(onClick = onBack) {
+            Icon(
+                imageVector = Icons.Default.ArrowBack,
+                contentDescription = "Back"
+            )
+        }
+        Text(text = title, style = MaterialTheme.typography.headlineMedium)
+        Spacer(modifier = Modifier.height(16.dp))
+        Text(text = "Coming soon")
+    }
+}
+
+@Composable
+private fun TeacherPlaceholderScreen(title: String, onBack: () -> Unit) {
     Column(
         modifier = Modifier.fillMaxSize().padding(16.dp)
     ) {
