@@ -374,4 +374,35 @@ interface ApiService {
 
     @DELETE("api/periods/{periodId}")
     suspend fun deletePeriod(@Path("periodId") periodId: Int): Response<Void>
+
+    // TIMETABLE
+    @GET("api/timetable/section/{sectionId}/{academicYearId}")
+    suspend fun getTimetableBySection(
+        @Path("sectionId") sectionId: Int,
+        @Path("academicYearId") academicYearId: Int
+    ): Response<ApiResponse<List<com.school.gdsportal.data.remote.Timetable>>>
+
+    @GET("api/timetable/teacher/{teacherId}/{academicYearId}")
+    suspend fun getTimetableByTeacher(
+        @Path("teacherId") teacherId: Long,
+        @Path("academicYearId") academicYearId: Int
+    ): Response<ApiResponse<List<com.school.gdsportal.data.remote.Timetable>>>
+
+    @GET("api/timetable/day/{sectionId}/{day}")
+    suspend fun getTimetableByDay(
+        @Path("sectionId") sectionId: Int,
+        @Path("day") day: String
+    ): Response<ApiResponse<List<com.school.gdsportal.data.remote.Timetable>>>
+
+    @POST("api/timetable/")
+    suspend fun createTimetable(@Body timetable: com.school.gdsportal.data.remote.Timetable): Response<ApiResponse<com.school.gdsportal.data.remote.Timetable>>
+
+    @PUT("api/timetable/{timetableId}")
+    suspend fun updateTimetable(
+        @Path("timetableId") timetableId: Long,
+        @Body timetable: com.school.gdsportal.data.remote.Timetable
+    ): Response<ApiResponse<Any>>
+
+    @DELETE("api/timetable/{timetableId}")
+    suspend fun deleteTimetable(@Path("timetableId") timetableId: Long): Response<ApiResponse<Any>>
 }

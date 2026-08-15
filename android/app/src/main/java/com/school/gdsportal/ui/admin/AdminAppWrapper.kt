@@ -31,6 +31,11 @@ import com.school.gdsportal.ui.admin.academics.periods.*
 import com.school.gdsportal.ui.admin.teaching.classteacher.*
 import com.school.gdsportal.ui.admin.teaching.teacherclasses.*
 import com.school.gdsportal.ui.admin.teaching.teachersubjects.*
+import com.school.gdsportal.ui.admin.teaching.timetable.*
+import com.google.gson.Gson
+import java.net.URLDecoder
+import java.net.URLEncoder
+import java.nio.charset.StandardCharsets
 import com.school.gdsportal.ui.admin.dashboard.AdminDashboardScreen
 import com.school.gdsportal.ui.admin.dashboard.AdminDashboardViewModel
 import com.school.gdsportal.ui.admin.PeopleLandingScreen
@@ -439,6 +444,81 @@ fun AdminAppWrapper(
                     onTeacherClick = { teacherId ->
                         navController.navigate("teachers/$teacherId")
                     }
+                )
+            }
+            
+            // TIMETABLE
+            composable("timetable") {
+                val viewModel: TimetableDirectoryViewModel = viewModel(
+                    factory = TimetableDirectoryViewModel.Factory(appContainer.apiService)
+                )
+                TimetableDirectoryScreen(
+                    viewModel = viewModel,
+                    onMenuClick = { navController.navigateUp() },
+                    onAddClick = { navController.navigate("timetable/create") },
+                    onTimetableClick = { entry ->
+                        val json = URLEncoder.encode(Gson().toJson(entry), StandardCharsets.UTF_8.toString())
+                        navController.navigate("timetable/detail/$json")
+                    }
+                )
+            }
+
+            composable("timetable/create") {
+                val viewModel: TimetableFormViewModel = viewModel(
+                    factory = TimetableFormViewModel.Factory(appContainer.apiService)
+                )
+                // Try to get preselected context from previous screen if we want (optional)
+                LaunchedEffect(Unit) {
+                    viewModel.loadInitialData(null, null, null, null)
+                }
+                TimetableFormScreen(
+                    viewModel = viewModel,
+                    onBackClick = { navController.navigateUp() },
+                    onSubmitSuccess = { navController.navigateUp() }
+                )
+            }
+
+            composable("timetable/detail/{entryJson}") { backStackEntry ->
+                val json = backStackEntry.arguments?.getString("entryJson") ?: ""
+                val decodedJson = URLDecoder.decode(json, StandardCharsets.UTF_8.toString())
+                val entry = Gson().fromJson(decodedJson, TimetableDisplay::class.java)
+
+                val viewModel: TimetableDetailViewModel = viewModel(
+                    factory = TimetableDetailViewModel.Factory(appContainer.apiService)
+                )
+                LaunchedEffect(entry) {
+                    if (entry != null) {
+                        viewModel.setEntry(entry)
+                    }
+                }
+                TimetableDetailScreen(
+                    viewModel = viewModel,
+                    onBackClick = { navController.navigateUp() },
+                    onEditClick = { e ->
+                        val eJson = URLEncoder.encode(Gson().toJson(e), StandardCharsets.UTF_8.toString())
+                        navController.navigate("timetable/edit/$eJson")
+                    },
+                    onDeleteSuccess = { navController.navigateUp() }
+                )
+            }
+
+            composable("timetable/edit/{entryJson}") { backStackEntry ->
+                val json = backStackEntry.arguments?.getString("entryJson") ?: ""
+                val decodedJson = URLDecoder.decode(json, StandardCharsets.UTF_8.toString())
+                val entry = Gson().fromJson(decodedJson, TimetableDisplay::class.java)
+
+                val viewModel: TimetableFormViewModel = viewModel(
+                    factory = TimetableFormViewModel.Factory(appContainer.apiService)
+                )
+                LaunchedEffect(entry) {
+                    if (entry != null) {
+                        viewModel.loadInitialData(null, null, null, entry)
+                    }
+                }
+                TimetableFormScreen(
+                    viewModel = viewModel,
+                    onBackClick = { navController.navigateUp() },
+                    onSubmitSuccess = { navController.popBackStack("timetable", false) }
                 )
             }
 

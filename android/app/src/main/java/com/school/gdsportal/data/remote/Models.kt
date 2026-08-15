@@ -286,3 +286,14 @@ data class CreateAdministratorRequest(
     val password: String,
     val administrator: Administrator
 )
+
+
+data class Timetable(
+    val timetableId: Long = 0,
+    val sectionId: Int,
+    val subjectId: Int,
+    val teacherId: Long,
+    val periodId: Int,
+    val dayOfWeek: String,
+    val academicYearId: Int
+)
