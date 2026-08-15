@@ -382,3 +382,24 @@ data class SubmissionDisplay(
     val fileUrl: String
 )
 
+data class Mark(
+    val markId: Long = 0,
+    val examinationId: Long,
+    val studentId: Long,
+    val marksObtained: Double?,
+    val grade: String?,
+    val remarks: String?,
+    val enteredBy: Long?,
+    val enteredAt: String?
+)
+
+data class MarkDisplay(
+    val markId: Long,
+    val studentName: String,
+    val registrationNumber: String,
+    val examinationName: String,
+    val marksObtained: String,
+    val grade: String,
+    val remarks: String
+)
+

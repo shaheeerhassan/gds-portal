@@ -63,7 +63,7 @@ fun AssessmentLandingScreen(onBack: () -> Unit, onNavigate: (String) -> Unit) {
             NavigationRowData("Examinations", "examinations", isImplemented = true),
             NavigationRowData("Assignments", "assignments", isImplemented = true),
             NavigationRowData("Submissions", "submissions", isImplemented = true),
-            NavigationRowData("Marks", "admin_marks", isImplemented = false)
+            NavigationRowData("Marks", "marks", isImplemented = true)
         ),
         onBackClick = onBack,
         onRowClick = onNavigate

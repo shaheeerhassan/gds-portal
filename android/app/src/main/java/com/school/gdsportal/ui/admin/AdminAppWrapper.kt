@@ -35,6 +35,7 @@ import com.school.gdsportal.ui.admin.teaching.timetable.*
 import com.school.gdsportal.ui.admin.assessment.examinations.*
 import com.school.gdsportal.ui.admin.assessment.assignments.*
 import com.school.gdsportal.ui.admin.assessment.submissions.*
+import com.school.gdsportal.ui.admin.assessment.marks.*
 import com.google.gson.Gson
 import java.net.URLDecoder
 import java.net.URLEncoder
@@ -631,6 +632,31 @@ fun AdminAppWrapper(
                     factory = SubmissionDetailViewModel.Factory(appContainer.apiService, submissionId)
                 )
                 SubmissionDetailScreen(
+                    viewModel = viewModel,
+                    onBackClick = { navController.navigateUp() }
+                )
+            }
+
+            // MARKS
+            composable("marks") {
+                val viewModel: MarksDirectoryViewModel = viewModel(
+                    factory = MarksDirectoryViewModel.Factory(appContainer.apiService)
+                )
+                MarksDirectoryScreen(
+                    viewModel = viewModel,
+                    onMenuClick = { navController.navigateUp() },
+                    onMarkClick = { mark ->
+                        navController.navigate("marks/${mark.markId}")
+                    }
+                )
+            }
+
+            composable("marks/{markId}") { backStackEntry ->
+                val markId = backStackEntry.arguments?.getString("markId")?.toLongOrNull() ?: 0L
+                val viewModel: MarkDetailViewModel = viewModel(
+                    factory = MarkDetailViewModel.Factory(appContainer.apiService, markId)
+                )
+                MarkDetailScreen(
                     viewModel = viewModel,
                     onBackClick = { navController.navigateUp() }
                 )
