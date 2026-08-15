@@ -405,4 +405,29 @@ interface ApiService {
 
     @DELETE("api/timetable/{timetableId}")
     suspend fun deleteTimetable(@Path("timetableId") timetableId: Long): Response<ApiResponse<Any>>
+
+    // EXAMINATIONS
+    @GET("api/examinations/id/{examinationId}")
+    suspend fun getExaminationById(@Path("examinationId") examinationId: Long): Response<ApiResponse<com.school.gdsportal.data.remote.Examination>>
+
+    @GET("api/examinations/section/{sectionId}/year/{academicYearId}")
+    suspend fun getExaminationsBySection(
+        @Path("sectionId") sectionId: Int,
+        @Path("academicYearId") academicYearId: Int
+    ): Response<ApiResponse<List<com.school.gdsportal.data.remote.Examination>>>
+
+    @POST("api/examinations/")
+    suspend fun createExamination(@Body examination: com.school.gdsportal.data.remote.Examination): Response<ApiResponse<com.school.gdsportal.data.remote.Examination>>
+
+    @PUT("api/examinations/{examinationId}")
+    suspend fun updateExamination(
+        @Path("examinationId") examinationId: Long,
+        @Body examination: com.school.gdsportal.data.remote.Examination
+    ): Response<ApiResponse<Any>>
+
+    @PUT("api/examinations/status/{examinationId}")
+    suspend fun updateExaminationStatus(
+        @Path("examinationId") examinationId: Long,
+        @Body request: com.school.gdsportal.data.remote.StatusRequest
+    ): Response<ApiResponse<Any>>
 }

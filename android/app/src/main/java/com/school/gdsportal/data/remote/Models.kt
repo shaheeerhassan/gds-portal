@@ -297,3 +297,27 @@ data class Timetable(
     val dayOfWeek: String,
     val academicYearId: Int
 )
+
+enum class ExaminationStatus {
+    SCHEDULED, ONGOING, COMPLETED, PUBLISHED
+}
+
+data class Examination(
+    val examinationId: Long = 0,
+    val examName: String,
+    val subjectId: Int,
+    val sectionId: Int,
+    val academicYearId: Int,
+    val examDate: String, // format YYYY-MM-DD
+    val startTime: String, // format HH:MM
+    val endTime: String,
+    val maxMarks: Double,
+    val passingMarks: Double?,
+    val status: ExaminationStatus,
+    val createdBy: Long = 0,
+    val createdAt: String? = null
+)
+
+data class StatusRequest(
+    val status: String
+)

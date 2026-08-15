@@ -32,6 +32,7 @@ import com.school.gdsportal.ui.admin.teaching.classteacher.*
 import com.school.gdsportal.ui.admin.teaching.teacherclasses.*
 import com.school.gdsportal.ui.admin.teaching.teachersubjects.*
 import com.school.gdsportal.ui.admin.teaching.timetable.*
+import com.school.gdsportal.ui.admin.assessment.examinations.*
 import com.google.gson.Gson
 import java.net.URLDecoder
 import java.net.URLEncoder
@@ -519,6 +520,67 @@ fun AdminAppWrapper(
                     viewModel = viewModel,
                     onBackClick = { navController.navigateUp() },
                     onSubmitSuccess = { navController.popBackStack("timetable", false) }
+                )
+            }
+
+            // EXAMINATIONS
+            composable("examinations") {
+                val viewModel: ExaminationsDirectoryViewModel = viewModel(
+                    factory = ExaminationsDirectoryViewModel.Factory(appContainer.apiService)
+                )
+                ExaminationsDirectoryScreen(
+                    viewModel = viewModel,
+                    onMenuClick = { navController.navigateUp() },
+                    onAddClick = { navController.navigate("examinations/create") },
+                    onExaminationClick = { exam ->
+                        navController.navigate("examinations/detail/${exam.examinationId}")
+                    }
+                )
+            }
+
+            composable("examinations/create") {
+                val viewModel: ExaminationFormViewModel = viewModel(
+                    factory = ExaminationFormViewModel.Factory(appContainer.apiService)
+                )
+                LaunchedEffect(Unit) {
+                    viewModel.loadInitialData(null)
+                }
+                ExaminationFormScreen(
+                    viewModel = viewModel,
+                    onBackClick = { navController.navigateUp() },
+                    onSubmitSuccess = { navController.navigateUp() }
+                )
+            }
+
+            composable("examinations/detail/{examinationId}") { backStackEntry ->
+                val examinationId = backStackEntry.arguments?.getString("examinationId")?.toLongOrNull() ?: 0L
+                val viewModel: ExaminationDetailViewModel = viewModel(
+                    factory = ExaminationDetailViewModel.Factory(appContainer.apiService)
+                )
+                LaunchedEffect(examinationId) {
+                    viewModel.loadExamination(examinationId)
+                }
+                ExaminationDetailScreen(
+                    viewModel = viewModel,
+                    onBackClick = { navController.navigateUp() },
+                    onEditClick = { id ->
+                        navController.navigate("examinations/edit/$id")
+                    }
+                )
+            }
+
+            composable("examinations/edit/{examinationId}") { backStackEntry ->
+                val examinationId = backStackEntry.arguments?.getString("examinationId")?.toLongOrNull() ?: 0L
+                val viewModel: ExaminationFormViewModel = viewModel(
+                    factory = ExaminationFormViewModel.Factory(appContainer.apiService)
+                )
+                LaunchedEffect(examinationId) {
+                    viewModel.loadInitialData(examinationId)
+                }
+                ExaminationFormScreen(
+                    viewModel = viewModel,
+                    onBackClick = { navController.navigateUp() },
+                    onSubmitSuccess = { navController.popBackStack("examinations", false) }
                 )
             }
 
@@ -1077,7 +1139,7 @@ fun AdminAppWrapper(
             composable("admin_assessment_landing") {
                 AssessmentLandingScreen(
                     onBack = { navController.navigateUp() },
-                    onNavigate = { /* TODO Phase 2 */ }
+                    onNavigate = { route -> navController.navigate(route) }
                 )
             }
 
