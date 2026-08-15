@@ -28,6 +28,7 @@ import com.school.gdsportal.ui.admin.academics.classes.*
 import com.school.gdsportal.ui.admin.academics.sections.*
 import com.school.gdsportal.ui.admin.academics.subjects.*
 import com.school.gdsportal.ui.admin.academics.periods.*
+import com.school.gdsportal.ui.admin.teaching.classteacher.*
 import com.school.gdsportal.ui.admin.dashboard.AdminDashboardScreen
 import com.school.gdsportal.ui.admin.dashboard.AdminDashboardViewModel
 import com.school.gdsportal.ui.admin.PeopleLandingScreen
@@ -353,6 +354,63 @@ fun AdminAppWrapper(
                 )
             }
 
+            // -------------------------------------------------------------
+            // TEACHING SECTION
+            // -------------------------------------------------------------
+            composable("admin_teaching_landing") {
+                TeachingLandingScreen(
+                    onBack = {
+                        coroutineScope.launch { drawerState.open() }
+                    },
+                    onNavigate = { route -> navController.navigate(route) }
+                )
+            }
+
+            // CLASS TEACHERS
+            composable("class-teachers") {
+                val viewModel: ClassTeachersDirectoryViewModel = viewModel(
+                    factory = ClassTeachersDirectoryViewModel.Factory(appContainer.apiService)
+                )
+                ClassTeachersDirectoryScreen(
+                    viewModel = viewModel,
+                    onMenuClick = { coroutineScope.launch { drawerState.open() } },
+                    onAddClick = { navController.navigate("class-teachers/create") },
+                    onAssignmentClick = { sectionId, yearId ->
+                        navController.navigate("class-teachers/$sectionId/$yearId")
+                    }
+                )
+            }
+
+            composable("class-teachers/create") {
+                val viewModel: ClassTeacherAssignmentViewModel = viewModel(
+                    factory = ClassTeacherAssignmentViewModel.Factory(null, null, appContainer.apiService)
+                )
+                ClassTeacherAssignmentScreen(
+                    viewModel = viewModel,
+                    onBackClick = { navController.navigateUp() },
+                    onAssignmentSaved = { navController.navigateUp() }
+                )
+            }
+
+            composable(
+                route = "class-teachers/{sectionId}/{academicYearId}",
+                arguments = listOf(
+                    navArgument("sectionId") { type = NavType.IntType },
+                    navArgument("academicYearId") { type = NavType.IntType }
+                )
+            ) { backStackEntry ->
+                val sectionId = backStackEntry.arguments?.getInt("sectionId") ?: return@composable
+                val yearId = backStackEntry.arguments?.getInt("academicYearId") ?: return@composable
+                
+                val viewModel: ClassTeacherAssignmentViewModel = viewModel(
+                    factory = ClassTeacherAssignmentViewModel.Factory(sectionId, yearId, appContainer.apiService)
+                )
+                ClassTeacherAssignmentScreen(
+                    viewModel = viewModel,
+                    onBackClick = { navController.navigateUp() },
+                    onAssignmentSaved = { navController.navigateUp() }
+                )
+            }
             // -------------------------------------------------------------
             // ACADEMICS SECTION
             // -------------------------------------------------------------
@@ -903,12 +961,7 @@ fun AdminAppWrapper(
 
 
             
-            composable("admin_teaching_landing") {
-                TeachingLandingScreen(
-                    onBack = { navController.navigateUp() },
-                    onNavigate = { /* TODO Phase 2 */ }
-                )
-            }
+
 
             composable("admin_assessment_landing") {
                 AssessmentLandingScreen(

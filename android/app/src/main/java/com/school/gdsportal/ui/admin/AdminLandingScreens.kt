@@ -45,7 +45,7 @@ fun TeachingLandingScreen(onBack: () -> Unit, onNavigate: (String) -> Unit) {
         description = "Teaching assignments and schedules",
         rows = listOf(
             NavigationRowData("Timetable", "admin_timetable", isImplemented = false),
-            NavigationRowData("Class Teachers", "admin_class_teachers", isImplemented = false),
+            NavigationRowData("Class Teachers", "class-teachers", isImplemented = true),
             NavigationRowData("Teacher Classes", "admin_teacher_classes", isImplemented = false),
             NavigationRowData("Teacher Subjects", "admin_teacher_subjects", isImplemented = false)
         ),

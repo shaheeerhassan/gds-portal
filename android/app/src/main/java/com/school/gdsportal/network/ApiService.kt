@@ -123,6 +123,9 @@ interface ApiService {
     @POST("api/class-teachers")
     suspend fun assignClassTeacher(@Body assignment: ClassTeacherAssignment): Response<ApiResponse<Void>>
 
+    @GET("api/class-teachers/section/{sectionId}")
+    suspend fun getClassTeacherBySection(@Path("sectionId") sectionId: Int): Response<ApiResponse<ClassTeacherAssignment>>
+
     @DELETE("api/class-teachers/section/{sectionId}/year/{academicYearId}")
     suspend fun removeClassTeacher(
         @Path("sectionId") sectionId: Int,
