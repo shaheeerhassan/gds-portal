@@ -47,7 +47,7 @@ fun TeachingLandingScreen(onBack: () -> Unit, onNavigate: (String) -> Unit) {
             NavigationRowData("Timetable", "admin_timetable", isImplemented = false),
             NavigationRowData("Class Teachers", "class-teachers", isImplemented = true),
             NavigationRowData("Teacher Classes", "teacher-classes", isImplemented = true),
-            NavigationRowData("Teacher Subjects", "admin_teacher_subjects", isImplemented = false)
+            NavigationRowData("Teacher Subjects", "teacher-subjects", isImplemented = true)
         ),
         onBackClick = onBack,
         onRowClick = onNavigate

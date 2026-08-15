@@ -30,6 +30,7 @@ import com.school.gdsportal.ui.admin.academics.subjects.*
 import com.school.gdsportal.ui.admin.academics.periods.*
 import com.school.gdsportal.ui.admin.teaching.classteacher.*
 import com.school.gdsportal.ui.admin.teaching.teacherclasses.*
+import com.school.gdsportal.ui.admin.teaching.teachersubjects.*
 import com.school.gdsportal.ui.admin.dashboard.AdminDashboardScreen
 import com.school.gdsportal.ui.admin.dashboard.AdminDashboardViewModel
 import com.school.gdsportal.ui.admin.PeopleLandingScreen
@@ -419,6 +420,20 @@ fun AdminAppWrapper(
                     factory = TeacherClassesViewModel.Factory(appContainer.apiService)
                 )
                 TeacherClassesScreen(
+                    viewModel = viewModel,
+                    onBackClick = { navController.navigateUp() },
+                    onTeacherClick = { teacherId ->
+                        navController.navigate("teachers/$teacherId")
+                    }
+                )
+            }
+
+            // TEACHER SUBJECTS
+            composable("teacher-subjects") {
+                val viewModel: TeacherSubjectsViewModel = viewModel(
+                    factory = TeacherSubjectsViewModel.Factory(appContainer.apiService)
+                )
+                TeacherSubjectsScreen(
                     viewModel = viewModel,
                     onBackClick = { navController.navigateUp() },
                     onTeacherClick = { teacherId ->
