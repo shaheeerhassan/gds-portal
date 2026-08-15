@@ -1,5 +1,7 @@
 package com.school.gdsportal.data.remote
 
+import com.google.gson.annotations.SerializedName
+
 data class User(
     val userId: Long,
     val username: String?,
@@ -25,6 +27,7 @@ data class AcademicYear(
     val yearName: String,
     val startDate: String,
     val endDate: String,
+    @SerializedName(value = "isCurrent", alternate = ["current"])
     val isCurrent: Boolean
 )
 

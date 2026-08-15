@@ -18,10 +18,17 @@ import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.currentBackStackEntryAsState
 import androidx.navigation.compose.rememberNavController
+import androidx.navigation.NavType
+import androidx.navigation.navArgument
 import com.school.gdsportal.di.AppContainer
 import com.school.gdsportal.ui.admin.components.AdminDrawerContent
+import com.school.gdsportal.ui.admin.AcademicsLandingScreen
+import com.school.gdsportal.ui.admin.academics.academicyears.*
 import com.school.gdsportal.ui.admin.dashboard.AdminDashboardScreen
 import com.school.gdsportal.ui.admin.dashboard.AdminDashboardViewModel
+import com.school.gdsportal.ui.admin.PeopleLandingScreen
+import com.school.gdsportal.ui.admin.administrators.*
+import com.school.gdsportal.ui.admin.principals.*
 import kotlinx.coroutines.launch
 
 @Composable
@@ -75,6 +82,76 @@ fun AdminAppWrapper(
                 AdminDashboardScreen(
                     viewModel = dashboardViewModel,
                     onMenuClick = openDrawer
+                )
+            }
+
+            // -------------------------------------------------------------
+            // ACADEMICS SECTION
+            // -------------------------------------------------------------
+            composable("admin_academics_landing") {
+                AcademicsLandingScreen(
+                    onNavigate = { route -> navController.navigate(route) },
+                    onBack = { navController.navigateUp() }
+                )
+            }
+            
+            composable("academic-years") {
+                val viewModel: AcademicYearsDirectoryViewModel = viewModel(
+                    factory = AcademicYearsDirectoryViewModel.Factory(appContainer.apiService)
+                )
+                AcademicYearsDirectoryScreen(
+                    viewModel = viewModel,
+                    onBackClick = { navController.navigate("admin_academics_landing") { popUpTo("admin_academics_landing") } },
+                    onAddClick = { navController.navigate("academic-years/create") },
+                    onYearClick = { id -> navController.navigate("academic-years/$id") }
+                )
+            }
+            
+            composable("academic-years/create") {
+                val viewModel: AcademicYearCreateViewModel = viewModel(
+                    factory = AcademicYearCreateViewModel.provideFactory(appContainer.apiService)
+                )
+                AcademicYearCreateScreen(
+                    viewModel = viewModel,
+                    onBackClick = { navController.popBackStack() },
+                    onAcademicYearCreated = { id ->
+                        if (id != null) {
+                            navController.navigate("academic-years/$id") {
+                                popUpTo("academic-years")
+                            }
+                        } else {
+                            navController.popBackStack()
+                        }
+                    }
+                )
+            }
+            
+            composable(
+                route = "academic-years/{academicYearId}",
+                arguments = listOf(navArgument("academicYearId") { type = NavType.IntType })
+            ) { backStackEntry ->
+                val id = backStackEntry.arguments?.getInt("academicYearId") ?: 0
+                val viewModel: AcademicYearDetailViewModel = viewModel(
+                    factory = AcademicYearDetailViewModel.Factory(id, appContainer.apiService)
+                )
+                AcademicYearDetailScreen(
+                    viewModel = viewModel,
+                    onBackClick = { navController.navigate("academic-years") },
+                    onEditClick = { navController.navigate("academic-years/$id/edit") }
+                )
+            }
+            
+            composable(
+                route = "academic-years/{academicYearId}/edit",
+                arguments = listOf(navArgument("academicYearId") { type = NavType.IntType })
+            ) { backStackEntry ->
+                val id = backStackEntry.arguments?.getInt("academicYearId") ?: 0
+                val viewModel: AcademicYearEditViewModel = viewModel(
+                    factory = AcademicYearEditViewModel.provideFactory(id, appContainer.apiService)
+                )
+                AcademicYearEditScreen(
+                    viewModel = viewModel,
+                    onBackClick = { navController.popBackStack() }
                 )
             }
 
@@ -556,12 +633,7 @@ fun AdminAppWrapper(
                 )
             }
 
-            composable("admin_academics_landing") {
-                AcademicsLandingScreen(
-                    onBack = { navController.navigateUp() },
-                    onNavigate = { /* TODO Phase 2 */ }
-                )
-            }
+
             
             composable("admin_teaching_landing") {
                 TeachingLandingScreen(

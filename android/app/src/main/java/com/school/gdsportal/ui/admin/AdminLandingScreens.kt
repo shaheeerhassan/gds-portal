@@ -27,12 +27,11 @@ fun AcademicsLandingScreen(onBack: () -> Unit, onNavigate: (String) -> Unit) {
         title = "Academics",
         description = "Academic structure and enrollment",
         rows = listOf(
-            NavigationRowData("Academic Years", "admin_academic_years", isImplemented = false),
+            NavigationRowData("Academic Years", "academic-years", isImplemented = true),
             NavigationRowData("Classes", "admin_classes", isImplemented = false),
             NavigationRowData("Sections", "admin_sections", isImplemented = false),
             NavigationRowData("Subjects", "admin_subjects", isImplemented = false),
-            NavigationRowData("Periods", "admin_periods", isImplemented = false),
-            NavigationRowData("Enrollments", "admin_enrollments", isImplemented = false)
+            NavigationRowData("Periods", "admin_periods", isImplemented = false)
         ),
         onBackClick = onBack,
         onRowClick = onNavigate

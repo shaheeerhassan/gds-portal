@@ -97,6 +97,26 @@ interface ApiService {
         @Body administrator: com.school.gdsportal.data.remote.Administrator
     ): Response<ApiResponse<Void>>
 
+    // Academic Years
+    @GET("api/academic-years")
+    suspend fun getAcademicYears(): Response<ApiResponse<List<com.school.gdsportal.data.remote.AcademicYear>>>
+
+
+    @GET("api/academic-years/{academicYearId}")
+    suspend fun getAcademicYearById(@Path("academicYearId") id: Int): Response<ApiResponse<com.school.gdsportal.data.remote.AcademicYear>>
+
+    @POST("api/academic-years")
+    suspend fun createAcademicYear(@Body academicYear: com.school.gdsportal.data.remote.AcademicYear): Response<ApiResponse<com.school.gdsportal.data.remote.AcademicYear>>
+
+    @PUT("api/academic-years/{academicYearId}")
+    suspend fun updateAcademicYear(
+        @Path("academicYearId") id: Int,
+        @Body academicYear: com.school.gdsportal.data.remote.AcademicYear
+    ): Response<ApiResponse<Void>>
+
+    @PUT("api/academic-years/set-current/{academicYearId}")
+    suspend fun setCurrentAcademicYear(@Path("academicYearId") id: Int): Response<ApiResponse<Void>>
+
     @GET("api/class-teachers/teacher/{teacherId}/history")
     suspend fun getClassTeacherHistory(@Path("teacherId") teacherId: Long): Response<ApiResponse<List<ClassTeacherAssignment>>>
 
@@ -148,8 +168,6 @@ interface ApiService {
     @GET("api/subjects/count")
     suspend fun getSubjectsCount(): Response<ApiResponse<Int>>
 
-    @GET("api/academic-years/")
-    suspend fun getAcademicYears(): Response<ApiResponse<List<AcademicYear>>>
 
     @GET("api/classes/")
     suspend fun getClasses(): Response<ApiResponse<List<com.school.gdsportal.data.remote.SchoolClass>>>
