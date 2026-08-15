@@ -1,0 +1,135 @@
+package com.school.gdsportal.ui.admin
+
+import androidx.compose.runtime.Composable
+import com.school.gdsportal.ui.admin.components.NavigationRowData
+import com.school.gdsportal.ui.admin.components.SectionLandingPage
+
+@Composable
+fun PeopleLandingScreen(onBack: () -> Unit, onNavigate: (String) -> Unit) {
+    SectionLandingPage(
+        title = "People",
+        description = "Manage people and accounts",
+        rows = listOf(
+            NavigationRowData("Students", "students", isImplemented = true),
+            NavigationRowData("Teachers", "teachers", isImplemented = true),
+            NavigationRowData("Parents", "parents", isImplemented = true),
+            NavigationRowData("Principals", "principals", isImplemented = true),
+            NavigationRowData("Administrators", "administrators", isImplemented = true)
+        ),
+        onBackClick = onBack,
+        onRowClick = onNavigate
+    )
+}
+
+@Composable
+fun AcademicsLandingScreen(onBack: () -> Unit, onNavigate: (String) -> Unit) {
+    SectionLandingPage(
+        title = "Academics",
+        description = "Academic structure and enrollment",
+        rows = listOf(
+            NavigationRowData("Academic Years", "academic-years", isImplemented = true),
+            NavigationRowData("Classes", "classes", isImplemented = true),
+            NavigationRowData("Sections", "sections", isImplemented = true),
+            NavigationRowData("Subjects", "subjects", isImplemented = true),
+            NavigationRowData("Periods", "periods", isImplemented = true)
+        ),
+        onBackClick = onBack,
+        onRowClick = onNavigate
+    )
+}
+
+@Composable
+fun TeachingLandingScreen(onBack: () -> Unit, onNavigate: (String) -> Unit) {
+    SectionLandingPage(
+        title = "Teaching",
+        description = "Teaching assignments and schedules",
+        rows = listOf(
+            NavigationRowData("Timetable", "timetable", isImplemented = true),
+            NavigationRowData("Class Teachers", "class-teachers", isImplemented = true),
+            NavigationRowData("Teacher Classes", "teacher-classes", isImplemented = true),
+            NavigationRowData("Teacher Subjects", "teacher-subjects", isImplemented = true)
+        ),
+        onBackClick = onBack,
+        onRowClick = onNavigate
+    )
+}
+
+@Composable
+fun AssessmentLandingScreen(onBack: () -> Unit, onNavigate: (String) -> Unit) {
+    SectionLandingPage(
+        title = "Assessment",
+        description = "Examinations and academic assessment",
+        rows = listOf(
+            NavigationRowData("Examinations", "examinations", isImplemented = true),
+            NavigationRowData("Assignments", "assignments", isImplemented = true),
+            NavigationRowData("Submissions", "submissions", isImplemented = true),
+            NavigationRowData("Marks", "marks", isImplemented = true)
+        ),
+        onBackClick = onBack,
+        onRowClick = onNavigate
+    )
+}
+
+@Composable
+fun AttendanceLandingScreen(onBack: () -> Unit, onNavigate: (String) -> Unit) {
+    SectionLandingPage(
+        title = "Attendance",
+        description = "Monitor and manage attendance",
+        rows = listOf(
+            NavigationRowData("Student Attendance", "admin_student_attendance", isImplemented = false),
+            NavigationRowData("Teacher Attendance", "admin_teacher_attendance", isImplemented = true)
+        ),
+        onBackClick = onBack,
+        onRowClick = onNavigate
+    )
+}
+
+@Composable
+fun CommunicationLandingScreen(onBack: () -> Unit, onNavigate: (String) -> Unit) {
+    SectionLandingPage(
+        title = "Communication",
+        description = "School communication",
+        rows = listOf(
+            NavigationRowData("Announcements", "admin_announcements", isImplemented = false),
+            NavigationRowData("Notifications", "admin_notifications", isImplemented = false)
+        ),
+        onBackClick = onBack,
+        onRowClick = onNavigate
+    )
+}
+
+@Composable
+fun ReportsLandingScreen(onBack: () -> Unit, onNavigate: (String) -> Unit) {
+    SectionLandingPage(
+        title = "Reports",
+        description = "School insights and summaries",
+        rows = listOf(
+            NavigationRowData("Student Performance", "admin_report_student_perf", isImplemented = false),
+            NavigationRowData("Teacher Attendance", "admin_report_teacher_att", isImplemented = false),
+            NavigationRowData("Class Attendance", "admin_report_class_att", isImplemented = false),
+            NavigationRowData("Teacher Performance", "admin_report_teacher_perf", isImplemented = false),
+            NavigationRowData("Examination Report", "admin_report_exams", isImplemented = false),
+            NavigationRowData("Student Attendance Summary", "admin_report_student_att_sum", isImplemented = false)
+        ),
+        onBackClick = onBack,
+        onRowClick = onNavigate
+    )
+}
+
+@Composable
+fun ProfileLandingScreen(onBack: () -> Unit, onNavigate: (String) -> Unit, onLogout: () -> Unit) {
+    SectionLandingPage(
+        title = "Profile & Account",
+        description = "Manage your administrator account",
+        rows = listOf(
+            NavigationRowData("My Profile", "admin_my_profile", isImplemented = false),
+            NavigationRowData("Edit Profile Picture", "admin_edit_picture", isImplemented = false),
+            NavigationRowData("Change Password", "admin_change_password", isImplemented = false),
+            NavigationRowData("Logout", "admin_logout_action", isImplemented = true)
+        ),
+        onBackClick = onBack,
+        onRowClick = { route -> 
+            if (route == "admin_logout_action") onLogout() else onNavigate(route)
+        }
+    )
+}
