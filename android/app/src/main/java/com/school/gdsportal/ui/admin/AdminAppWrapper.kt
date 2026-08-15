@@ -34,6 +34,7 @@ import com.school.gdsportal.ui.admin.teaching.teachersubjects.*
 import com.school.gdsportal.ui.admin.teaching.timetable.*
 import com.school.gdsportal.ui.admin.assessment.examinations.*
 import com.school.gdsportal.ui.admin.assessment.assignments.*
+import com.school.gdsportal.ui.admin.assessment.submissions.*
 import com.google.gson.Gson
 import java.net.URLDecoder
 import java.net.URLEncoder
@@ -605,6 +606,31 @@ fun AdminAppWrapper(
                     factory = AssignmentDetailViewModel.Factory(appContainer.apiService, assignmentId)
                 )
                 AssignmentDetailScreen(
+                    viewModel = viewModel,
+                    onBackClick = { navController.navigateUp() }
+                )
+            }
+
+            // SUBMISSIONS
+            composable("submissions") {
+                val viewModel: SubmissionsDirectoryViewModel = viewModel(
+                    factory = SubmissionsDirectoryViewModel.Factory(appContainer.apiService)
+                )
+                SubmissionsDirectoryScreen(
+                    viewModel = viewModel,
+                    onMenuClick = { navController.navigateUp() },
+                    onSubmissionClick = { submission ->
+                        navController.navigate("submissions/${submission.submissionId}")
+                    }
+                )
+            }
+
+            composable("submissions/{submissionId}") { backStackEntry ->
+                val submissionId = backStackEntry.arguments?.getString("submissionId")?.toLongOrNull() ?: 0L
+                val viewModel: SubmissionDetailViewModel = viewModel(
+                    factory = SubmissionDetailViewModel.Factory(appContainer.apiService, submissionId)
+                )
+                SubmissionDetailScreen(
                     viewModel = viewModel,
                     onBackClick = { navController.navigateUp() }
                 )

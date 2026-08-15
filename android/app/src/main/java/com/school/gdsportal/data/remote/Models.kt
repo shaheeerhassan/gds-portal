@@ -353,3 +353,32 @@ data class AssignmentDisplay(
     val description: String
 )
 
+enum class SubmissionStatus {
+    SUBMITTED, LATE, GRADED
+}
+
+data class Submission(
+    val submissionId: Long = 0,
+    val assignmentId: Long,
+    val studentId: Long,
+    val submittedAt: String?,
+    val fileUrl: String?,
+    val status: SubmissionStatus,
+    val marksAwarded: Double?,
+    val feedback: String?,
+    val gradedBy: Long?,
+    val gradedAt: String?
+)
+
+data class SubmissionDisplay(
+    val submissionId: Long,
+    val studentName: String,
+    val registrationNumber: String,
+    val assignmentTitle: String,
+    val submittedAt: String,
+    val status: SubmissionStatus,
+    val marksAwarded: String,
+    val feedback: String,
+    val fileUrl: String
+)
+

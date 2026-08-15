@@ -445,4 +445,10 @@ interface ApiService {
 
     @GET("api/assignments/id/{assignmentId}")
     suspend fun getAssignmentById(@Path("assignmentId") assignmentId: Long): Response<ApiResponse<com.school.gdsportal.data.remote.Assignment>>
+
+    @GET("api/submissions/assignment/{assignmentId}")
+    suspend fun getSubmissionsByAssignment(@Path("assignmentId") assignmentId: Long): Response<ApiResponse<List<com.school.gdsportal.data.remote.Submission>>>
+
+    @GET("api/submissions/id/{submissionId}")
+    suspend fun getSubmissionById(@Path("submissionId") submissionId: Long): Response<ApiResponse<com.school.gdsportal.data.remote.Submission>>
 }
