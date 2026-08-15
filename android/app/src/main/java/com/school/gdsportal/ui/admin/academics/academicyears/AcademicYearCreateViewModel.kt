@@ -82,6 +82,13 @@ class AcademicYearCreateViewModel(
                 val response = apiService.createAcademicYear(request)
                 if (response.isSuccessful && response.body()?.data != null) {
                     val id = response.body()?.data?.academicYearId
+                    if (id != null && state.isCurrent) {
+                        try {
+                            apiService.setCurrentAcademicYear(id)
+                        } catch (e: Exception) {
+                            // Proceed even if setting current fails; creation succeeded
+                        }
+                    }
                     _uiState.update { it.copy(isSaving = false, saveSuccess = true, createdAcademicYearId = id) }
                 } else {
                     val errorMsg = try {
