@@ -2,6 +2,7 @@ package com.school.service.impl;
 
 import com.school.dao.impl.StudentDaoImpl;
 import com.school.dao.interfaces.StudentDao;
+import com.school.exceptions.DaoException;
 import com.school.exceptions.ResourceNotFoundException;
 import com.school.exceptions.UnauthorizedException;
 import com.school.exceptions.ValidationException;
@@ -10,9 +11,14 @@ import com.school.model.User;
 import com.school.service.interfaces.RoleService;
 import com.school.service.interfaces.StudentService;
 import com.school.service.interfaces.UserService;
+import com.school.web.dto.response.PaginatedResponse;
+import com.school.web.dto.response.StudentDirectoryDTO;
 
+import java.sql.Connection;
+import java.sql.SQLException;
 import java.util.List;
 
+import static com.school.config.DBConfig.getDataSource;
 import static com.school.validations.ValidatorUtil.*;
 
 public class StudentServiceImpl implements StudentService {
@@ -32,20 +38,29 @@ public class StudentServiceImpl implements StudentService {
         validateStudent(student);
         student.setFirstName(validateName(student.getFirstName(), "First name"));
         student.setLastName(validateName(student.getLastName(), "Last name"));
+        if (student.getAdmissionDate() == null)
+            throw new ValidationException("Admission date is required.");
 
         user.setRoleId(roleService.getRoleByName("STUDENT").getRoleId());
-        user = userService.createUser(user, password);
 
-        student.setUserId(user.getUserId());
-        student.setActive(true);
+        try (Connection cn = getDataSource().getConnection()) {
+            cn.setAutoCommit(false);
+            try {
+                user = userService.createUser(user, password, cn);
 
-        try {
-            if (!studentDao.insertStudent(student)) {
-                throw new IllegalStateException("Failed to create student.");
+                student.setUserId(user.getUserId());
+                student.setActive(true);
+
+                if (!studentDao.insertStudent(student, cn))
+                    throw new IllegalStateException("Failed to create student.");
+
+                cn.commit();
+            } catch (Exception e) {
+                try { cn.rollback(); } catch (SQLException ignore) {}
+                throw e;
             }
-        } catch (Exception e) {
-            userService.deleteUser(user.getUserId());
-            throw e;
+        } catch (SQLException e) {
+            throw new DaoException("Error creating student", e);
         }
 
         return student;
@@ -154,14 +169,35 @@ public class StudentServiceImpl implements StudentService {
 
     @Override
     public void deactivateStudent(long studentId) {
-        validateId(studentId);
-        if (!studentDao.deleteStudent(studentId, false))
+        if (studentDao.getStudentByStudentId(studentId) == null)
             throw new ResourceNotFoundException("Student not found.");
+        studentDao.deleteStudent(studentId, false);
+        User user = userService.getUserById(studentDao.getStudentByStudentId(studentId).getUserId());
+        userService.updateUserStatus(user.getUserId(), false);
+    }
+
+    @Override
+    public int getActiveStudentCount() {
+        return studentDao.countActiveStudents();
     }
 
     private void validateStudent(Student student) {
         validateRequired(student.getRegistrationNumber(), "Registration number");
         if (student.getGender() == null)
             throw new ValidationException("Gender is required.");
+    }
+
+    @Override
+    public PaginatedResponse<StudentDirectoryDTO> getStudentDirectory(String query, Integer academicYearId, Integer classId, Integer sectionId, Boolean isEnrolled, int page, int size) {
+        if (page < 0) page = 0;
+        if (size <= 0) size = 20;
+
+        int offset = page * size;
+        List<StudentDirectoryDTO> content = studentDao.getStudentDirectory(query, academicYearId, classId, sectionId, isEnrolled, offset, size);
+        int totalElements = studentDao.countStudentDirectory(query, academicYearId, classId, sectionId, isEnrolled);
+        int totalPages = (int) Math.ceil((double) totalElements / size);
+        boolean hasNext = page < totalPages - 1;
+
+        return new PaginatedResponse<>(content, totalElements, totalPages, page, size, hasNext);
     }
 }

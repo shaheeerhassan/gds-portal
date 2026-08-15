@@ -2,9 +2,9 @@ package com.school.service.impl;
 
 import com.school.dao.impl.TeacherClassDaoImpl;
 import com.school.dao.interfaces.TeacherClassDao;
+import com.school.dto.TeacherClassDTO;
 import com.school.exceptions.DuplicateResourceException;
 import com.school.exceptions.ResourceNotFoundException;
-import com.school.model.Section;
 import com.school.service.interfaces.TeacherClassService;
 
 import java.util.List;
@@ -34,7 +34,7 @@ public class TeacherClassServiceImpl implements TeacherClassService {
     }
 
     @Override
-    public List<Section> getTeacherClasses(long teacherId, int academicYearId) {
+    public List<TeacherClassDTO> getTeacherClasses(long teacherId, int academicYearId) {
         validateId(teacherId);
         validateId(academicYearId);
         return teacherClassDao.getTeacherClasses(teacherId, academicYearId);

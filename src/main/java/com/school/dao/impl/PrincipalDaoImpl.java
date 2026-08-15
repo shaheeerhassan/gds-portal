@@ -20,8 +20,16 @@ public class PrincipalDaoImpl implements PrincipalDao {
 
     @Override
     public boolean insertPrincipal(Principal principal) {
-        try (Connection cn = getDataSource().getConnection();
-             PreparedStatement ps = cn.prepareStatement(INSERT, Statement.RETURN_GENERATED_KEYS)) {
+        try (Connection cn = getDataSource().getConnection()) {
+            return insertPrincipal(principal, cn);
+        } catch (SQLException e) {
+            throw new DaoException("Error inserting principal", e);
+        }
+    }
+
+    @Override
+    public boolean insertPrincipal(Principal principal, Connection cn) {
+        try (PreparedStatement ps = cn.prepareStatement(INSERT, Statement.RETURN_GENERATED_KEYS)) {
 
             ps.setLong(1, principal.getUserId());
             ps.setString(2, principal.getEmployeeId());

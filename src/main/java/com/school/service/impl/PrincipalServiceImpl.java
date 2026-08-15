@@ -2,6 +2,7 @@ package com.school.service.impl;
 
 import com.school.dao.impl.PrincipalDaoImpl;
 import com.school.dao.interfaces.PrincipalDao;
+import com.school.exceptions.DaoException;
 import com.school.exceptions.ResourceNotFoundException;
 import com.school.model.Principal;
 import com.school.model.User;
@@ -9,8 +10,11 @@ import com.school.service.interfaces.PrincipalService;
 import com.school.service.interfaces.RoleService;
 import com.school.service.interfaces.UserService;
 
+import java.sql.Connection;
+import java.sql.SQLException;
 import java.util.List;
 
+import static com.school.config.DBConfig.getDataSource;
 import static com.school.validations.ValidatorUtil.*;
 
 public class PrincipalServiceImpl implements PrincipalService {
@@ -33,18 +37,25 @@ public class PrincipalServiceImpl implements PrincipalService {
         principal.setEmployeeId(validateRequired(principal.getEmployeeId(), "Employee ID"));
 
         user.setRoleId(roleService.getRoleByName("PRINCIPAL").getRoleId());
-        user = userService.createUser(user, password);
 
-        principal.setUserId(user.getUserId());
-        principal.setActive(true);
+        try (Connection cn = getDataSource().getConnection()) {
+            cn.setAutoCommit(false);
+            try {
+                user = userService.createUser(user, password, cn);
 
-        try {
-            if (!principalDao.insertPrincipal(principal)) {
-                throw new IllegalStateException("Failed to create principal.");
+                principal.setUserId(user.getUserId());
+                principal.setActive(true);
+
+                if (!principalDao.insertPrincipal(principal, cn))
+                    throw new IllegalStateException("Failed to create principal.");
+
+                cn.commit();
+            } catch (Exception e) {
+                try { cn.rollback(); } catch (SQLException ignore) {}
+                throw e;
             }
-        } catch (Exception e) {
-            userService.deleteUser(user.getUserId());
-            throw e;
+        } catch (SQLException e) {
+            throw new DaoException("Error creating principal", e);
         }
 
         return principal;

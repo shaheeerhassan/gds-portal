@@ -14,6 +14,7 @@ public class SubjectDaoImpl implements SubjectDao {
     private static final String INSERT = "INSERT INTO subjects (subject_name, subject_code, description) VALUES (?, ?, ?)";
     private static final String SELECT_BY_ID = "SELECT * FROM subjects WHERE subject_id = ?";
     private static final String SELECT_ALL = "SELECT * FROM subjects ORDER BY subject_id";
+    private static final String SELECT_BY_SECTION = "SELECT DISTINCT s.* FROM subjects s JOIN teacher_subjects ts ON s.subject_id = ts.subject_id WHERE ts.section_id = ? AND ts.academic_year_id = ? ORDER BY s.subject_name";
     private static final String UPDATE = "UPDATE subjects SET subject_name = ?, subject_code = ?, description = ? WHERE subject_id = ?";
     private static final String DELETE = "DELETE FROM subjects WHERE subject_id = ?";
 
@@ -98,6 +99,40 @@ public class SubjectDaoImpl implements SubjectDao {
         } catch (SQLException e) {
             throw new DaoException("Error deleting subject", e);
         }
+    }
+
+    @Override
+    public int getSubjectCount() {
+        try (Connection cn = getDataSource().getConnection();
+             PreparedStatement ps = cn.prepareStatement("SELECT COUNT(*) FROM subjects");
+             ResultSet rs = ps.executeQuery()) {
+            if (rs.next()) {
+                return rs.getInt(1);
+            }
+            return 0;
+        } catch (SQLException e) {
+            throw new DaoException("Error counting subjects", e);
+        }
+    }
+
+    @Override
+    public List<Subject> getSubjectsBySection(int sectionId, int academicYearId) {
+        List<Subject> subjects = new ArrayList<>();
+        try (Connection cn = getDataSource().getConnection();
+             PreparedStatement ps = cn.prepareStatement(SELECT_BY_SECTION)) {
+             
+            ps.setInt(1, sectionId);
+            ps.setInt(2, academicYearId);
+
+            try (ResultSet rs = ps.executeQuery()) {
+                while (rs.next()) {
+                    subjects.add(mapRow(rs));
+                }
+            }
+        } catch (SQLException e) {
+            throw new DaoException("Error getting subjects by section", e);
+        }
+        return subjects;
     }
 
     private Subject mapRow(ResultSet resultSet) throws SQLException {

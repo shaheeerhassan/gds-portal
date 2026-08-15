@@ -27,8 +27,16 @@ public class UserDaoImpl implements UserDao {
 
     @Override
     public boolean insertUser(User user) {
-        try (Connection cn = getDataSource().getConnection();
-             PreparedStatement ps = cn.prepareStatement(INSERT, Statement.RETURN_GENERATED_KEYS)) {
+        try (Connection cn = getDataSource().getConnection()) {
+            return insertUser(user, cn);
+        } catch (SQLException e) {
+            throw new DaoException("Error inserting user", e);
+        }
+    }
+
+    @Override
+    public boolean insertUser(User user, Connection cn) {
+        try (PreparedStatement ps = cn.prepareStatement(INSERT, Statement.RETURN_GENERATED_KEYS)) {
 
             ps.setInt(1, user.getRoleId());
             ps.setString(2, user.getUsername());
@@ -49,7 +57,7 @@ public class UserDaoImpl implements UserDao {
 
             try (ResultSet resultSet = ps.getGeneratedKeys()) {
                 if (resultSet.next()) {
-                    user.setUserId(resultSet.getLong("user_id"));
+                    user.setUserId(resultSet.getLong(1));
                     user.setCreatedAt(creationAndUpdateTime);
                     user.setUpdatedAt(creationAndUpdateTime);
                 }

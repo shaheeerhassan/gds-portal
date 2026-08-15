@@ -10,4 +10,6 @@ public interface SubjectService {
     List<Subject> getAllSubjects();
     void updateSubject(Subject subject);
     void deleteSubject(int subjectId);
+    int getSubjectCount();
+    List<Subject> getSubjectsBySection(int sectionId, int academicYearId);
 }

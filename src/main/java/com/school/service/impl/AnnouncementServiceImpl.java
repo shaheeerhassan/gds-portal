@@ -95,6 +95,11 @@ public class AnnouncementServiceImpl implements AnnouncementService {
             throw new ResourceNotFoundException("Announcement not found.");
     }
 
+    @Override
+    public List<Announcement> getGlobalAnnouncements() {
+        return announcementDao.getGlobalAnnouncements();
+    }
+
     private void validateAnnouncement(Announcement announcement) {
         announcement.setTitle(validateRequired(announcement.getTitle(), "Title"));
         announcement.setContent(validateRequired(announcement.getContent(), "Content"));

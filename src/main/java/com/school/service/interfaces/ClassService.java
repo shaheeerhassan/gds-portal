@@ -9,6 +9,7 @@ public interface ClassService {
     Class getClassById(int classId);
     Class getClassByNumericLevel(int numericLevel);
     List<Class> getAllClasses();
+    int getClassCount();
     void updateClass(Class c);
     void deleteClass(int classId);
 }

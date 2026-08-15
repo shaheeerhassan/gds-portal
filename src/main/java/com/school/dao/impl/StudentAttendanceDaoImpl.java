@@ -21,6 +21,7 @@ public class StudentAttendanceDaoImpl implements StudentAttendanceDao {
     private static final String LOCK_DATE = "UPDATE student_attendance sa JOIN student_classes sc ON sa.student_class_id = sc.student_class_id SET sa.is_locked = TRUE WHERE sc.section_id = ? AND sa.attendance_date = ?";
     private static final String COUNT_EXISTS = "SELECT COUNT(*) FROM student_attendance WHERE student_class_id = ? AND attendance_date = ? AND (period_id = ? OR (? IS NULL AND period_id IS NULL))";
     private static final String COUNT_LOCKED = "SELECT COUNT(*) FROM student_attendance WHERE student_class_id = ? AND attendance_date = ? AND is_locked = TRUE";
+    private static final String COUNT_PRESENT = "SELECT COUNT(DISTINCT student_class_id) FROM student_attendance WHERE attendance_date = ? AND status = 'PRESENT'";
 
     @Override
     public boolean insertStudentAttendance(List<StudentAttendance> attendanceRecords) {
@@ -191,14 +192,30 @@ public class StudentAttendanceDaoImpl implements StudentAttendanceDao {
              PreparedStatement ps = cn.prepareStatement(SELECT_BY_ID)) {
 
             ps.setLong(1, attendanceId);
-
-            try (ResultSet resultSet = ps.executeQuery()) {
-                if (resultSet.next())
-                    return mapRow(resultSet);
+            try (ResultSet rs = ps.executeQuery()) {
+                if (rs.next())
+                    return mapRowToStudentAttendance(rs);
             }
-            return null;
         } catch (SQLException e) {
-            throw new DaoException("Error fetching attendance", e);
+            throw new DaoException("Error retrieving student attendance by id", e);
+        }
+        return null;
+    }
+
+    @Override
+    public int countPresentStudents(LocalDate date) {
+        try (Connection cn = getDataSource().getConnection();
+             PreparedStatement ps = cn.prepareStatement(COUNT_PRESENT)) {
+
+            ps.setDate(1, Date.valueOf(date));
+            try (ResultSet rs = ps.executeQuery()) {
+                if (rs.next()) {
+                    return rs.getInt(1);
+                }
+            }
+            return 0;
+        } catch (SQLException e) {
+            throw new DaoException("Error counting present students", e);
         }
     }
 
@@ -219,6 +236,22 @@ public class StudentAttendanceDaoImpl implements StudentAttendanceDao {
             attendance.setMarkedAt(markedAt.toLocalDateTime());
         attendance.setLocked(resultSet.getBoolean("is_locked"));
         attendance.setRemarks(resultSet.getString("remarks"));
+        return attendance;
+    }
+
+    private StudentAttendance mapRowToStudentAttendance(ResultSet rs) throws SQLException {
+        StudentAttendance attendance = new StudentAttendance();
+        attendance.setAttendanceId(rs.getLong("attendance_id"));
+        attendance.setStudentClassId(rs.getLong("student_class_id"));
+        Date date = rs.getDate("attendance_date");
+        if (date != null) attendance.setAttendanceDate(date.toLocalDate());
+        attendance.setStatus(StudentAttendance.Status.valueOf(rs.getString("status")));
+        attendance.setPeriodId(rs.getInt("period_id"));
+        attendance.setMarkedBy(rs.getLong("marked_by"));
+        Timestamp ts = rs.getTimestamp("marked_at");
+        if (ts != null) attendance.setMarkedAt(ts.toLocalDateTime());
+        attendance.setLocked(rs.getBoolean("is_locked"));
+        attendance.setRemarks(rs.getString("remarks"));
         return attendance;
     }
 }

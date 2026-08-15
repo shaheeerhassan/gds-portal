@@ -2,10 +2,12 @@ package com.school.dao.interfaces;
 
 import com.school.model.User;
 
+import java.sql.Connection;
 import java.util.List;
 
 public interface UserDao {
     boolean insertUser(User user);
+    boolean insertUser(User user, Connection connection);
 
     User getUserById(long userId);
     User getUserByUsername(String username);

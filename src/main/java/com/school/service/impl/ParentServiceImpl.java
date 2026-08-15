@@ -2,6 +2,7 @@ package com.school.service.impl;
 
 import com.school.dao.impl.ParentDaoImpl;
 import com.school.dao.interfaces.ParentDao;
+import com.school.exceptions.DaoException;
 import com.school.exceptions.ResourceNotFoundException;
 import com.school.exceptions.ValidationException;
 import com.school.model.Parent;
@@ -10,9 +11,14 @@ import com.school.model.User;
 import com.school.service.interfaces.ParentService;
 import com.school.service.interfaces.RoleService;
 import com.school.service.interfaces.UserService;
+import com.school.web.dto.response.PaginatedResponse;
+import com.school.web.dto.response.ParentDirectoryDTO;
 
+import java.sql.Connection;
+import java.sql.SQLException;
 import java.util.List;
 
+import static com.school.config.DBConfig.getDataSource;
 import static com.school.validations.ValidatorUtil.*;
 
 public class ParentServiceImpl implements ParentService {
@@ -34,18 +40,25 @@ public class ParentServiceImpl implements ParentService {
         parent.setPhone(validatePhone(parent.getPhone()));
 
         user.setRoleId(roleService.getRoleByName("PARENT").getRoleId());
-        user = userService.createUser(user, password);
 
-        parent.setUserId(user.getUserId());
-        parent.setActive(true);
+        try (Connection cn = getDataSource().getConnection()) {
+            cn.setAutoCommit(false);
+            try {
+                user = userService.createUser(user, password, cn);
 
-        try {
-            if (!parentDao.insertParent(parent)) {
-                throw new IllegalStateException("Failed to create parent.");
+                parent.setUserId(user.getUserId());
+                parent.setActive(true);
+
+                if (!parentDao.insertParent(parent, cn))
+                    throw new IllegalStateException("Failed to create parent.");
+
+                cn.commit();
+            } catch (Exception e) {
+                try { cn.rollback(); } catch (SQLException ignore) {}
+                throw e;
             }
-        } catch (Exception e) {
-            userService.deleteUser(user.getUserId());
-            throw e;
+        } catch (SQLException e) {
+            throw new DaoException("Error creating parent", e);
         }
 
         return parent;
@@ -103,9 +116,23 @@ public class ParentServiceImpl implements ParentService {
 
     @Override
     public void deactivateParent(long parentId) {
-        validateId(parentId);
-        if (!parentDao.deleteParent(parentId))
-            throw new ResourceNotFoundException("Parent not found.");
+        if (!parentDao.deleteParent(parentId)) {
+            throw new ResourceNotFoundException("Parent not found with ID: " + parentId);
+        }
+    }
+
+    @Override
+    public PaginatedResponse<ParentDirectoryDTO> getParentsDirectory(String query, int page, int size) {
+        if (page < 0) page = 0;
+        if (size <= 0) size = 20;
+
+        int offset = page * size;
+        List<com.school.web.dto.response.ParentDirectoryDTO> content = parentDao.getParentsDirectory(query, offset, size);
+        int totalElements = parentDao.countParentsDirectory(query);
+        int totalPages = (int) Math.ceil((double) totalElements / size);
+
+        boolean hasNext = page < (totalPages - 1);
+        return new com.school.web.dto.response.PaginatedResponse<>(content, totalElements, totalPages, page, size, hasNext);
     }
 
     @Override

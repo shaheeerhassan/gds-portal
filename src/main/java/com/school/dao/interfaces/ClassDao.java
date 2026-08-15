@@ -10,4 +10,5 @@ public interface ClassDao {
     List<Class> getAllClasses();
     boolean updateClass(Class c);
     boolean deleteClass(int classId);
+    int getClassCount();
 }

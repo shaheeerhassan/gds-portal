@@ -19,19 +19,27 @@ public class TeacherDaoImpl implements TeacherDao {
     private static final String SELECT_BY_USER_ID = "SELECT * FROM teachers WHERE user_id = ?";
     private static final String SELECT_BY_EMPLOYEE_ID = "SELECT * FROM teachers WHERE employee_id = ?";
     private static final String SELECT_BY_EMAIL = "SELECT t.* FROM teachers t JOIN users u ON t.user_id = u.user_id WHERE u.email = ?";
-    private static final String SELECT_ALL = "SELECT * FROM teachers ORDER BY teacher_id";
-    private static final String SELECT_BY_NAME = "SELECT * FROM teachers WHERE first_name LIKE ? OR last_name LIKE ? ORDER BY teacher_id";
+    private static final String SELECT_ALL = "SELECT * FROM teachers WHERE is_active = TRUE ORDER BY teacher_id";
+    private static final String SELECT_BY_NAME_EMPID = "SELECT * FROM teachers WHERE first_name LIKE ? OR last_name LIKE ? OR employee_id LIKE ? ORDER BY teacher_id";
     private static final String SELECT_BY_SUBJECT = "SELECT DISTINCT t.* FROM teachers t JOIN teacher_subjects ts ON t.teacher_id = ts.teacher_id WHERE ts.subject_id = ? ORDER BY t.teacher_id";
     private static final String SELECT_BY_SECTION = "SELECT DISTINCT t.* FROM teachers t JOIN teacher_classes tc ON t.teacher_id = tc.teacher_id WHERE tc.section_id = ? AND tc.academic_year_id = ? ORDER BY t.teacher_id";
     private static final String SELECT_CLASS_TEACHERS = "SELECT t.*, s.* FROM teachers t JOIN class_teacher_assignments cta ON t.teacher_id = cta.teacher_id JOIN sections s ON cta.section_id = s.section_id WHERE cta.is_active = TRUE";
-    private static final String COUNT_ALL = "SELECT COUNT(*) FROM teachers";
+    private static final String COUNT_ALL = "SELECT COUNT(*) FROM teachers WHERE is_active = TRUE";
     private static final String UPDATE = "UPDATE teachers SET employee_id = ?, first_name = ?, last_name = ?, phone = ?, gender = ?, date_of_birth = ?, hire_date = ?, qualification = ? WHERE teacher_id = ?";
     private static final String DELETE = "UPDATE teachers SET is_active = FALSE WHERE teacher_id = ?";
 
     @Override
     public boolean insertTeacher(Teacher teacher) {
-        try (Connection cn = getDataSource().getConnection();
-             PreparedStatement ps = cn.prepareStatement(INSERT, Statement.RETURN_GENERATED_KEYS)) {
+        try (Connection cn = getDataSource().getConnection()) {
+            return insertTeacher(teacher, cn);
+        } catch (SQLException e) {
+            throw new DaoException("Error inserting teacher", e);
+        }
+    }
+
+    @Override
+    public boolean insertTeacher(Teacher teacher, Connection cn) {
+        try (PreparedStatement ps = cn.prepareStatement(INSERT, Statement.RETURN_GENERATED_KEYS)) {
 
             ps.setLong(1, teacher.getUserId());
             ps.setString(2, teacher.getEmployeeId());
@@ -81,13 +89,14 @@ public class TeacherDaoImpl implements TeacherDao {
     }
 
     @Override
-    public List<Teacher> searchTeachersByName(String name) {
+    public List<Teacher> searchTeachersByNameEmpId(String name) {
         try (Connection cn = getDataSource().getConnection();
-             PreparedStatement ps = cn.prepareStatement(SELECT_BY_NAME)) {
+             PreparedStatement ps = cn.prepareStatement(SELECT_BY_NAME_EMPID)) {
 
             String pattern = "%" + name + "%";
             ps.setString(1, pattern);
             ps.setString(2, pattern);
+            ps.setString(3, pattern);
 
             try (ResultSet resultSet = ps.executeQuery()) {
                 List<Teacher> teachers = new ArrayList<>();

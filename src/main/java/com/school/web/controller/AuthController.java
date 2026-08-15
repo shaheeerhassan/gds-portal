@@ -5,12 +5,15 @@ import com.school.model.Role;
 import com.school.model.User;
 import com.school.service.impl.AuthenticationServiceImpl;
 import com.school.service.impl.RefreshTokenServiceImpl;
+import com.school.service.impl.RevokedTokenServiceImpl;
 import com.school.service.interfaces.AuthenticationService;
 import com.school.service.interfaces.RefreshTokenService;
+import com.school.service.interfaces.RevokedTokenService;
 import com.school.web.auth.AuthContext;
 import com.school.web.auth.JwtUtil;
 import com.school.web.dto.request.ChangePasswordRequest;
 import com.school.web.dto.request.LoginRequest;
+import com.school.web.dto.request.LogoutRequest;
 import com.school.web.dto.request.RefreshTokenRequest;
 import com.school.web.dto.request.RequestPasswordResetRequest;
 import com.school.web.dto.request.ResetPasswordRequest;
@@ -21,6 +24,9 @@ import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 
 import java.io.IOException;
+import java.time.Instant;
+import java.time.LocalDateTime;
+import java.time.ZoneId;
 import java.util.Map;
 
 @WebServlet(urlPatterns = "/api/auth/*")
@@ -28,10 +34,12 @@ public class AuthController extends BaseServlet {
 
     private final AuthenticationService authenticationService;
     private final RefreshTokenService refreshTokenService;
+    private final RevokedTokenService revokedTokenService;
 
     public AuthController() {
         this.authenticationService = new AuthenticationServiceImpl();
         this.refreshTokenService = new RefreshTokenServiceImpl();
+        this.revokedTokenService = new RevokedTokenServiceImpl();
     }
 
     @Override
@@ -134,11 +142,22 @@ public class AuthController extends BaseServlet {
     }
 
     private void logout(HttpServletRequest req, HttpServletResponse resp) throws IOException {
-        RefreshTokenRequest request = readBody(req, RefreshTokenRequest.class);
+        LogoutRequest request = readBody(req, LogoutRequest.class);
         if (request == null)
             throw new ValidationException("Request body is required.");
 
         refreshTokenService.revoke(request.getRefreshToken());
+
+        String accessToken = request.getAccessToken();
+        if (accessToken != null && !accessToken.isBlank()) {
+            JwtUtil.TokenClaims claims = JwtUtil.parse(accessToken);
+            if (claims != null) {
+                LocalDateTime expiresAt = LocalDateTime.ofInstant(
+                        Instant.ofEpochMilli(claims.getExpiresAt()), ZoneId.systemDefault());
+                revokedTokenService.revoke(claims.getJti(), expiresAt);
+            }
+        }
+
         writeStatusMessage(resp, true, "Logged out successfully.");
     }
 

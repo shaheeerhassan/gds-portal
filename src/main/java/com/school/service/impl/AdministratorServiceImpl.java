@@ -2,6 +2,7 @@ package com.school.service.impl;
 
 import com.school.dao.impl.AdministratorDaoImpl;
 import com.school.dao.interfaces.AdministratorDao;
+import com.school.exceptions.DaoException;
 import com.school.exceptions.ResourceNotFoundException;
 import com.school.model.Administrator;
 import com.school.model.User;
@@ -9,8 +10,11 @@ import com.school.service.interfaces.AdministratorService;
 import com.school.service.interfaces.RoleService;
 import com.school.service.interfaces.UserService;
 
+import java.sql.Connection;
+import java.sql.SQLException;
 import java.util.List;
 
+import static com.school.config.DBConfig.getDataSource;
 import static com.school.validations.ValidatorUtil.*;
 
 public class AdministratorServiceImpl implements AdministratorService {
@@ -33,17 +37,24 @@ public class AdministratorServiceImpl implements AdministratorService {
         administrator.setPhone(validatePhone(administrator.getPhone()));
 
         user.setRoleId(roleService.getRoleByName("ADMINISTRATOR").getRoleId());
-        user = userService.createUser(user, password);
 
-        administrator.setUserId(user.getUserId());
+        try (Connection cn = getDataSource().getConnection()) {
+            cn.setAutoCommit(false);
+            try {
+                user = userService.createUser(user, password, cn);
 
-        try {
-            if (!administratorDao.insertAdministrator(administrator)) {
-                throw new IllegalStateException("Failed to create administrator.");
+                administrator.setUserId(user.getUserId());
+
+                if (!administratorDao.insertAdministrator(administrator, cn))
+                    throw new IllegalStateException("Failed to create administrator.");
+
+                cn.commit();
+            } catch (Exception e) {
+                try { cn.rollback(); } catch (SQLException ignore) {}
+                throw e;
             }
-        } catch (Exception e) {
-            userService.deleteUser(user.getUserId());
-            throw e;
+        } catch (SQLException e) {
+            throw new DaoException("Error creating administrator", e);
         }
 
         return administrator;

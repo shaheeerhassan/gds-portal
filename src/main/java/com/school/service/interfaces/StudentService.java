@@ -2,6 +2,8 @@ package com.school.service.interfaces;
 
 import com.school.model.Student;
 import com.school.model.User;
+import com.school.web.dto.response.PaginatedResponse;
+import com.school.web.dto.response.StudentDirectoryDTO;
 
 import java.util.List;
 
@@ -17,4 +19,7 @@ public interface StudentService {
     List<Student> getStudentsByParentId(long parentId);
     void updateStudent(Student student);
     void deactivateStudent(long studentId);
+    int getActiveStudentCount();
+
+    PaginatedResponse<StudentDirectoryDTO> getStudentDirectory(String query, Integer academicYearId, Integer classId, Integer sectionId, Boolean isEnrolled, int page, int size);
 }

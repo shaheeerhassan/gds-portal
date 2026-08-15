@@ -40,6 +40,6 @@ public final class JsonUtil {
         response.setStatus(status);
         response.setContentType("application/json");
         response.setCharacterEncoding("UTF-8");
-        response.getWriter().write(MAPPER.writeValueAsString(value));
+        response.getWriter().write(toJson(value));
     }
 }

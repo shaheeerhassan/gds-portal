@@ -11,4 +11,5 @@ public interface SectionService {
     List<Section> getAllSections();
     void updateSection(Section section);
     void deleteSection(int sectionId);
+    int getSectionCount();
 }

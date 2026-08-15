@@ -48,6 +48,11 @@ public class StudentAttendanceController extends BaseServlet {
             writeJson(resp, studentAttendanceService.getStudentAttendanceById(parseLong(path.substring("/id/".length()))));
             return;
         }
+        if (path.equals("/present/count")) {
+            RoleGuard.requireRole(req, ROLE_ADMIN, ROLE_PRINCIPAL);
+            writeJson(resp, studentAttendanceService.getPresentStudentCountToday());
+            return;
+        }
         if (path.startsWith("/section/")) {
             RoleGuard.requireRole(req, ROLE_ADMIN, ROLE_PRINCIPAL, ROLE_TEACHER);
             String[] parts = path.substring("/section/".length()).split("/");

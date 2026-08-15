@@ -38,6 +38,10 @@ public class AnnouncementController extends BaseServlet {
                 RoleGuard.requireRole(req, ROLE_ADMIN, ROLE_PRINCIPAL, ROLE_TEACHER, ROLE_STUDENT, ROLE_PARENT);
                 writeJson(resp, announcementService.getAllActiveAnnouncements());
                 return;
+            case "/global":
+                RoleGuard.requireRole(req, ROLE_ADMIN, ROLE_PRINCIPAL, ROLE_TEACHER, ROLE_STUDENT, ROLE_PARENT);
+                writeJson(resp, announcementService.getGlobalAnnouncements());
+                return;
             default:
                 if (path.startsWith("/id/")) {
                     RoleGuard.requireRole(req, ROLE_ADMIN, ROLE_PRINCIPAL, ROLE_TEACHER, ROLE_STUDENT, ROLE_PARENT);

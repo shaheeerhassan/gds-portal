@@ -89,6 +89,11 @@ public class StudentAttendanceServiceImpl implements StudentAttendanceService {
         if (date == null)
             throw new ValidationException("Date is required.");
         if (!studentAttendanceDao.lockAttendanceForDate(date, sectionId))
-            throw new IllegalStateException("Failed to lock attendance.");
+            throw new ResourceNotFoundException("No attendance records found to lock for this date and section.");
+    }
+
+    @Override
+    public int getPresentStudentCountToday() {
+        return studentAttendanceDao.countPresentStudents(LocalDate.now());
     }
 }

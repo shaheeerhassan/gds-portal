@@ -1,5 +1,6 @@
 package com.school.service.impl;
 
+import com.fasterxml.jackson.annotation.JacksonAnnotationsInside;
 import com.school.dao.impl.UserDaoImpl;
 import com.school.dao.interfaces.StudentDao;
 import com.school.dao.interfaces.UserDao;
@@ -11,8 +12,11 @@ import com.school.service.interfaces.UserService;
 import com.school.utils.PasswordEncryption;
 import com.school.utils.UsernameGenerator;
 
+import java.sql.Connection;
+import java.sql.SQLException;
 import java.util.List;
 
+import static com.school.config.DBConfig.getDataSource;
 import static com.school.validations.ValidatorUtil.*;
 
 public class UserServiceImpl implements UserService {
@@ -25,6 +29,15 @@ public class UserServiceImpl implements UserService {
 
     @Override
     public User createUser(User user, String password) {
+        try (Connection cn = getDataSource().getConnection()) {
+            return createUser(user, password, cn);
+        } catch (SQLException e) {
+            throw new DaoException("Error creating user", e);
+        }
+    }
+
+    @Override
+    public User createUser(User user, String password, Connection cn) {
         user.setEmail(validateEmail(user.getEmail()));
         validatePassword(password);
         validateId(user.getRoleId());
@@ -42,16 +55,24 @@ public class UserServiceImpl implements UserService {
         int attempts = 0;
         while (attempts < 3) {
             if (user.getUsername() == null) {
-                user.setUsername(UsernameGenerator.generateUsername());
+                String candidate = UsernameGenerator.generateUsername();
+
+                if (userDao.getUserByUsername(candidate) != null) {
+                    attempts++;
+                    continue;
+                }
+                user.setUsername(candidate);
             }
 
             try {
-                if (userDao.insertUser(user)) {
+                if (userDao.insertUser(user, cn)) {
                     return user;
                 }
+
                 user.setUsername(null);
                 attempts++;
             } catch (DaoException e) {
+                // Handle unexpected database error
                 user.setUsername(null);
                 attempts++;
             }

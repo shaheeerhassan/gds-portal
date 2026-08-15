@@ -8,20 +8,18 @@ import static com.school.config.DBConfig.*;
 import java.sql.*;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
-import java.time.LocalTime;
 import java.util.ArrayList;
 import java.util.List;
 
 public class TeacherAttendanceDaoImpl implements TeacherAttendanceDao {
 
-    private static final String INSERT = "INSERT INTO teacher_attendance (teacher_id, attendance_date, status, check_in_time, check_out_time, marked_at) VALUES (?, ?, ?, ?, ?, ?)";
+    private static final String INSERT = "INSERT INTO teacher_attendance (teacher_id, attendance_date, status, marked_at) VALUES (?, ?, ?, ?)";
     private static final String SELECT_BY_ID = "SELECT * FROM teacher_attendance WHERE attendance_id = ?";
     private static final String SELECT_BY_DATE = "SELECT * FROM teacher_attendance WHERE attendance_date = ? ORDER BY attendance_id";
     private static final String SELECT_BY_TEACHER = "SELECT * FROM teacher_attendance WHERE teacher_id = ? AND attendance_date BETWEEN ? AND ? ORDER BY attendance_date";
     private static final String UPDATE_STATUS = "UPDATE teacher_attendance SET status = ? WHERE attendance_id = ?";
-    private static final String UPDATE_CHECK_IN = "UPDATE teacher_attendance SET check_in_time = ? WHERE attendance_id = ?";
-    private static final String UPDATE_CHECK_OUT = "UPDATE teacher_attendance SET check_out_time = ? WHERE attendance_id = ?";
     private static final String COUNT_EXISTS = "SELECT COUNT(*) FROM teacher_attendance WHERE teacher_id = ? AND attendance_date = ?";
+
 
     @Override
     public boolean insertTeacherAttendance(List<TeacherAttendance> attendanceRecords) {
@@ -39,17 +37,7 @@ public class TeacherAttendanceDaoImpl implements TeacherAttendanceDao {
                         ps.setNull(2, Types.DATE);
                     }
                     ps.setString(3, attendance.getStatus().name());
-                    if (attendance.getCheckInTime() != null) {
-                        ps.setTime(4, Time.valueOf(attendance.getCheckInTime()));
-                    } else {
-                        ps.setNull(4, Types.TIME);
-                    }
-                    if (attendance.getCheckOutTime() != null) {
-                        ps.setTime(5, Time.valueOf(attendance.getCheckOutTime()));
-                    } else {
-                        ps.setNull(5, Types.TIME);
-                    }
-                    ps.setTimestamp(6, Timestamp.valueOf(LocalDateTime.now()));
+                    ps.setTimestamp(4, Timestamp.valueOf(LocalDateTime.now()));
                     ps.addBatch();
                 }
 
@@ -89,34 +77,6 @@ public class TeacherAttendanceDaoImpl implements TeacherAttendanceDao {
             return ps.executeUpdate() > 0;
         } catch (SQLException e) {
             throw new DaoException("Error updating attendance", e);
-        }
-    }
-
-    @Override
-    public boolean updateTeacherCheckIn(long attendanceId, LocalTime checkInTime) {
-        try (Connection cn = getDataSource().getConnection();
-             PreparedStatement ps = cn.prepareStatement(UPDATE_CHECK_IN)) {
-
-            ps.setTime(1, Time.valueOf(checkInTime));
-            ps.setLong(2, attendanceId);
-
-            return ps.executeUpdate() > 0;
-        } catch (SQLException e) {
-            throw new DaoException("Error updating check-in time", e);
-        }
-    }
-
-    @Override
-    public boolean updateTeacherCheckOut(long attendanceId, LocalTime checkOutTime) {
-        try (Connection cn = getDataSource().getConnection();
-             PreparedStatement ps = cn.prepareStatement(UPDATE_CHECK_OUT)) {
-
-            ps.setTime(1, Time.valueOf(checkOutTime));
-            ps.setLong(2, attendanceId);
-
-            return ps.executeUpdate() > 0;
-        } catch (SQLException e) {
-            throw new DaoException("Error updating check-out time", e);
         }
     }
 
@@ -203,12 +163,6 @@ public class TeacherAttendanceDaoImpl implements TeacherAttendanceDao {
         String status = resultSet.getString("status");
         if (status != null)
             attendance.setStatus(TeacherAttendance.Status.valueOf(status));
-        Time checkInTime = resultSet.getTime("check_in_time");
-        if (checkInTime != null)
-            attendance.setCheckInTime(checkInTime.toLocalTime());
-        Time checkOutTime = resultSet.getTime("check_out_time");
-        if (checkOutTime != null)
-            attendance.setCheckOutTime(checkOutTime.toLocalTime());
         Timestamp markedAt = resultSet.getTimestamp("marked_at");
         if (markedAt != null)
             attendance.setMarkedAt(markedAt.toLocalDateTime());

@@ -20,6 +20,7 @@ public class AnnouncementDaoImpl implements AnnouncementDao {
     private static final String SELECT_BY_SECTION = "SELECT * FROM announcements WHERE is_active = TRUE AND section_id = ? ORDER BY created_at DESC";
     private static final String UPDATE = "UPDATE announcements SET title = ?, content = ?, target_role_id = ?, class_id = ?, section_id = ?, updated_at = ? WHERE announcement_id = ?";
     private static final String DISABLE = "UPDATE announcements SET is_active = FALSE, updated_at = ? WHERE announcement_id = ?";
+    private static final String SELECT_GLOBAL = "SELECT * FROM announcements WHERE is_active = TRUE AND target_role_id IS NULL AND class_id IS NULL AND section_id IS NULL ORDER BY created_at DESC";
 
     @Override
     public boolean insertAnnouncement(Announcement announcement) {
@@ -73,7 +74,7 @@ public class AnnouncementDaoImpl implements AnnouncementDao {
 
             List<Announcement> announcements = new ArrayList<>();
             while (resultSet.next())
-                announcements.add(mapRow(resultSet));
+                announcements.add(mapRowToAnnouncement(resultSet));
             return announcements;
         } catch (SQLException e) {
             throw new DaoException("Error fetching announcements", e);
@@ -134,7 +135,7 @@ public class AnnouncementDaoImpl implements AnnouncementDao {
 
             try (ResultSet resultSet = ps.executeQuery()) {
                 if (resultSet.next())
-                    return mapRow(resultSet);
+                    return mapRowToAnnouncement(resultSet);
             }
             return null;
         } catch (SQLException e) {
@@ -154,7 +155,35 @@ public class AnnouncementDaoImpl implements AnnouncementDao {
 
     @Override
     public List<Announcement> getAnnouncementsByTargetSection(int sectionId) {
-        return queryBy(SELECT_BY_SECTION, sectionId);
+        List<Announcement> announcements = new ArrayList<>();
+        try (Connection cn = getDataSource().getConnection();
+             PreparedStatement ps = cn.prepareStatement(SELECT_BY_SECTION)) {
+             
+            ps.setInt(1, sectionId);
+            try (ResultSet rs = ps.executeQuery()) {
+                while (rs.next())
+                    announcements.add(mapRowToAnnouncement(rs));
+            }
+        } catch (SQLException e) {
+            throw new DaoException("Error fetching section announcements", e);
+        }
+        return announcements;
+    }
+
+    @Override
+    public List<Announcement> getGlobalAnnouncements() {
+        List<Announcement> announcements = new ArrayList<>();
+        try (Connection cn = getDataSource().getConnection();
+             PreparedStatement ps = cn.prepareStatement(SELECT_GLOBAL);
+             ResultSet rs = ps.executeQuery()) {
+
+            while (rs.next()) {
+                announcements.add(mapRowToAnnouncement(rs));
+            }
+        } catch (SQLException e) {
+            throw new DaoException("Error fetching global announcements", e);
+        }
+        return announcements;
     }
 
     private List<Announcement> queryBy(String sql, int id) {
@@ -166,7 +195,7 @@ public class AnnouncementDaoImpl implements AnnouncementDao {
             try (ResultSet resultSet = ps.executeQuery()) {
                 List<Announcement> announcements = new ArrayList<>();
                 while (resultSet.next())
-                    announcements.add(mapRow(resultSet));
+                    announcements.add(mapRowToAnnouncement(resultSet));
                 return announcements;
             }
         } catch (SQLException e) {
@@ -174,28 +203,23 @@ public class AnnouncementDaoImpl implements AnnouncementDao {
         }
     }
 
-    private Announcement mapRow(ResultSet resultSet) throws SQLException {
+    private Announcement mapRowToAnnouncement(ResultSet rs) throws SQLException {
         Announcement announcement = new Announcement();
-        announcement.setAnnouncementId(resultSet.getLong("announcement_id"));
-        announcement.setTitle(resultSet.getString("title"));
-        announcement.setContent(resultSet.getString("content"));
-        announcement.setCreatedBy(resultSet.getLong("created_by"));
-        int targetRoleId = resultSet.getInt("target_role_id");
-        if (!resultSet.wasNull())
-            announcement.setTargetRoleId(targetRoleId);
-        int classId = resultSet.getInt("class_id");
-        if (!resultSet.wasNull())
-            announcement.setClassId(classId);
-        int sectionId = resultSet.getInt("section_id");
-        if (!resultSet.wasNull())
-            announcement.setSectionId(sectionId);
-        announcement.setActive(resultSet.getBoolean("is_active"));
-        Timestamp createdAt = resultSet.getTimestamp("created_at");
-        if (createdAt != null)
-            announcement.setCreatedAt(createdAt.toLocalDateTime());
-        Timestamp updatedAt = resultSet.getTimestamp("updated_at");
-        if (updatedAt != null)
-            announcement.setUpdatedAt(updatedAt.toLocalDateTime());
+        announcement.setAnnouncementId(rs.getLong("announcement_id"));
+        announcement.setTitle(rs.getString("title"));
+        announcement.setContent(rs.getString("content"));
+        announcement.setCreatedBy(rs.getLong("created_by"));
+        announcement.setTargetRoleId(rs.getInt("target_role_id"));
+        if (rs.wasNull()) announcement.setTargetRoleId(null);
+        announcement.setClassId(rs.getInt("class_id"));
+        if (rs.wasNull()) announcement.setClassId(null);
+        announcement.setSectionId(rs.getInt("section_id"));
+        if (rs.wasNull()) announcement.setSectionId(null);
+        announcement.setActive(rs.getBoolean("is_active"));
+        Timestamp created = rs.getTimestamp("created_at");
+        if (created != null) announcement.setCreatedAt(created.toLocalDateTime());
+        Timestamp updated = rs.getTimestamp("updated_at");
+        if (updated != null) announcement.setUpdatedAt(updated.toLocalDateTime());
         return announcement;
     }
 }

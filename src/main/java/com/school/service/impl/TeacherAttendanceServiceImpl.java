@@ -9,7 +9,6 @@ import com.school.model.TeacherAttendance;
 import com.school.service.interfaces.TeacherAttendanceService;
 
 import java.time.LocalDate;
-import java.time.LocalTime;
 import java.util.List;
 
 import static com.school.validations.ValidatorUtil.*;
@@ -71,34 +70,6 @@ public class TeacherAttendanceServiceImpl implements TeacherAttendanceService {
             throw new ValidationException("Attendance status is required.");
 
         if (!teacherAttendanceDao.updateTeacherAttendance(attendanceId, status))
-            throw new ResourceNotFoundException("Attendance record not found.");
-    }
-
-    @Override
-    public void checkIn(long attendanceId, LocalTime checkInTime) {
-        validateId(attendanceId);
-        if (checkInTime == null)
-            throw new ValidationException("Check-in time is required.");
-
-        if (!teacherAttendanceDao.updateTeacherCheckIn(attendanceId, checkInTime))
-            throw new ResourceNotFoundException("Attendance record not found.");
-    }
-
-    @Override
-    public void checkOut(long attendanceId, LocalTime checkOutTime) {
-        validateId(attendanceId);
-        if (checkOutTime == null)
-            throw new ValidationException("Check-out time is required.");
-
-        TeacherAttendance existing = teacherAttendanceDao.getTeacherAttendanceById(attendanceId);
-        if (existing == null)
-            throw new ResourceNotFoundException("Attendance record not found.");
-        if (existing.getCheckInTime() == null)
-            throw new ValidationException("Check-in must be recorded before check-out.");
-        if (!checkOutTime.isAfter(existing.getCheckInTime()))
-            throw new ValidationException("Check-out time must be after check-in time.");
-
-        if (!teacherAttendanceDao.updateTeacherCheckOut(attendanceId, checkOutTime))
             throw new ResourceNotFoundException("Attendance record not found.");
     }
 }

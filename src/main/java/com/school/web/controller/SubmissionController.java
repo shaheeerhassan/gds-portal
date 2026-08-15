@@ -80,15 +80,14 @@ public class SubmissionController extends BaseServlet {
 
     @Override
     protected void doPost(HttpServletRequest req, HttpServletResponse resp) throws IOException {
-        RoleGuard.requireRole(req, ROLE_STUDENT, ROLE_ADMIN, ROLE_PRINCIPAL);
+        RoleGuard.requireRole(req, ROLE_STUDENT);
         Submission submission = readBody(req, Submission.class);
         if (submission == null)
             throw new ValidationException("Request body is required.");
         if (AuthContext.hasRole(req, ROLE_STUDENT)) {
             submission.setStudentId(OwnershipGuard.ownStudentId(req, studentService));
-        } else if (submission.getStudentId() == 0) {
-            throw new ValidationException("studentId is required.");
         }
+
         if (submission.getSubmittedAt() == null)
             submission.setSubmittedAt(java.time.LocalDateTime.now());
         writeJson(resp, submissionService.submitAssignment(submission), "Assignment submitted.");

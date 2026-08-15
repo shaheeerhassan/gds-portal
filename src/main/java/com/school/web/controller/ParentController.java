@@ -42,10 +42,23 @@ public class ParentController extends BaseServlet {
                 writeJson(resp, parent);
                 return;
             }
+            case "/directory": {
+                RoleGuard.requireRole(req, ROLE_ADMIN, ROLE_PRINCIPAL);
+                String q = req.getParameter("q");
+                int page = 0;
+                int size = 20;
+                try {
+                    if (req.getParameter("page") != null) page = Integer.parseInt(req.getParameter("page"));
+                    if (req.getParameter("size") != null) size = Integer.parseInt(req.getParameter("size"));
+                } catch (NumberFormatException ignored) {}
+                
+                writeJson(resp, parentService.getParentsDirectory(q, page, size));
+                return;
+            }
             case "/":
             case "": {
                 RoleGuard.requireRole(req, ROLE_ADMIN, ROLE_PRINCIPAL);
-                throw new ValidationException("List all parents is not supported. Use /parents/student/{studentId}.");
+                throw new ValidationException("List all parents is not supported. Use /parents/student/{studentId} or /parents/directory.");
             }
             default:
                 if (path.startsWith("/student/")) {
