@@ -28,7 +28,7 @@ fun AcademicsLandingScreen(onBack: () -> Unit, onNavigate: (String) -> Unit) {
         description = "Academic structure and enrollment",
         rows = listOf(
             NavigationRowData("Academic Years", "academic-years", isImplemented = true),
-            NavigationRowData("Classes", "admin_classes", isImplemented = false),
+            NavigationRowData("Classes", "classes", isImplemented = true),
             NavigationRowData("Sections", "admin_sections", isImplemented = false),
             NavigationRowData("Subjects", "admin_subjects", isImplemented = false),
             NavigationRowData("Periods", "admin_periods", isImplemented = false)

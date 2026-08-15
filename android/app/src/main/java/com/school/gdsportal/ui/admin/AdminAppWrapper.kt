@@ -24,6 +24,7 @@ import com.school.gdsportal.di.AppContainer
 import com.school.gdsportal.ui.admin.components.AdminDrawerContent
 import com.school.gdsportal.ui.admin.AcademicsLandingScreen
 import com.school.gdsportal.ui.admin.academics.academicyears.*
+import com.school.gdsportal.ui.admin.academics.classes.*
 import com.school.gdsportal.ui.admin.dashboard.AdminDashboardScreen
 import com.school.gdsportal.ui.admin.dashboard.AdminDashboardViewModel
 import com.school.gdsportal.ui.admin.PeopleLandingScreen
@@ -82,6 +83,72 @@ fun AdminAppWrapper(
                 AdminDashboardScreen(
                     viewModel = dashboardViewModel,
                     onMenuClick = openDrawer
+                )
+            }
+            
+            // CLASSES
+            composable("classes") {
+                val viewModel: ClassesDirectoryViewModel = viewModel(
+                    factory = ClassesDirectoryViewModel.Factory(appContainer.apiService)
+                )
+                ClassesDirectoryScreen(
+                    viewModel = viewModel,
+                    onBackClick = { navController.navigate("admin_academics_landing") { popUpTo("admin_academics_landing") } },
+                    onAddClick = { navController.navigate("classes/create") },
+                    onClassClick = { id -> navController.navigate("classes/$id") }
+                )
+            }
+
+            composable("classes/create") {
+                val viewModel: ClassCreateViewModel = viewModel(
+                    factory = ClassCreateViewModel.provideFactory(appContainer.apiService)
+                )
+                ClassCreateScreen(
+                    viewModel = viewModel,
+                    onBackClick = { navController.navigateUp() },
+                    onClassCreated = { id ->
+                        if (id != null) {
+                            navController.navigate("classes/$id") {
+                                popUpTo("classes")
+                            }
+                        } else {
+                            navController.navigateUp()
+                        }
+                    }
+                )
+            }
+
+            composable(
+                route = "classes/{classId}",
+                arguments = listOf(navArgument("classId") { type = NavType.IntType })
+            ) { backStackEntry ->
+                val classId = backStackEntry.arguments?.getInt("classId") ?: return@composable
+                val viewModel: ClassDetailViewModel = viewModel(
+                    factory = ClassDetailViewModel.Factory(classId, appContainer.apiService)
+                )
+                ClassDetailScreen(
+                    viewModel = viewModel,
+                    onBackClick = {
+                        navController.navigate("classes") {
+                            popUpTo("admin_academics_landing")
+                        }
+                    },
+                    onEditClick = { navController.navigate("classes/$classId/edit") }
+                )
+            }
+
+            composable(
+                route = "classes/{classId}/edit",
+                arguments = listOf(navArgument("classId") { type = NavType.IntType })
+            ) { backStackEntry ->
+                val classId = backStackEntry.arguments?.getInt("classId") ?: return@composable
+                val viewModel: ClassEditViewModel = viewModel(
+                    factory = ClassEditViewModel.Factory(classId, appContainer.apiService)
+                )
+                ClassEditScreen(
+                    viewModel = viewModel,
+                    onBackClick = { navController.navigateUp() },
+                    onClassEdited = { navController.navigateUp() }
                 )
             }
 

@@ -172,6 +172,18 @@ interface ApiService {
     @GET("api/classes/")
     suspend fun getClasses(): Response<ApiResponse<List<com.school.gdsportal.data.remote.SchoolClass>>>
 
+    @GET("api/classes/{classId}")
+    suspend fun getClassById(@Path("classId") classId: Int): Response<ApiResponse<com.school.gdsportal.data.remote.SchoolClass>>
+
+    @POST("api/classes/")
+    suspend fun createClass(@Body schoolClass: com.school.gdsportal.data.remote.SchoolClass): Response<ApiResponse<com.school.gdsportal.data.remote.SchoolClass>>
+
+    @PUT("api/classes/{classId}")
+    suspend fun updateClass(@Path("classId") classId: Int, @Body schoolClass: com.school.gdsportal.data.remote.SchoolClass): Response<ApiResponse<com.school.gdsportal.data.remote.SchoolClass>>
+
+    @DELETE("api/classes/{classId}")
+    suspend fun deleteClass(@Path("classId") classId: Int): Response<ApiResponse<String>>
+
     @GET("api/sections/class/{classId}/{academicYearId}")
     suspend fun getSections(
         @Path("classId") classId: Int,
