@@ -59,8 +59,8 @@ public class ReportDaoImpl implements ReportDao {
             "FROM student_attendance sa " +
             "JOIN student_classes sc ON sa.student_class_id = sc.student_class_id " +
             "WHERE sc.student_id = ? AND sa.attendance_date BETWEEN " +
-            "(SELECT start_date FROM academic_years WHERE academic_year_id = ?) " +
-            "AND (SELECT end_date FROM academic_years WHERE academic_year_id = ?) " +
+            "COALESCE((SELECT start_date FROM academic_years WHERE academic_year_id = ?), '1900-01-01') " +
+            "AND COALESCE((SELECT end_date FROM academic_years WHERE academic_year_id = ?), '9999-12-31') " +
             "GROUP BY sa.status";
 
     @Override

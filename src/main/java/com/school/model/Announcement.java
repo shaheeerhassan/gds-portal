@@ -1,5 +1,6 @@
 package com.school.model;
 
+import com.fasterxml.jackson.annotation.JsonAlias;
 import lombok.*;
 
 import java.time.LocalDateTime;
@@ -16,6 +17,7 @@ public class Announcement {
     private Integer targetRoleId; // Integer wrapper for nullable IDs
     private Integer classId;
     private Integer sectionId;
+    @JsonAlias("isActive")
     private boolean isActive;
     private LocalDateTime createdAt;
     private LocalDateTime updatedAt;

@@ -1,5 +1,6 @@
 package com.school.model;
 
+import com.fasterxml.jackson.annotation.JsonAlias;
 import lombok.*;
 import java.time.LocalDate;
 
@@ -17,5 +18,6 @@ public class Student {
     private LocalDate dateOfBirth;
     private Gender gender;
     private LocalDate admissionDate;
+    @JsonAlias("isActive")
     private boolean isActive;
 }

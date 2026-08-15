@@ -1,5 +1,6 @@
 package com.school.model;
 
+import com.fasterxml.jackson.annotation.JsonAlias;
 import lombok.*;
 import java.time.LocalDate;
 
@@ -12,5 +13,6 @@ public class AcademicYear {
     private String yearName;
     private LocalDate startDate;
     private LocalDate endDate;
+    @JsonAlias("isCurrent")
     private boolean isCurrent;
 }

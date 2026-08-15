@@ -6,6 +6,7 @@ import com.school.dao.interfaces.ClassTeacherAssignmentDao;
 import com.school.dao.interfaces.SectionDao;
 import com.school.exceptions.ResourceNotFoundException;
 import com.school.model.ClassTeacherAssignment;
+import com.school.model.Section;
 import com.school.service.interfaces.ClassTeacherAssignmentService;
 
 import java.util.List;
@@ -42,7 +43,11 @@ public class ClassTeacherAssignmentServiceImpl implements ClassTeacherAssignment
 
     @Override
     public ClassTeacherAssignment getCurrentAssignmentBySection(int sectionId) {
-        int academicYearId = sectionDao.getSectionById(sectionId).getAcademicYearId();
+        validateId(sectionId);
+        Section section = sectionDao.getSectionById(sectionId);
+        if (section == null)
+            throw new ResourceNotFoundException("Section not found.");
+        int academicYearId = section.getAcademicYearId();
         validateId(sectionId, academicYearId);
         ClassTeacherAssignment assignment = classTeacherAssignmentDao.getCurrentAssignmentBySection(sectionId, academicYearId);
         if (assignment == null)

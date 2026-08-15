@@ -11,10 +11,10 @@ import java.util.List;
 
 public class PrincipalDaoImpl implements PrincipalDao {
 
-    private static final String INSERT = "INSERT INTO principals (user_id, employee_id, first_name, last_name, phone) VALUES (?, ?, ?, ?, ?)";
+    private static final String INSERT = "INSERT INTO principals (user_id, employee_id, first_name, last_name, phone, is_active) VALUES (?, ?, ?, ?, ?, ?)";
     private static final String SELECT_BY_ID = "SELECT * FROM principals WHERE principal_id = ?";
     private static final String SELECT_BY_USER_ID = "SELECT * FROM principals WHERE user_id = ?";
-    private static final String SELECT_ALL = "SELECT * FROM principals ORDER BY principal_id";
+    private static final String SELECT_ALL = "SELECT * FROM principals WHERE is_active = TRUE ORDER BY principal_id";
     private static final String UPDATE = "UPDATE principals SET employee_id = ?, first_name = ?, last_name = ?, phone = ? WHERE principal_id = ?";
     private static final String DELETE = "UPDATE principals SET is_active = FALSE WHERE principal_id = ?";
 
@@ -28,6 +28,7 @@ public class PrincipalDaoImpl implements PrincipalDao {
             ps.setString(3, principal.getFirstName());
             ps.setString(4, principal.getLastName());
             ps.setString(5, principal.getPhone());
+            ps.setBoolean(6, principal.isActive());
 
             int success = ps.executeUpdate();
 
@@ -129,6 +130,7 @@ public class PrincipalDaoImpl implements PrincipalDao {
         principal.setFirstName(resultSet.getString("first_name"));
         principal.setLastName(resultSet.getString("last_name"));
         principal.setPhone(resultSet.getString("phone"));
+        principal.setActive(resultSet.getBoolean("is_active"));
         return principal;
     }
 }

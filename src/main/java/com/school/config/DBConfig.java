@@ -8,9 +8,12 @@ public class DBConfig {
 
     static {
         HikariConfig config = new HikariConfig();
-        config.setJdbcUrl("jdbc:mysql://localhost:3306/gds_portal");
-        config.setUsername("root");
-        config.setPassword("password");
+        config.setJdbcUrl(EnvLoader.get("DB_URL", "jdbc:mysql://localhost:3306/gds_portal"));
+        config.setUsername(EnvLoader.get("DB_USER", "root"));
+        String dbPass = EnvLoader.get("DB_PASS", "password");
+        if ("password".equals(dbPass))
+            throw new IllegalStateException("DB_PASS is not configured. Set DB_PASS in the .env file.");
+        config.setPassword(dbPass);
         config.setDriverClassName("com.mysql.cj.jdbc.Driver");
 
         config.setMaximumPoolSize(10);

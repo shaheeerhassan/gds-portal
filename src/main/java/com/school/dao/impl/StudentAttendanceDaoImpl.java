@@ -19,7 +19,7 @@ public class StudentAttendanceDaoImpl implements StudentAttendanceDao {
     private static final String SELECT_BY_STUDENT = "SELECT sa.* FROM student_attendance sa JOIN student_classes sc ON sa.student_class_id = sc.student_class_id WHERE sc.student_id = ? AND sa.attendance_date BETWEEN ? AND ? ORDER BY sa.attendance_date";
     private static final String UPDATE_STATUS = "UPDATE student_attendance SET status = ? WHERE attendance_id = ?";
     private static final String LOCK_DATE = "UPDATE student_attendance sa JOIN student_classes sc ON sa.student_class_id = sc.student_class_id SET sa.is_locked = TRUE WHERE sc.section_id = ? AND sa.attendance_date = ?";
-    private static final String COUNT_EXISTS = "SELECT COUNT(*) FROM student_attendance WHERE student_class_id = ? AND attendance_date = ?";
+    private static final String COUNT_EXISTS = "SELECT COUNT(*) FROM student_attendance WHERE student_class_id = ? AND attendance_date = ? AND (period_id = ? OR (? IS NULL AND period_id IS NULL))";
     private static final String COUNT_LOCKED = "SELECT COUNT(*) FROM student_attendance WHERE student_class_id = ? AND attendance_date = ? AND is_locked = TRUE";
 
     @Override
@@ -38,7 +38,11 @@ public class StudentAttendanceDaoImpl implements StudentAttendanceDao {
                         ps.setNull(2, Types.DATE);
                     }
                     ps.setString(3, attendance.getStatus().name());
-                    ps.setInt(4, attendance.getPeriodId());
+                    if (attendance.getPeriodId() > 0) {
+                        ps.setInt(4, attendance.getPeriodId());
+                    } else {
+                        ps.setNull(4, Types.INTEGER);
+                    }
                     ps.setLong(5, attendance.getMarkedBy());
                     ps.setTimestamp(6, Timestamp.valueOf(LocalDateTime.now()));
                     ps.setBoolean(7, attendance.isLocked());
@@ -100,12 +104,19 @@ public class StudentAttendanceDaoImpl implements StudentAttendanceDao {
     }
 
     @Override
-    public boolean existsAttendance(long studentClassId, LocalDate date) {
+    public boolean existsAttendance(long studentClassId, LocalDate date, Integer periodId) {
         try (Connection cn = getDataSource().getConnection();
              PreparedStatement ps = cn.prepareStatement(COUNT_EXISTS)) {
 
             ps.setLong(1, studentClassId);
             ps.setDate(2, Date.valueOf(date));
+            if (periodId != null) {
+                ps.setInt(3, periodId);
+                ps.setInt(4, periodId);
+            } else {
+                ps.setNull(3, Types.INTEGER);
+                ps.setNull(4, Types.INTEGER);
+            }
 
             try (ResultSet resultSet = ps.executeQuery()) {
                 if (resultSet.next())

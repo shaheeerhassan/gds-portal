@@ -1,5 +1,6 @@
 package com.school.model;
 
+import com.fasterxml.jackson.annotation.JsonAlias;
 import lombok.*;
 import java.time.LocalDateTime;
 
@@ -16,6 +17,7 @@ public class Notification {
     private String message;
     private String referenceTable;
     private Long referenceId;
+    @JsonAlias("isRead")
     private boolean isRead;
     private LocalDateTime createdAt;
     private LocalDateTime readAt;
