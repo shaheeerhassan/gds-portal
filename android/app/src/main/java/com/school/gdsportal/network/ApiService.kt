@@ -356,4 +356,19 @@ interface ApiService {
 
     @DELETE("api/subjects/{subjectId}")
     suspend fun deleteSubject(@Path("subjectId") subjectId: Int): Response<Void>
+
+    @GET("api/periods/")
+    suspend fun getAllPeriods(): Response<ApiResponse<List<com.school.gdsportal.data.remote.Period>>>
+
+    @GET("api/periods/{periodId}")
+    suspend fun getPeriodById(@Path("periodId") periodId: Int): Response<ApiResponse<com.school.gdsportal.data.remote.Period>>
+
+    @POST("api/periods/")
+    suspend fun createPeriod(@Body period: com.school.gdsportal.data.remote.Period): Response<ApiResponse<com.school.gdsportal.data.remote.Period>>
+
+    @PUT("api/periods/{periodId}")
+    suspend fun updatePeriod(@Path("periodId") periodId: Int, @Body period: com.school.gdsportal.data.remote.Period): Response<ApiResponse<com.school.gdsportal.data.remote.Period>>
+
+    @DELETE("api/periods/{periodId}")
+    suspend fun deletePeriod(@Path("periodId") periodId: Int): Response<Void>
 }

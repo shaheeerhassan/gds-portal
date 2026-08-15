@@ -31,7 +31,7 @@ fun AcademicsLandingScreen(onBack: () -> Unit, onNavigate: (String) -> Unit) {
             NavigationRowData("Classes", "classes", isImplemented = true),
             NavigationRowData("Sections", "sections", isImplemented = true),
             NavigationRowData("Subjects", "subjects", isImplemented = true),
-            NavigationRowData("Periods", "admin_periods", isImplemented = false)
+            NavigationRowData("Periods", "periods", isImplemented = true)
         ),
         onBackClick = onBack,
         onRowClick = onNavigate

@@ -89,6 +89,13 @@ data class Subject(
     val description: String?
 )
 
+data class Period(
+    val periodId: Int,
+    val periodNumber: Int,
+    val startTime: String,
+    val endTime: String
+)
+
 data class Student(
     val studentId: Long,
     val userId: Long,

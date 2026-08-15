@@ -27,6 +27,7 @@ import com.school.gdsportal.ui.admin.academics.academicyears.*
 import com.school.gdsportal.ui.admin.academics.classes.*
 import com.school.gdsportal.ui.admin.academics.sections.*
 import com.school.gdsportal.ui.admin.academics.subjects.*
+import com.school.gdsportal.ui.admin.academics.periods.*
 import com.school.gdsportal.ui.admin.dashboard.AdminDashboardScreen
 import com.school.gdsportal.ui.admin.dashboard.AdminDashboardViewModel
 import com.school.gdsportal.ui.admin.PeopleLandingScreen
@@ -283,6 +284,72 @@ fun AdminAppWrapper(
                     viewModel = viewModel,
                     onBackClick = { navController.navigateUp() },
                     onSubjectEdited = { navController.navigateUp() }
+                )
+            }
+
+            // PERIODS
+            composable("periods") {
+                val viewModel: PeriodsDirectoryViewModel = viewModel(
+                    factory = PeriodsDirectoryViewModel.Factory(appContainer.apiService)
+                )
+                PeriodsDirectoryScreen(
+                    viewModel = viewModel,
+                    onBackClick = { navController.navigate("admin_academics_landing") { popUpTo("admin_academics_landing") } },
+                    onAddClick = { navController.navigate("periods/create") },
+                    onPeriodClick = { id -> navController.navigate("periods/$id") }
+                )
+            }
+
+            composable("periods/create") {
+                val viewModel: PeriodCreateViewModel = viewModel(
+                    factory = PeriodCreateViewModel.provideFactory(appContainer.apiService)
+                )
+                PeriodCreateScreen(
+                    viewModel = viewModel,
+                    onBackClick = { navController.navigateUp() },
+                    onPeriodCreated = { id ->
+                        if (id != null) {
+                            navController.navigate("periods/$id") {
+                                popUpTo("periods")
+                            }
+                        } else {
+                            navController.navigateUp()
+                        }
+                    }
+                )
+            }
+
+            composable(
+                route = "periods/{periodId}",
+                arguments = listOf(navArgument("periodId") { type = NavType.IntType })
+            ) { backStackEntry ->
+                val periodId = backStackEntry.arguments?.getInt("periodId") ?: return@composable
+                val viewModel: PeriodDetailViewModel = viewModel(
+                    factory = PeriodDetailViewModel.Factory(periodId, appContainer.apiService)
+                )
+                PeriodDetailScreen(
+                    viewModel = viewModel,
+                    onBackClick = {
+                        navController.navigate("periods") {
+                            popUpTo("admin_academics_landing")
+                        }
+                    },
+                    onEditClick = { navController.navigate("periods/$periodId/edit") }
+                )
+            }
+
+            composable(
+                route = "periods/{periodId}/edit",
+                arguments = listOf(navArgument("periodId") { type = NavType.IntType })
+            ) { backStackEntry ->
+                val periodId = backStackEntry.arguments?.getInt("periodId") ?: return@composable
+                val viewModel: PeriodEditViewModel = viewModel(
+                    factory = PeriodEditViewModel.Factory(periodId, appContainer.apiService)
+                )
+                PeriodEditScreen(
+                    viewModel = viewModel,
+                    onBackClick = { navController.navigateUp() },
+                    onPeriodEdited = { navController.navigateUp() }
                 )
             }
 
