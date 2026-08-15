@@ -436,4 +436,13 @@ interface ApiService {
         @Path("examinationId") examinationId: Long,
         @Body request: com.school.gdsportal.data.remote.StatusRequest
     ): Response<ApiResponse<Any>>
+
+    @GET("api/assignments/section/{sectionId}/{academicYearId}")
+    suspend fun getAssignmentsBySection(
+        @Path("sectionId") sectionId: Int,
+        @Path("academicYearId") academicYearId: Int
+    ): Response<ApiResponse<List<com.school.gdsportal.data.remote.Assignment>>>
+
+    @GET("api/assignments/id/{assignmentId}")
+    suspend fun getAssignmentById(@Path("assignmentId") assignmentId: Long): Response<ApiResponse<com.school.gdsportal.data.remote.Assignment>>
 }

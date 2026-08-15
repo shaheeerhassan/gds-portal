@@ -321,3 +321,35 @@ data class Examination(
 data class StatusRequest(
     val status: String
 )
+
+
+enum class AssignmentStatus {
+    CREATED, PUBLISHED
+}
+
+data class Assignment(
+    val assignmentId: Long = 0,
+    val teacherId: Long,
+    val subjectId: Int,
+    val sectionId: Int,
+    val title: String,
+    val description: String?,
+    val maxMarks: Double,
+    val deadline: String?,
+    val status: AssignmentStatus,
+    val createdAt: String? = null,
+    val updatedAt: String? = null
+)
+
+data class AssignmentDisplay(
+    val assignmentId: Long,
+    val title: String,
+    val subjectName: String,
+    val sectionName: String,
+    val teacherName: String,
+    val deadline: String,
+    val status: AssignmentStatus,
+    val maxMarks: String,
+    val description: String
+)
+

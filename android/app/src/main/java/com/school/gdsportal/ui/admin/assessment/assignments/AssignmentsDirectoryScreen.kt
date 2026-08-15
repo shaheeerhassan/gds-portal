@@ -1,4 +1,4 @@
-package com.school.gdsportal.ui.admin.assessment.examinations
+package com.school.gdsportal.ui.admin.assessment.assignments
 
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
@@ -6,24 +6,23 @@ import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.Add
-import androidx.compose.material.icons.automirrored.filled.ArrowBack
+import androidx.compose.material.icons.filled.Menu
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
-import com.school.gdsportal.data.remote.ExaminationStatus
+import com.school.gdsportal.data.remote.AssignmentStatus
+import com.school.gdsportal.data.remote.AssignmentDisplay
 import com.school.gdsportal.ui.admin.teaching.teacherclasses.FilterDropdown
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun ExaminationsDirectoryScreen(
-    viewModel: ExaminationsDirectoryViewModel,
+fun AssignmentsDirectoryScreen(
+    viewModel: AssignmentsDirectoryViewModel,
     onMenuClick: () -> Unit,
-    onAddClick: () -> Unit,
-    onExaminationClick: (ExaminationDisplay) -> Unit
+    onAssignmentClick: (AssignmentDisplay) -> Unit
 ) {
     val uiState by viewModel.uiState.collectAsState()
 
@@ -43,15 +42,10 @@ fun ExaminationsDirectoryScreen(
     Scaffold(
         topBar = {
             TopAppBar(
-                title = { Text("Examinations") },
+                title = { Text("Assignments") },
                 navigationIcon = {
                     IconButton(onClick = onMenuClick) {
-                        Icon(Icons.AutoMirrored.Filled.ArrowBack, contentDescription = "Back")
-                    }
-                },
-                actions = {
-                    IconButton(onClick = onAddClick) {
-                        Icon(Icons.Default.Add, contentDescription = "Add Examination")
+                        Icon(Icons.Default.Menu, contentDescription = "Menu")
                     }
                 }
             )
@@ -86,7 +80,7 @@ fun ExaminationsDirectoryScreen(
                         )
                     }
                 }
-
+                
                 Spacer(modifier = Modifier.height(8.dp))
 
                 // DEPENDENT SELECTOR
@@ -102,19 +96,19 @@ fun ExaminationsDirectoryScreen(
             HorizontalDivider()
             
             Box(modifier = Modifier.fillMaxSize()) {
-                if (uiState.isLoading && uiState.examinations.isEmpty()) {
+                if (uiState.isLoading && uiState.assignments.isEmpty()) {
                     CircularProgressIndicator(modifier = Modifier.align(Alignment.Center))
-                } else if (uiState.examinations.isEmpty() && uiState.selectedSectionId != null) {
+                } else if (uiState.assignments.isEmpty() && uiState.selectedSectionId != null) {
                     Text(
-                        text = "No examinations found.",
+                        text = "No assignments found.",
                         style = MaterialTheme.typography.bodyLarge,
                         color = MaterialTheme.colorScheme.onSurfaceVariant,
                         modifier = Modifier.align(Alignment.Center)
                     )
                 } else {
                     LazyColumn(modifier = Modifier.fillMaxSize()) {
-                        items(uiState.examinations) { exam ->
-                            ExaminationItem(exam = exam, onClick = { onExaminationClick(exam) })
+                        items(uiState.assignments) { assignment ->
+                            AssignmentItem(assignment = assignment, onClick = { onAssignmentClick(assignment) })
                             HorizontalDivider()
                         }
                     }
@@ -125,47 +119,50 @@ fun ExaminationsDirectoryScreen(
 }
 
 @Composable
-fun ExaminationItem(exam: ExaminationDisplay, onClick: () -> Unit) {
+fun AssignmentItem(assignment: AssignmentDisplay, onClick: () -> Unit) {
     Row(
         modifier = Modifier
             .fillMaxWidth()
             .clickable(onClick = onClick)
             .padding(16.dp),
-        horizontalArrangement = Arrangement.SpaceBetween,
         verticalAlignment = Alignment.CenterVertically
     ) {
         Column(modifier = Modifier.weight(1f)) {
             Text(
-                text = exam.examName,
+                text = assignment.title,
                 style = MaterialTheme.typography.titleMedium,
-                fontWeight = FontWeight.SemiBold
+                fontWeight = FontWeight.Bold,
+                color = MaterialTheme.colorScheme.onSurface
             )
             Spacer(modifier = Modifier.height(4.dp))
             Text(
-                text = exam.subjectName,
+                text = "${assignment.subjectName} · ${assignment.sectionName}",
                 style = MaterialTheme.typography.bodyMedium,
+                color = MaterialTheme.colorScheme.onSurfaceVariant
+            )
+            Text(
+                text = assignment.teacherName,
+                style = MaterialTheme.typography.bodySmall,
                 color = MaterialTheme.colorScheme.onSurfaceVariant
             )
         }
         Column(horizontalAlignment = Alignment.End) {
             Text(
-                text = exam.examDate,
+                text = "Due ${assignment.deadline}",
                 style = MaterialTheme.typography.bodyMedium,
                 fontWeight = FontWeight.Medium
             )
             Spacer(modifier = Modifier.height(4.dp))
-            StatusChip(status = exam.status)
+            AssignmentStatusChip(status = assignment.status)
         }
     }
 }
 
 @Composable
-fun StatusChip(status: ExaminationStatus) {
+fun AssignmentStatusChip(status: AssignmentStatus) {
     val (bgColor, textColor) = when (status) {
-        ExaminationStatus.SCHEDULED -> MaterialTheme.colorScheme.primaryContainer to MaterialTheme.colorScheme.onPrimaryContainer
-        ExaminationStatus.ONGOING -> MaterialTheme.colorScheme.secondaryContainer to MaterialTheme.colorScheme.onSecondaryContainer
-        ExaminationStatus.COMPLETED -> MaterialTheme.colorScheme.tertiaryContainer to MaterialTheme.colorScheme.onTertiaryContainer
-        ExaminationStatus.PUBLISHED -> MaterialTheme.colorScheme.surfaceVariant to MaterialTheme.colorScheme.onSurfaceVariant
+        AssignmentStatus.CREATED -> MaterialTheme.colorScheme.secondaryContainer to MaterialTheme.colorScheme.onSecondaryContainer
+        AssignmentStatus.PUBLISHED -> MaterialTheme.colorScheme.primaryContainer to MaterialTheme.colorScheme.onPrimaryContainer
     }
     
     Box(

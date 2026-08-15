@@ -33,6 +33,7 @@ import com.school.gdsportal.ui.admin.teaching.teacherclasses.*
 import com.school.gdsportal.ui.admin.teaching.teachersubjects.*
 import com.school.gdsportal.ui.admin.teaching.timetable.*
 import com.school.gdsportal.ui.admin.assessment.examinations.*
+import com.school.gdsportal.ui.admin.assessment.assignments.*
 import com.google.gson.Gson
 import java.net.URLDecoder
 import java.net.URLEncoder
@@ -581,6 +582,31 @@ fun AdminAppWrapper(
                     viewModel = viewModel,
                     onBackClick = { navController.navigateUp() },
                     onSubmitSuccess = { navController.popBackStack("examinations", false) }
+                )
+            }
+
+            // ASSIGNMENTS
+            composable("assignments") {
+                val viewModel: AssignmentsDirectoryViewModel = viewModel(
+                    factory = AssignmentsDirectoryViewModel.Factory(appContainer.apiService)
+                )
+                AssignmentsDirectoryScreen(
+                    viewModel = viewModel,
+                    onMenuClick = { navController.navigateUp() },
+                    onAssignmentClick = { assignment ->
+                        navController.navigate("assignments/${assignment.assignmentId}")
+                    }
+                )
+            }
+
+            composable("assignments/{assignmentId}") { backStackEntry ->
+                val assignmentId = backStackEntry.arguments?.getString("assignmentId")?.toLongOrNull() ?: 0L
+                val viewModel: AssignmentDetailViewModel = viewModel(
+                    factory = AssignmentDetailViewModel.Factory(appContainer.apiService, assignmentId)
+                )
+                AssignmentDetailScreen(
+                    viewModel = viewModel,
+                    onBackClick = { navController.navigateUp() }
                 )
             }
 
