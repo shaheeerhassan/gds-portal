@@ -15,6 +15,11 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.unit.dp
 import com.school.gdsportal.ui.admin.teaching.teacherclasses.FilterDropdown
+import java.time.Instant
+import java.time.ZoneId
+import java.time.format.DateTimeFormatter
+import androidx.compose.foundation.clickable
+import com.school.gdsportal.data.remote.ExaminationStatus
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -40,6 +45,57 @@ fun ExaminationFormScreen(
                 TextButton(onClick = { viewModel.dismissError() }) {
                     Text("OK")
                 }
+            }
+        )
+    }
+
+    var showDatePicker by remember { mutableStateOf(false) }
+    var showStartTimePicker by remember { mutableStateOf(false) }
+    var showEndTimePicker by remember { mutableStateOf(false) }
+
+    if (showDatePicker) {
+        val datePickerState = rememberDatePickerState()
+        DatePickerDialog(
+            onDismissRequest = { showDatePicker = false },
+            confirmButton = {
+                TextButton(onClick = {
+                    datePickerState.selectedDateMillis?.let { millis ->
+                        val date = Instant.ofEpochMilli(millis).atZone(ZoneId.of("UTC")).toLocalDate()
+                        viewModel.onExamDateChange(date.format(DateTimeFormatter.ISO_LOCAL_DATE))
+                    }
+                    showDatePicker = false
+                }) {
+                    Text("OK")
+                }
+            },
+            dismissButton = {
+                TextButton(onClick = { showDatePicker = false }) {
+                    Text("Cancel")
+                }
+            }
+        ) {
+            DatePicker(state = datePickerState)
+        }
+    }
+
+    if (showStartTimePicker) {
+        ExaminationTimePickerDialog(
+            onDismissRequest = { showStartTimePicker = false },
+            onTimeSelected = { hour, minute ->
+                val timeString = String.format("%02d:%02d:00", hour, minute)
+                viewModel.onStartTimeChange(timeString)
+                showStartTimePicker = false
+            }
+        )
+    }
+
+    if (showEndTimePicker) {
+        ExaminationTimePickerDialog(
+            onDismissRequest = { showEndTimePicker = false },
+            onTimeSelected = { hour, minute ->
+                val timeString = String.format("%02d:%02d:00", hour, minute)
+                viewModel.onEndTimeChange(timeString)
+                showEndTimePicker = false
             }
         )
     }
@@ -135,25 +191,40 @@ fun ExaminationFormScreen(
                     )
                     OutlinedTextField(
                         value = uiState.examDate,
-                        onValueChange = { viewModel.onExamDateChange(it) },
+                        onValueChange = { },
                         label = { Text("Date (YYYY-MM-DD) *") },
-                        modifier = Modifier.fillMaxWidth(),
-                        singleLine = true
+                        modifier = Modifier.fillMaxWidth().clickable { showDatePicker = true },
+                        enabled = false,
+                        colors = OutlinedTextFieldDefaults.colors(
+                            disabledTextColor = MaterialTheme.colorScheme.onSurface,
+                            disabledLabelColor = MaterialTheme.colorScheme.onSurfaceVariant,
+                            disabledBorderColor = MaterialTheme.colorScheme.outline
+                        )
                     )
                     Row(horizontalArrangement = Arrangement.spacedBy(16.dp)) {
                         OutlinedTextField(
                             value = uiState.startTime,
-                            onValueChange = { viewModel.onStartTimeChange(it) },
+                            onValueChange = { },
                             label = { Text("Start (HH:MM) *") },
-                            modifier = Modifier.weight(1f),
-                            singleLine = true
+                            modifier = Modifier.weight(1f).clickable { showStartTimePicker = true },
+                            enabled = false,
+                            colors = OutlinedTextFieldDefaults.colors(
+                                disabledTextColor = MaterialTheme.colorScheme.onSurface,
+                                disabledLabelColor = MaterialTheme.colorScheme.onSurfaceVariant,
+                                disabledBorderColor = MaterialTheme.colorScheme.outline
+                            )
                         )
                         OutlinedTextField(
                             value = uiState.endTime,
-                            onValueChange = { viewModel.onEndTimeChange(it) },
+                            onValueChange = { },
                             label = { Text("End (HH:MM) *") },
-                            modifier = Modifier.weight(1f),
-                            singleLine = true
+                            modifier = Modifier.weight(1f).clickable { showEndTimePicker = true },
+                            enabled = false,
+                            colors = OutlinedTextFieldDefaults.colors(
+                                disabledTextColor = MaterialTheme.colorScheme.onSurface,
+                                disabledLabelColor = MaterialTheme.colorScheme.onSurfaceVariant,
+                                disabledBorderColor = MaterialTheme.colorScheme.outline
+                            )
                         )
                     }
                 }
@@ -184,6 +255,26 @@ fun ExaminationFormScreen(
                         )
                     }
                 }
+
+                // STATUS
+                Column(verticalArrangement = Arrangement.spacedBy(16.dp)) {
+                    Text(
+                        text = "STATUS",
+                        style = MaterialTheme.typography.labelMedium,
+                        color = MaterialTheme.colorScheme.primary
+                    )
+                    FilterDropdown(
+                        label = "Exam Status *",
+                        items = ExaminationStatus.values().map { it.name.hashCode() to it.name },
+                        selectedId = uiState.status.name.hashCode(),
+                        onSelect = { selectedHash ->
+                            val selectedStatus = ExaminationStatus.values().find { it.name.hashCode() == selectedHash }
+                            if (selectedStatus != null) {
+                                viewModel.onStatusChange(selectedStatus)
+                            }
+                        }
+                    )
+                }
                 
                 Spacer(modifier = Modifier.height(32.dp))
             }
@@ -200,4 +291,34 @@ fun ExaminationFormScreen(
             }
         }
     }
+}
+
+@OptIn(ExperimentalMaterial3Api::class)
+@Composable
+fun ExaminationTimePickerDialog(
+    onDismissRequest: () -> Unit,
+    onTimeSelected: (Int, Int) -> Unit
+) {
+    val timePickerState = rememberTimePickerState()
+
+    AlertDialog(
+        onDismissRequest = onDismissRequest,
+        confirmButton = {
+            TextButton(
+                onClick = {
+                    onTimeSelected(timePickerState.hour, timePickerState.minute)
+                }
+            ) {
+                Text("OK")
+            }
+        },
+        dismissButton = {
+            TextButton(onClick = onDismissRequest) {
+                Text("Cancel")
+            }
+        },
+        text = {
+            TimePicker(state = timePickerState)
+        }
+    )
 }

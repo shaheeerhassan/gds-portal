@@ -37,6 +37,7 @@ data class ExaminationFormUiState(
     val examDate: String = "",
     val startTime: String = "",
     val endTime: String = "",
+    val status: ExaminationStatus = ExaminationStatus.SCHEDULED,
     
     val selectedAcademicYearId: Int? = null,
     val selectedClassId: Int? = null,
@@ -110,7 +111,7 @@ class ExaminationFormViewModel(private val apiService: ApiService) : ViewModel()
                                     examDate = exam.examDate,
                                     startTime = exam.startTime,
                                     endTime = exam.endTime,
-                                    
+                                    status = exam.status,
                                     selectedAcademicYearId = exam.academicYearId,
                                     selectedClassId = classIdForExam,
                                     selectedSectionId = exam.sectionId,
@@ -145,7 +146,14 @@ class ExaminationFormViewModel(private val apiService: ApiService) : ViewModel()
     fun onPassingMarksChange(value: String) { _uiState.value = _uiState.value.copy(passingMarks = value) }
     fun onExamDateChange(value: String) { _uiState.value = _uiState.value.copy(examDate = value) }
     fun onStartTimeChange(value: String) { _uiState.value = _uiState.value.copy(startTime = value) }
-    fun onEndTimeChange(value: String) { _uiState.value = _uiState.value.copy(endTime = value) }
+    fun onEndTimeChange(value: String) {
+        _uiState.value = _uiState.value.copy(endTime = value)
+    }
+
+    fun onStatusChange(value: ExaminationStatus) {
+        _uiState.value = _uiState.value.copy(status = value)
+    }
+    
     fun selectSubject(subjectId: Int) { _uiState.value = _uiState.value.copy(selectedSubjectId = subjectId) }
 
     fun selectAcademicYear(yearId: Int) {
@@ -208,29 +216,14 @@ class ExaminationFormViewModel(private val apiService: ApiService) : ViewModel()
                 endTime = state.endTime,
                 maxMarks = state.maxMarks.toDouble(),
                 passingMarks = state.passingMarks.toDoubleOrNull(),
-                status = ExaminationStatus.SCHEDULED // Always SCHEDULED for POST. For PUT, we can only update fields, not status per requirement. Wait, PUT updates all fields. We don't have status in form. But we must send a status.
-                // The API needs status. We should preserve existing status in edit mode.
+                status = state.status
             )
             
             try {
-                if (state.isEditMode) {
-                    // For PUT, we need the original status if we don't allow changing it here.
-                    // But actually PUT update Examination expects status. If we send SCHEDULED, it overrides it.
-                    // Let's fetch original status if editing, or just rely on the API to ignore it if it doesn't map it.
-                    // Since we fetched exam, we should have kept its status!
-                    // Let's do a trick: we didn't save status in UI state, but we should.
-                }
-                
-                // Let's modify the above block safely:
-                val originalExamRes = if (state.isEditMode) apiService.getExaminationById(state.examinationId!!) else null
-                val finalStatus = originalExamRes?.body()?.data?.status ?: ExaminationStatus.SCHEDULED
-                
-                val finalExam = examination.copy(status = finalStatus)
-                
                 val res = if (state.isEditMode) {
-                    apiService.updateExamination(finalExam.examinationId, finalExam)
+                    apiService.updateExamination(examination.examinationId, examination)
                 } else {
-                    apiService.createExamination(finalExam)
+                    apiService.createExamination(examination)
                 }
                 
                 if (res.isSuccessful) {
