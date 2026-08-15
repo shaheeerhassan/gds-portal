@@ -29,6 +29,7 @@ import com.school.gdsportal.ui.admin.academics.sections.*
 import com.school.gdsportal.ui.admin.academics.subjects.*
 import com.school.gdsportal.ui.admin.academics.periods.*
 import com.school.gdsportal.ui.admin.teaching.classteacher.*
+import com.school.gdsportal.ui.admin.teaching.teacherclasses.*
 import com.school.gdsportal.ui.admin.dashboard.AdminDashboardScreen
 import com.school.gdsportal.ui.admin.dashboard.AdminDashboardViewModel
 import com.school.gdsportal.ui.admin.PeopleLandingScreen
@@ -373,7 +374,7 @@ fun AdminAppWrapper(
                 )
                 ClassTeachersDirectoryScreen(
                     viewModel = viewModel,
-                    onMenuClick = { coroutineScope.launch { drawerState.open() } },
+                    onMenuClick = { navController.navigateUp() },
                     onAddClick = { navController.navigate("class-teachers/create") },
                     onAssignmentClick = { sectionId, yearId ->
                         navController.navigate("class-teachers/$sectionId/$yearId")
@@ -411,6 +412,21 @@ fun AdminAppWrapper(
                     onAssignmentSaved = { navController.navigateUp() }
                 )
             }
+
+            // TEACHER CLASSES
+            composable("teacher-classes") {
+                val viewModel: TeacherClassesViewModel = viewModel(
+                    factory = TeacherClassesViewModel.Factory(appContainer.apiService)
+                )
+                TeacherClassesScreen(
+                    viewModel = viewModel,
+                    onBackClick = { navController.navigateUp() },
+                    onTeacherClick = { teacherId ->
+                        navController.navigate("teachers/$teacherId")
+                    }
+                )
+            }
+
             // -------------------------------------------------------------
             // ACADEMICS SECTION
             // -------------------------------------------------------------
