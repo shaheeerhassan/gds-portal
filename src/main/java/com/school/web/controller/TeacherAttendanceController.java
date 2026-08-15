@@ -122,13 +122,8 @@ public class TeacherAttendanceController extends BaseServlet {
         }
     }
 
-<<<<<<< Updated upstream
     @Getter
     @Setter
-=======
-
-
->>>>>>> Stashed changes
     public static class MarkAttendanceRequest {
         private List<TeacherAttendance> records;
     }
@@ -137,19 +132,6 @@ public class TeacherAttendanceController extends BaseServlet {
     @Setter
     public static class StatusRequest {
         private String status;
-<<<<<<< Updated upstream
-    }
-=======
-
-        public String getStatus() {
-            return status;
-        }
-
-        public void setStatus(String status) {
-            this.status = status;
-        }
     }
 
-
->>>>>>> Stashed changes
 }

@@ -72,9 +72,4 @@ public class TeacherAttendanceServiceImpl implements TeacherAttendanceService {
         if (!teacherAttendanceDao.updateTeacherAttendance(attendanceId, status))
             throw new ResourceNotFoundException("Attendance record not found.");
     }
-
-<<<<<<< Updated upstream
-=======
-
->>>>>>> Stashed changes
 }

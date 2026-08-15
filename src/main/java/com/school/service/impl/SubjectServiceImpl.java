@@ -45,6 +45,11 @@ public class SubjectServiceImpl implements SubjectService {
     }
 
     @Override
+    public List<Subject> getSubjectsBySection(int sectionId, int academicYearId) {
+        return subjectDao.getSubjectsBySection(sectionId, academicYearId);
+    }
+
+    @Override
     public void updateSubject(Subject subject) {
         validateId(subject.getSubjectId());
         subject.setSubjectName(validateRequired(subject.getSubjectName(), "Subject name"));

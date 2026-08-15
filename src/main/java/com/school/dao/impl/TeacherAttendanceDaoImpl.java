@@ -80,11 +80,6 @@ public class TeacherAttendanceDaoImpl implements TeacherAttendanceDao {
         }
     }
 
-<<<<<<< Updated upstream
-=======
-
->>>>>>> Stashed changes
-
     @Override
     public boolean existsAttendance(long teacherId, LocalDate date) {
         try (Connection cn = getDataSource().getConnection();

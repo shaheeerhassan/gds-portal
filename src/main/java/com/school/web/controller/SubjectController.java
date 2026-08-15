@@ -42,7 +42,16 @@ public class SubjectController extends BaseServlet {
                 return;
             }
             default:
-                if (path.startsWith("/")) {
+                if (path.startsWith("/section/")) {
+                    RoleGuard.requireRole(req, ROLE_ADMIN, ROLE_PRINCIPAL, ROLE_TEACHER);
+                    String[] parts = path.substring(1).split("/");
+                    if (parts.length == 3) {
+                        int sectionId = Integer.parseInt(parts[1]);
+                        int academicYearId = Integer.parseInt(parts[2]);
+                        writeJson(resp, subjectService.getSubjectsBySection(sectionId, academicYearId));
+                        return;
+                    }
+                } else if (path.startsWith("/")) {
                     RoleGuard.requireRole(req, ROLE_ADMIN, ROLE_PRINCIPAL, ROLE_TEACHER);
                     writeJson(resp, subjectService.getSubjectById(parseInt(path.substring(1))));
                     return;
