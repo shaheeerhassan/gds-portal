@@ -26,6 +26,7 @@ import com.school.gdsportal.ui.admin.AcademicsLandingScreen
 import com.school.gdsportal.ui.admin.academics.academicyears.*
 import com.school.gdsportal.ui.admin.academics.classes.*
 import com.school.gdsportal.ui.admin.academics.sections.*
+import com.school.gdsportal.ui.admin.academics.subjects.*
 import com.school.gdsportal.ui.admin.dashboard.AdminDashboardScreen
 import com.school.gdsportal.ui.admin.dashboard.AdminDashboardViewModel
 import com.school.gdsportal.ui.admin.PeopleLandingScreen
@@ -216,6 +217,72 @@ fun AdminAppWrapper(
                     viewModel = viewModel,
                     onBackClick = { navController.navigateUp() },
                     onSectionEdited = { navController.navigateUp() }
+                )
+            }
+
+            // SUBJECTS
+            composable("subjects") {
+                val viewModel: SubjectsDirectoryViewModel = viewModel(
+                    factory = SubjectsDirectoryViewModel.Factory(appContainer.apiService)
+                )
+                SubjectsDirectoryScreen(
+                    viewModel = viewModel,
+                    onBackClick = { navController.navigate("admin_academics_landing") { popUpTo("admin_academics_landing") } },
+                    onAddClick = { navController.navigate("subjects/create") },
+                    onSubjectClick = { id -> navController.navigate("subjects/$id") }
+                )
+            }
+
+            composable("subjects/create") {
+                val viewModel: SubjectCreateViewModel = viewModel(
+                    factory = SubjectCreateViewModel.provideFactory(appContainer.apiService)
+                )
+                SubjectCreateScreen(
+                    viewModel = viewModel,
+                    onBackClick = { navController.navigateUp() },
+                    onSubjectCreated = { id ->
+                        if (id != null) {
+                            navController.navigate("subjects/$id") {
+                                popUpTo("subjects")
+                            }
+                        } else {
+                            navController.navigateUp()
+                        }
+                    }
+                )
+            }
+
+            composable(
+                route = "subjects/{subjectId}",
+                arguments = listOf(navArgument("subjectId") { type = NavType.IntType })
+            ) { backStackEntry ->
+                val subjectId = backStackEntry.arguments?.getInt("subjectId") ?: return@composable
+                val viewModel: SubjectDetailViewModel = viewModel(
+                    factory = SubjectDetailViewModel.Factory(subjectId, appContainer.apiService)
+                )
+                SubjectDetailScreen(
+                    viewModel = viewModel,
+                    onBackClick = {
+                        navController.navigate("subjects") {
+                            popUpTo("admin_academics_landing")
+                        }
+                    },
+                    onEditClick = { navController.navigate("subjects/$subjectId/edit") }
+                )
+            }
+
+            composable(
+                route = "subjects/{subjectId}/edit",
+                arguments = listOf(navArgument("subjectId") { type = NavType.IntType })
+            ) { backStackEntry ->
+                val subjectId = backStackEntry.arguments?.getInt("subjectId") ?: return@composable
+                val viewModel: SubjectEditViewModel = viewModel(
+                    factory = SubjectEditViewModel.Factory(subjectId, appContainer.apiService)
+                )
+                SubjectEditScreen(
+                    viewModel = viewModel,
+                    onBackClick = { navController.navigateUp() },
+                    onSubjectEdited = { navController.navigateUp() }
                 )
             }
 

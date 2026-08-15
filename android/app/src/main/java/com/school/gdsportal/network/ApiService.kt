@@ -342,6 +342,18 @@ interface ApiService {
         @Path("teacherSubjectId") teacherSubjectId: Long
     ): Response<ApiResponse<String>>
 
-    @retrofit2.http.GET("api/subjects/")
+    @GET("api/subjects/")
     suspend fun getSubjects(): Response<ApiResponse<List<com.school.gdsportal.data.remote.Subject>>>
+
+    @GET("api/subjects/{subjectId}")
+    suspend fun getSubjectById(@Path("subjectId") subjectId: Int): Response<ApiResponse<com.school.gdsportal.data.remote.Subject>>
+
+    @POST("api/subjects/")
+    suspend fun createSubject(@Body subject: com.school.gdsportal.data.remote.Subject): Response<ApiResponse<com.school.gdsportal.data.remote.Subject>>
+
+    @PUT("api/subjects/{subjectId}")
+    suspend fun updateSubject(@Path("subjectId") subjectId: Int, @Body subject: com.school.gdsportal.data.remote.Subject): Response<ApiResponse<com.school.gdsportal.data.remote.Subject>>
+
+    @DELETE("api/subjects/{subjectId}")
+    suspend fun deleteSubject(@Path("subjectId") subjectId: Int): Response<Void>
 }
