@@ -59,6 +59,8 @@ class ExaminationFormViewModel(private val apiService: ApiService) : ViewModel()
 
     private val _uiState = MutableStateFlow(ExaminationFormUiState())
     val uiState: StateFlow<ExaminationFormUiState> = _uiState.asStateFlow()
+    
+    private var allSubjects = emptyList<Subject>()
 
     fun loadInitialData(examinationId: Long?) {
         viewModelScope.launch {
@@ -71,7 +73,7 @@ class ExaminationFormViewModel(private val apiService: ApiService) : ViewModel()
                     
                     val years = yearsDef.await().body()?.data ?: emptyList()
                     val classes = classesDef.await().body()?.data ?: emptyList()
-                    val subjects = subjectsDef.await().body()?.data ?: emptyList()
+                    allSubjects = subjectsDef.await().body()?.data ?: emptyList()
                     
                     if (examinationId != null) {
                         val examRes = apiService.getExaminationById(examinationId)
@@ -100,7 +102,6 @@ class ExaminationFormViewModel(private val apiService: ApiService) : ViewModel()
                                 _uiState.value = _uiState.value.copy(
                                     academicYears = years,
                                     classes = classes,
-                                    subjects = subjects,
                                     sections = examSections,
                                     
                                     isEditMode = true,
@@ -118,6 +119,7 @@ class ExaminationFormViewModel(private val apiService: ApiService) : ViewModel()
                                     selectedSubjectId = exam.subjectId,
                                     isLoading = false
                                 )
+                                loadSubjectsForSectionIfPossible()
                             }
                         } else {
                             _uiState.value = _uiState.value.copy(isLoading = false, error = "Failed to load examination")
@@ -128,7 +130,7 @@ class ExaminationFormViewModel(private val apiService: ApiService) : ViewModel()
                         _uiState.value = _uiState.value.copy(
                             academicYears = years,
                             classes = classes,
-                            subjects = subjects,
+                            subjects = emptyList(),
                             selectedAcademicYearId = defaultYearId,
                             isEditMode = false,
                             isLoading = false
@@ -177,7 +179,9 @@ class ExaminationFormViewModel(private val apiService: ApiService) : ViewModel()
     }
     
     fun selectSection(sectionId: Int) {
-        _uiState.value = _uiState.value.copy(selectedSectionId = sectionId)
+        if (_uiState.value.selectedSectionId == sectionId) return
+        _uiState.value = _uiState.value.copy(selectedSectionId = sectionId, selectedSubjectId = null, subjects = emptyList())
+        loadSubjectsForSectionIfPossible()
     }
 
     private fun loadSectionsIfPossible() {
@@ -190,6 +194,24 @@ class ExaminationFormViewModel(private val apiService: ApiService) : ViewModel()
                     if (res.isSuccessful) {
                         val sections = res.body()?.data ?: emptyList()
                         _uiState.value = _uiState.value.copy(sections = sections)
+                    }
+                } catch (e: Exception) {
+                    // Ignore
+                }
+            }
+        }
+    }
+
+    private fun loadSubjectsForSectionIfPossible() {
+        val sectionId = _uiState.value.selectedSectionId
+        val yearId = _uiState.value.selectedAcademicYearId
+        if (sectionId != null && yearId != null) {
+            viewModelScope.launch {
+                try {
+                    val res = apiService.getSubjectsBySection(sectionId, yearId)
+                    if (res.isSuccessful) {
+                        val sectionSubjects = res.body()?.data ?: emptyList()
+                        _uiState.value = _uiState.value.copy(subjects = sectionSubjects)
                     }
                 } catch (e: Exception) {
                     // Ignore

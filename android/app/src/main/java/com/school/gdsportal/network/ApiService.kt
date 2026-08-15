@@ -351,6 +351,12 @@ interface ApiService {
     @GET("api/subjects/{subjectId}")
     suspend fun getSubjectById(@Path("subjectId") subjectId: Int): Response<ApiResponse<com.school.gdsportal.data.remote.Subject>>
 
+    @GET("api/subjects/section/{sectionId}/{academicYearId}")
+    suspend fun getSubjectsBySection(
+        @Path("sectionId") sectionId: Int,
+        @Path("academicYearId") academicYearId: Int
+    ): Response<ApiResponse<List<com.school.gdsportal.data.remote.Subject>>>
+
     @POST("api/subjects/")
     suspend fun createSubject(@Body subject: com.school.gdsportal.data.remote.Subject): Response<ApiResponse<com.school.gdsportal.data.remote.Subject>>
 

@@ -108,6 +108,13 @@ fun ExaminationDetailScreen(
                                     onEditClick(exam.examinationId)
                                 }
                             )
+                            DropdownMenuItem(
+                                text = { Text("Update Status") },
+                                onClick = {
+                                    expandedMenu = false
+                                    showStatusDialog = true
+                                }
+                            )
                         }
                     }
                 }
@@ -191,10 +198,6 @@ fun ExaminationDetailScreen(
                         HorizontalDivider(modifier = Modifier.padding(bottom = 16.dp))
                         Row(verticalAlignment = Alignment.CenterVertically) {
                             StatusChip(status = exam.status)
-                            Spacer(modifier = Modifier.width(16.dp))
-                            OutlinedButton(onClick = { showStatusDialog = true }) {
-                                Text("Change Status")
-                            }
                         }
                     }
                     
