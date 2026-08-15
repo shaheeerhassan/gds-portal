@@ -193,6 +193,18 @@ interface ApiService {
     @GET("api/sections/")
     suspend fun getAllSections(): Response<ApiResponse<List<com.school.gdsportal.data.remote.Section>>>
 
+    @GET("api/sections/{sectionId}")
+    suspend fun getSectionById(@Path("sectionId") sectionId: Int): Response<ApiResponse<com.school.gdsportal.data.remote.Section>>
+
+    @POST("api/sections/")
+    suspend fun createSection(@Body section: com.school.gdsportal.data.remote.Section): Response<ApiResponse<com.school.gdsportal.data.remote.Section>>
+
+    @PUT("api/sections/{sectionId}")
+    suspend fun updateSection(@Path("sectionId") sectionId: Int, @Body section: com.school.gdsportal.data.remote.Section): Response<ApiResponse<com.school.gdsportal.data.remote.Section>>
+
+    @DELETE("api/sections/{sectionId}")
+    suspend fun deleteSection(@Path("sectionId") sectionId: Int): Response<Void>
+
     @GET("api/students/directory")
     suspend fun getStudentsDirectory(
         @Query("q") query: String?,
