@@ -268,7 +268,12 @@ class TimetableFormViewModel(private val apiService: ApiService) : ViewModel() {
                 if (res.isSuccessful) {
                     _uiState.value = _uiState.value.copy(isSubmitting = false, submitSuccess = true)
                 } else {
-                    val errMsg = res.errorBody()?.string() ?: "Submission failed"
+                    val errString = res.errorBody()?.string()
+                    val errMsg = try {
+                        org.json.JSONObject(errString!!).getString("message")
+                    } catch (e: Exception) {
+                        "Submission failed"
+                    }
                     _uiState.value = _uiState.value.copy(isSubmitting = false, error = errMsg)
                 }
             } catch (e: Exception) {
