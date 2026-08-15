@@ -113,7 +113,12 @@ public class ClassDaoImpl implements ClassDao {
             ps.setInt(1, classId);
 
             return ps.executeUpdate() > 0;
+        } catch (java.sql.SQLIntegrityConstraintViolationException e) {
+            throw new com.school.exceptions.ValidationException("Cannot delete class because it is still referenced by other records.");
         } catch (SQLException e) {
+            if (e.getMessage() != null && e.getMessage().toLowerCase().contains("foreign key constraint")) {
+                throw new com.school.exceptions.ValidationException("Cannot delete class because it is still referenced by other records.");
+            }
             throw new DaoException("Error deleting class", e);
         }
     }
