@@ -457,4 +457,16 @@ interface ApiService {
 
     @GET("api/marks/id/{markId}")
     suspend fun getMarkById(@Path("markId") markId: Long): Response<ApiResponse<com.school.gdsportal.data.remote.Mark>>
+
+    @GET("api/attendance/students/section/{sectionId}/date/{date}")
+    suspend fun getStudentAttendanceBySectionAndDate(
+        @Path("sectionId") sectionId: Int,
+        @Path("date") date: String
+    ): Response<ApiResponse<List<com.school.gdsportal.data.remote.StudentAttendance>>>
+
+    @GET("api/enrollments/section/{sectionId}/{academicYearId}")
+    suspend fun getEnrollmentsBySection(
+        @Path("sectionId") sectionId: Int,
+        @Path("academicYearId") academicYearId: Int
+    ): Response<ApiResponse<List<com.school.gdsportal.data.remote.Enrollment>>>
 }

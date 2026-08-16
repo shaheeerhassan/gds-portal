@@ -403,3 +403,27 @@ data class MarkDisplay(
     val remarks: String
 )
 
+enum class StudentAttendanceStatus {
+    PRESENT, ABSENT, LATE, LEAVE
+}
+
+data class StudentAttendance(
+    val attendanceId: Long = 0,
+    val studentClassId: Long,
+    val attendanceDate: String,
+    val status: StudentAttendanceStatus,
+    val periodId: Int,
+    val markedBy: Long,
+    val markedAt: String?,
+    @SerializedName(value = "isLocked", alternate = ["locked"])
+    val isLocked: Boolean,
+    val remarks: String?
+)
+
+data class StudentAttendanceDisplay(
+    val studentId: Long,
+    val studentName: String,
+    val registrationNumber: String,
+    val status: StudentAttendanceStatus?,
+    val remarks: String
+)

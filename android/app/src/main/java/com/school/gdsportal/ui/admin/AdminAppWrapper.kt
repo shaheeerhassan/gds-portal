@@ -36,6 +36,7 @@ import com.school.gdsportal.ui.admin.assessment.examinations.*
 import com.school.gdsportal.ui.admin.assessment.assignments.*
 import com.school.gdsportal.ui.admin.assessment.submissions.*
 import com.school.gdsportal.ui.admin.assessment.marks.*
+import com.school.gdsportal.ui.admin.attendance.student.*
 import com.google.gson.Gson
 import java.net.URLDecoder
 import java.net.URLEncoder
@@ -1205,6 +1206,16 @@ fun AdminAppWrapper(
                 )
                 val viewModel: com.school.gdsportal.ui.admin.teachers.attendance.TeacherAttendanceViewModel = androidx.lifecycle.viewmodel.compose.viewModel(factory = factory)
                 com.school.gdsportal.ui.admin.teachers.attendance.TeacherAttendanceScreen(
+                    viewModel = viewModel,
+                    onBackClick = { navController.navigateUp() }
+                )
+            }
+
+            composable("student-attendance") {
+                val viewModel: com.school.gdsportal.ui.admin.attendance.student.StudentAttendanceViewModel = androidx.lifecycle.viewmodel.compose.viewModel(
+                    factory = com.school.gdsportal.ui.admin.attendance.student.StudentAttendanceViewModel.Factory(appContainer.apiService)
+                )
+                com.school.gdsportal.ui.admin.attendance.student.StudentAttendanceScreen(
                     viewModel = viewModel,
                     onBackClick = { navController.navigateUp() }
                 )
