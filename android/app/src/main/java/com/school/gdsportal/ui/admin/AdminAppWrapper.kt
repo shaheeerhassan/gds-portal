@@ -1249,7 +1249,34 @@ fun AdminAppWrapper(
             composable("admin_reports_landing") {
                 ReportsLandingScreen(
                     onBack = { navController.navigateUp() },
-                    onNavigate = { /* TODO Phase 2 */ }
+                    onNavigate = { route -> navController.navigate(route) }
+                )
+            }
+
+            composable("reports/student-performance") {
+                val viewModel: com.school.gdsportal.ui.admin.reports.studentperformance.StudentPerformanceSelectorViewModel = androidx.lifecycle.viewmodel.compose.viewModel(
+                    factory = com.school.gdsportal.ui.admin.reports.studentperformance.StudentPerformanceSelectorViewModel.Factory(appContainer.apiService)
+                )
+                com.school.gdsportal.ui.admin.reports.studentperformance.StudentPerformanceSelectorScreen(
+                    viewModel = viewModel,
+                    onBackClick = { navController.navigateUp() },
+                    onGenerateReport = { studentId, academicYearId ->
+                        navController.navigate("reports/student-performance/$studentId/$academicYearId")
+                    }
+                )
+            }
+
+            composable("reports/student-performance/{studentId}/{academicYearId}") { backStackEntry ->
+                val studentId = backStackEntry.arguments?.getString("studentId")?.toLongOrNull() ?: 0L
+                val academicYearId = backStackEntry.arguments?.getString("academicYearId")?.toIntOrNull() ?: 0
+                val viewModel: com.school.gdsportal.ui.admin.reports.studentperformance.StudentPerformanceReportViewModel = androidx.lifecycle.viewmodel.compose.viewModel(
+                    factory = com.school.gdsportal.ui.admin.reports.studentperformance.StudentPerformanceReportViewModel.Factory(
+                        appContainer.apiService, studentId, academicYearId
+                    )
+                )
+                com.school.gdsportal.ui.admin.reports.studentperformance.StudentPerformanceReportScreen(
+                    viewModel = viewModel,
+                    onBackClick = { navController.navigateUp() }
                 )
             }
 

@@ -102,14 +102,14 @@ fun CommunicationLandingScreen(onBack: () -> Unit, onNavigate: (String) -> Unit)
 fun ReportsLandingScreen(onBack: () -> Unit, onNavigate: (String) -> Unit) {
     SectionLandingPage(
         title = "Reports",
-        description = "School insights and summaries",
+        description = "Generate and view school reports",
         rows = listOf(
-            NavigationRowData("Student Performance", "admin_report_student_perf", isImplemented = false),
-            NavigationRowData("Teacher Attendance", "admin_report_teacher_att", isImplemented = false),
-            NavigationRowData("Class Attendance", "admin_report_class_att", isImplemented = false),
-            NavigationRowData("Teacher Performance", "admin_report_teacher_perf", isImplemented = false),
-            NavigationRowData("Examination Report", "admin_report_exams", isImplemented = false),
-            NavigationRowData("Student Attendance Summary", "admin_report_student_att_sum", isImplemented = false)
+            NavigationRowData("Student Performance", "reports/student-performance", isImplemented = true),
+            NavigationRowData("Teacher Attendance", "reports/teacher-attendance", isImplemented = false),
+            NavigationRowData("Class Attendance", "reports/class-attendance", isImplemented = false),
+            NavigationRowData("Teacher Performance", "reports/teacher-performance", isImplemented = false),
+            NavigationRowData("Examination Report", "reports/examination", isImplemented = false),
+            NavigationRowData("Student Attendance Summary", "reports/student-attendance-summary", isImplemented = false)
         ),
         onBackClick = onBack,
         onRowClick = onNavigate

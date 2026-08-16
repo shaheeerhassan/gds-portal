@@ -469,4 +469,10 @@ interface ApiService {
         @Path("sectionId") sectionId: Int,
         @Path("academicYearId") academicYearId: Int
     ): Response<ApiResponse<List<com.school.gdsportal.data.remote.Enrollment>>>
+
+    @GET("api/reports/student-performance/{studentId}/{academicYearId}")
+    suspend fun getStudentPerformanceReport(
+        @Path("studentId") studentId: Long,
+        @Path("academicYearId") academicYearId: Int
+    ): Response<ApiResponse<com.google.gson.JsonObject>>
 }
