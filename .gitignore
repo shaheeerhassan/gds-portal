@@ -44,3 +44,4 @@ build/
 BUGS.md
 school_management_schema.txt
 POSTMAN_TEST_GUIDE.md
+*.md
