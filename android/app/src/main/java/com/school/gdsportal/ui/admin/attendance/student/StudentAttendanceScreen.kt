@@ -106,33 +106,56 @@ fun StudentAttendanceScreen(
                             enabled = uiState.selectedAcademicYearId != null && uiState.selectedClassId != null
                         )
                     }
+                    var showDatePicker by remember { mutableStateOf(false) }
+
                     Box(modifier = Modifier.weight(1f)) {
                         OutlinedTextField(
                             value = uiState.selectedDate,
                             onValueChange = {},
                             label = { Text("Date") },
                             readOnly = true,
-                            enabled = uiState.selectedSectionId != null,
-                            modifier = Modifier
-                                .fillMaxWidth()
-                                .clickable(enabled = uiState.selectedSectionId != null) {
-                                    val currentParsed = try {
-                                        LocalDate.parse(uiState.selectedDate)
-                                    } catch (e: Exception) {
-                                        LocalDate.now()
-                                    }
-                                    DatePickerDialog(
-                                        context,
-                                        { _, year, month, dayOfMonth ->
-                                            val newDate = LocalDate.of(year, month + 1, dayOfMonth)
-                                            viewModel.selectDate(newDate.format(DateTimeFormatter.ISO_LOCAL_DATE))
-                                        },
-                                        currentParsed.year,
-                                        currentParsed.monthValue - 1,
-                                        currentParsed.dayOfMonth
-                                    ).show()
-                                }
+                            enabled = true,
+                            modifier = Modifier.fillMaxWidth()
                         )
+                        Box(
+                            modifier = Modifier
+                                .matchParentSize()
+                                .clickable { showDatePicker = true }
+                        )
+                    }
+
+                    if (showDatePicker) {
+                        val currentParsed = try {
+                            LocalDate.parse(uiState.selectedDate)
+                        } catch (e: Exception) {
+                            LocalDate.now()
+                        }
+                        val initialMillis = currentParsed.atStartOfDay(java.time.ZoneOffset.UTC).toInstant().toEpochMilli()
+                        val datePickerState = rememberDatePickerState(initialSelectedDateMillis = initialMillis)
+                        
+                        DatePickerDialog(
+                            onDismissRequest = { showDatePicker = false },
+                            confirmButton = {
+                                TextButton(onClick = {
+                                    datePickerState.selectedDateMillis?.let { millis ->
+                                        val selectedDate = java.time.Instant.ofEpochMilli(millis)
+                                            .atZone(java.time.ZoneOffset.UTC)
+                                            .toLocalDate()
+                                        viewModel.selectDate(selectedDate.format(DateTimeFormatter.ISO_LOCAL_DATE))
+                                    }
+                                    showDatePicker = false
+                                }) {
+                                    Text("OK")
+                                }
+                            },
+                            dismissButton = {
+                                TextButton(onClick = { showDatePicker = false }) {
+                                    Text("Cancel")
+                                }
+                            }
+                        ) {
+                            DatePicker(state = datePickerState)
+                        }
                     }
                 }
             }
