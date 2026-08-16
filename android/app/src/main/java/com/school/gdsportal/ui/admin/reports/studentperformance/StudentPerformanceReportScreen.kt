@@ -123,9 +123,67 @@ fun StudentPerformanceReportScreen(
                             Spacer(modifier = Modifier.height(16.dp))
                         }
                     }
+
+                    // Summary Card
+                    item {
+                        Spacer(modifier = Modifier.height(8.dp))
+                        Card(
+                            modifier = Modifier.fillMaxWidth(),
+                            colors = CardDefaults.cardColors(
+                                containerColor = MaterialTheme.colorScheme.surfaceVariant
+                            )
+                        ) {
+                            Column(modifier = Modifier.padding(16.dp)) {
+                                Text(
+                                    text = "OVERALL SUMMARY",
+                                    style = MaterialTheme.typography.labelLarge,
+                                    fontWeight = FontWeight.Bold,
+                                    color = MaterialTheme.colorScheme.primary
+                                )
+                                Spacer(modifier = Modifier.height(16.dp))
+                                Row(
+                                    modifier = Modifier.fillMaxWidth(),
+                                    horizontalArrangement = Arrangement.SpaceBetween
+                                ) {
+                                    SummaryItem("Total Subjects", uiState.totalSubjects.toString())
+                                    SummaryItem("Total Exams", uiState.totalExams.toString())
+                                }
+                                Spacer(modifier = Modifier.height(16.dp))
+                                Row(
+                                    modifier = Modifier.fillMaxWidth(),
+                                    horizontalArrangement = Arrangement.SpaceBetween
+                                ) {
+                                    SummaryItem(
+                                        "Total Marks",
+                                        "${uiState.totalMarksObtained.toInt()} / ${uiState.totalMaxMarks.toInt()}"
+                                    )
+                                    SummaryItem(
+                                        "Percentage",
+                                        "${uiState.overallPercentage}%"
+                                    )
+                                }
+                            }
+                        }
+                    }
                 }
             }
         }
+    }
+}
+
+@Composable
+fun SummaryItem(label: String, value: String) {
+    Column {
+        Text(
+            text = label,
+            style = MaterialTheme.typography.bodySmall,
+            color = MaterialTheme.colorScheme.onSurfaceVariant
+        )
+        Text(
+            text = value,
+            style = MaterialTheme.typography.titleMedium,
+            fontWeight = FontWeight.Bold
+        )
     }
 }
 
@@ -155,7 +213,7 @@ fun PerformanceEntryRow(entry: PerformanceEntry) {
 
         Column(horizontalAlignment = Alignment.End) {
             Text(
-                text = "${entry.marksObtained.toInt()}/${entry.maxMarks.toInt()}",
+                text = "${entry.marksObtained.toInt()}/${entry.maxMarks.toInt()} (${entry.percentage}%)",
                 style = MaterialTheme.typography.titleMedium,
                 fontWeight = FontWeight.Bold
             )

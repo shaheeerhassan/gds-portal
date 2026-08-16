@@ -17,7 +17,8 @@ data class PerformanceEntry(
     val marksObtained: Double,
     val maxMarks: Double,
     val grade: String,
-    val remarks: String
+    val remarks: String,
+    val percentage: Double
 )
 
 data class StudentPerformanceReportUiState(
@@ -29,7 +30,13 @@ data class StudentPerformanceReportUiState(
     val academicYearName: String = "",
 
     val entries: List<PerformanceEntry> = emptyList(),
-    val examGroups: Map<String, List<PerformanceEntry>> = emptyMap()
+    val examGroups: Map<String, List<PerformanceEntry>> = emptyMap(),
+
+    val totalExams: Int = 0,
+    val totalMarksObtained: Double = 0.0,
+    val totalMaxMarks: Double = 0.0,
+    val totalSubjects: Int = 0,
+    val overallPercentage: Double = 0.0
 )
 
 class StudentPerformanceReportViewModel(
@@ -78,7 +85,8 @@ class StudentPerformanceReportViewModel(
                                 marksObtained = obj.get("marks_obtained")?.asDouble ?: 0.0,
                                 maxMarks = obj.get("max_marks")?.asDouble ?: 0.0,
                                 grade = obj.get("grade")?.asString ?: "",
-                                remarks = obj.get("remarks")?.asString ?: ""
+                                remarks = obj.get("remarks")?.asString ?: "",
+                                percentage = obj.get("percentage")?.asDouble ?: 0.0
                             )
                         } ?: emptyList()
 
@@ -90,7 +98,12 @@ class StudentPerformanceReportViewModel(
                             registrationNumber = regNumber,
                             academicYearName = yearName,
                             entries = entries,
-                            examGroups = examGroups
+                            examGroups = examGroups,
+                            totalExams = data.get("total_exams")?.asInt ?: 0,
+                            totalMarksObtained = data.get("total_marks_obtained")?.asDouble ?: 0.0,
+                            totalMaxMarks = data.get("total_max_marks")?.asDouble ?: 0.0,
+                            totalSubjects = data.get("total_subjects")?.asInt ?: 0,
+                            overallPercentage = data.get("overall_percentage")?.asDouble ?: 0.0
                         )
                     } else {
                         _uiState.value = _uiState.value.copy(isLoading = false, entries = emptyList(), examGroups = emptyMap())
