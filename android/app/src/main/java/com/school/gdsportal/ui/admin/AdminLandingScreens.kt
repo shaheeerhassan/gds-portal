@@ -105,7 +105,7 @@ fun ReportsLandingScreen(onBack: () -> Unit, onNavigate: (String) -> Unit) {
         description = "Generate and view school reports",
         rows = listOf(
             NavigationRowData("Student Performance", "reports/student-performance", isImplemented = true),
-            NavigationRowData("Teacher Attendance", "reports/teacher-attendance", isImplemented = false),
+            NavigationRowData("Teacher Attendance", "reports/teacher-attendance", isImplemented = true),
             NavigationRowData("Class Attendance", "reports/class-attendance", isImplemented = false),
             NavigationRowData("Teacher Performance", "reports/teacher-performance", isImplemented = false),
             NavigationRowData("Examination Report", "reports/examination", isImplemented = false),

@@ -475,4 +475,11 @@ interface ApiService {
         @Path("studentId") studentId: Long,
         @Path("academicYearId") academicYearId: Int
     ): Response<ApiResponse<com.google.gson.JsonObject>>
+
+    @GET("api/reports/teacher-attendance/{teacherId}/{month}/{year}")
+    suspend fun getTeacherAttendanceReport(
+        @Path("teacherId") teacherId: Long,
+        @Path("month") month: Int,
+        @Path("year") year: Int
+    ): Response<ApiResponse<com.school.gdsportal.data.remote.dto.TeacherAttendanceReportData>>
 }

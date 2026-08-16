@@ -1280,6 +1280,34 @@ fun AdminAppWrapper(
                 )
             }
 
+            composable("reports/teacher-attendance") {
+                val viewModel: com.school.gdsportal.ui.admin.reports.teacherattendance.TeacherAttendanceReportSelectorViewModel = androidx.lifecycle.viewmodel.compose.viewModel(
+                    factory = com.school.gdsportal.ui.admin.reports.teacherattendance.TeacherAttendanceReportSelectorViewModel.Factory(appContainer.apiService)
+                )
+                com.school.gdsportal.ui.admin.reports.teacherattendance.TeacherAttendanceReportSelectorScreen(
+                    viewModel = viewModel,
+                    onBackClick = { navController.navigateUp() },
+                    onGenerateReportClick = { teacherId, month, year ->
+                        navController.navigate("reports/teacher-attendance/$teacherId/$month/$year")
+                    }
+                )
+            }
+
+            composable("reports/teacher-attendance/{teacherId}/{month}/{year}") { backStackEntry ->
+                val teacherId = backStackEntry.arguments?.getString("teacherId")?.toLongOrNull() ?: 0L
+                val month = backStackEntry.arguments?.getString("month")?.toIntOrNull() ?: 0
+                val year = backStackEntry.arguments?.getString("year")?.toIntOrNull() ?: 0
+                val viewModel: com.school.gdsportal.ui.admin.reports.teacherattendance.TeacherAttendanceReportViewModel = androidx.lifecycle.viewmodel.compose.viewModel(
+                    factory = com.school.gdsportal.ui.admin.reports.teacherattendance.TeacherAttendanceReportViewModel.Factory(
+                        appContainer.apiService, teacherId, month, year
+                    )
+                )
+                com.school.gdsportal.ui.admin.reports.teacherattendance.TeacherAttendanceReportScreen(
+                    viewModel = viewModel,
+                    onBackClick = { navController.navigateUp() }
+                )
+            }
+
             composable("admin_profile_landing") {
                 ProfileLandingScreen(
                     onBack = { navController.navigateUp() },
