@@ -43,6 +43,108 @@ public class NotificationServiceImpl implements NotificationService {
     }
 
     @Override
+    public void generateNotificationsForAnnouncement(com.school.model.Announcement announcement) {
+        java.util.List<Long> targetUserIds = new java.util.ArrayList<>();
+        com.school.dao.interfaces.UserDao userDao = new com.school.dao.impl.UserDaoImpl();
+        com.school.dao.interfaces.StudentDao studentDao = new com.school.dao.impl.StudentDaoImpl();
+        com.school.dao.interfaces.AcademicYearDao academicYearDao = new com.school.dao.impl.AcademicYearDaoImpl();
+
+        if (announcement.getTargetRoleId() != null) {
+            java.util.List<com.school.model.User> users = userDao.getUsersByRole(announcement.getTargetRoleId());
+            for (com.school.model.User u : users) {
+                targetUserIds.add(u.getUserId());
+            }
+        } else if (announcement.getSectionId() != null) {
+            java.util.List<com.school.model.Student> students = studentDao.getAllStudentsBySection(announcement.getSectionId());
+            for (com.school.model.Student s : students) {
+                targetUserIds.add(s.getUserId());
+            }
+        } else if (announcement.getClassId() != null) {
+            com.school.model.AcademicYear activeYear = academicYearDao.getCurrentAcademicYear();
+            if (activeYear != null) {
+                java.util.List<com.school.model.Student> students = studentDao.getAllStudentsByClass(announcement.getClassId(), activeYear.getAcademicYearId());
+                for (com.school.model.Student s : students) {
+                    targetUserIds.add(s.getUserId());
+                }
+            }
+        } else {
+            java.util.List<com.school.model.User> users = userDao.getAllUsers();
+            for (com.school.model.User u : users) {
+                targetUserIds.add(u.getUserId());
+            }
+        }
+
+        if (targetUserIds.isEmpty()) return;
+
+        java.util.List<Notification> notifications = new java.util.ArrayList<>();
+        LocalDateTime now = LocalDateTime.now();
+        for (Long userId : targetUserIds) {
+            Notification n = new Notification();
+            n.setUserId(userId);
+            n.setNotificationType(Notification.NotificationType.NEW_ANNOUNCEMENT);
+            n.setTitle("New Announcement: " + announcement.getTitle());
+            n.setMessage(announcement.getContent());
+            n.setReferenceTable("announcements");
+            n.setReferenceId(announcement.getAnnouncementId());
+            n.setRead(false);
+            n.setCreatedAt(now);
+            notifications.add(n);
+        }
+        
+        // Use batch insert logic for better performance since there can be many notifications
+        if (!notificationDao.insertNotifications(notifications))
+            throw new IllegalStateException("Failed to create notifications for announcement.");
+    }
+
+    @Override
+    public void broadcastNotification(com.school.model.BroadcastNotificationRequest request) {
+        if (request == null || request.getNotification() == null) {
+            throw new ValidationException("Broadcast request and notification cannot be null.");
+        }
+        
+        java.util.Set<Long> targetUserIds = new java.util.HashSet<>();
+        com.school.dao.interfaces.UserDao userDao = new com.school.dao.impl.UserDaoImpl();
+
+        if (request.isGlobal()) {
+            java.util.List<com.school.model.User> allUsers = userDao.getAllUsers();
+            for (com.school.model.User u : allUsers) {
+                targetUserIds.add(u.getUserId());
+            }
+        } else if (request.getTargetRoleIds() != null && !request.getTargetRoleIds().isEmpty()) {
+            for (Integer roleId : request.getTargetRoleIds()) {
+                java.util.List<com.school.model.User> users = userDao.getUsersByRole(roleId);
+                for (com.school.model.User u : users) {
+                    targetUserIds.add(u.getUserId());
+                }
+            }
+        } else {
+            throw new ValidationException("Broadcast must target global or at least one role.");
+        }
+
+        if (targetUserIds.isEmpty()) return;
+
+        java.util.List<Notification> notifications = new java.util.ArrayList<>();
+        Notification template = request.getNotification();
+        LocalDateTime now = LocalDateTime.now();
+
+        for (Long userId : targetUserIds) {
+            Notification n = new Notification();
+            n.setUserId(userId);
+            n.setNotificationType(template.getNotificationType());
+            n.setTitle(template.getTitle());
+            n.setMessage(template.getMessage());
+            n.setReferenceTable(template.getReferenceTable());
+            n.setReferenceId(template.getReferenceId());
+            n.setRead(false);
+            n.setCreatedAt(now);
+            notifications.add(n);
+        }
+
+        if (!notificationDao.insertNotifications(notifications))
+            throw new IllegalStateException("Failed to broadcast notifications.");
+    }
+
+    @Override
     public Notification getNotificationById(long notificationId) {
         validateId(notificationId);
         Notification notification = notificationDao.getNotificationById(notificationId);

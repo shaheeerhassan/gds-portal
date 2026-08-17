@@ -7,6 +7,7 @@ import com.school.service.interfaces.AnnouncementService;
 import com.school.web.auth.AuthContext;
 import com.school.web.auth.RoleGuard;
 
+import jakarta.servlet.Registration;
 import jakarta.servlet.annotation.WebServlet;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
@@ -69,7 +70,8 @@ public class AnnouncementController extends BaseServlet {
 
     @Override
     protected void doPost(HttpServletRequest req, HttpServletResponse resp) throws IOException {
-        RoleGuard.requireRole(req, ROLE_ADMIN, ROLE_PRINCIPAL);
+        RoleGuard.requireRole(req, ROLE_ADMIN, ROLE_PRINCIPAL, ROLE_TEACHER);
+
         Announcement announcement = readBody(req, Announcement.class);
         if (announcement == null)
             throw new ValidationException("Request body is required.");
@@ -77,7 +79,8 @@ public class AnnouncementController extends BaseServlet {
             announcement.setCreatedBy(AuthContext.getUserId(req));
         if (announcement.getCreatedAt() == null)
             announcement.setCreatedAt(java.time.LocalDateTime.now());
-        writeJson(resp, announcementService.createAnnouncement(announcement), "Announcement created.");
+        boolean notify = "true".equalsIgnoreCase(req.getParameter("notify"));
+        writeJson(resp, announcementService.createAnnouncement(announcement, notify), "Announcement created.");
     }
 
     @Override

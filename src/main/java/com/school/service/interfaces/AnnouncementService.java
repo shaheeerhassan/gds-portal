@@ -5,7 +5,7 @@ import com.school.model.Announcement;
 import java.util.List;
 
 public interface AnnouncementService {
-    Announcement createAnnouncement(Announcement announcement);
+    Announcement createAnnouncement(Announcement announcement, boolean notify);
     Announcement getAnnouncementById(long announcementId);
     List<Announcement> getAllActiveAnnouncements();
     List<Announcement> getAnnouncementsByTargetRole(int roleId);
