@@ -28,6 +28,7 @@ data class AnnouncementCreateEditUiState(
 
     val title: String = "",
     val content: String = "",
+    val notify: Boolean = false,
     
     val targetType: AnnouncementTargetType = AnnouncementTargetType.GLOBAL,
 
@@ -134,6 +135,10 @@ class AnnouncementCreateEditViewModel(
         _uiState.value = _uiState.value.copy(content = content)
     }
 
+    fun onNotifyChanged(notify: Boolean) {
+        _uiState.value = _uiState.value.copy(notify = notify)
+    }
+
     fun onTargetTypeChanged(type: AnnouncementTargetType) {
         _uiState.value = _uiState.value.copy(targetType = type)
     }
@@ -195,7 +200,7 @@ class AnnouncementCreateEditViewModel(
                         _uiState.value = _uiState.value.copy(isSubmitting = false, error = "Failed to update announcement.")
                     }
                 } else {
-                    val res = apiService.createAnnouncement(request)
+                    val res = apiService.createAnnouncement(request, notify = state.notify)
                     if (res.isSuccessful) {
                         val createdId = res.body()?.data?.announcementId
                         _uiState.value = _uiState.value.copy(isSubmitting = false, isSuccess = true, createdAnnouncementId = createdId)

@@ -101,60 +101,98 @@ fun NotificationCreateScreen(
                         label = { Text("Single Recipient") }
                     )
                     FilterChip(
-                        selected = uiState.recipientMode == NotificationRecipientMode.BULK_ROLE,
-                        onClick = { viewModel.onRecipientModeChanged(NotificationRecipientMode.BULK_ROLE) },
-                        label = { Text("Multiple (By Role)") }
+                        selected = uiState.recipientMode == NotificationRecipientMode.BROADCAST,
+                        onClick = { viewModel.onRecipientModeChanged(NotificationRecipientMode.BROADCAST) },
+                        label = { Text("Broadcast") }
                     )
                 }
 
                 Spacer(modifier = Modifier.height(16.dp))
 
-                // Role Filter / Selector
-                FilterDropdown(
-                    label = if (uiState.recipientMode == NotificationRecipientMode.SINGLE) "Filter by Role *" else "Select Target Role *",
-                    items = roles,
-                    selectedId = uiState.selectedRoleId,
-                    onSelect = { viewModel.onRoleSelected(it) }
-                )
-
-                if (uiState.isLoadingUsers) {
-                    Spacer(modifier = Modifier.height(8.dp))
-                    LinearProgressIndicator(modifier = Modifier.fillMaxWidth())
-                }
-
-                // If Single Recipient, show User Dropdown
-                if (uiState.recipientMode == NotificationRecipientMode.SINGLE && uiState.selectedRoleId != null) {
-                    Spacer(modifier = Modifier.height(16.dp))
-                    val userItems = uiState.users.map { user ->
-                        val name = user.username ?: "User #${user.userId}"
-                        user.userId.toInt() to (if (user.email.isNotBlank()) "$name (${user.email})" else name)
-                    }
+                if (uiState.recipientMode == NotificationRecipientMode.SINGLE) {
+                    // Role Filter / Selector
                     FilterDropdown(
-                        label = "Select Recipient *",
-                        items = userItems,
-                        selectedId = uiState.selectedUserId?.toInt(),
-                        onSelect = { viewModel.onUserSelected(it.toLong()) },
-                        enabled = uiState.users.isNotEmpty()
+                        label = "Filter by Role *",
+                        items = roles,
+                        selectedId = uiState.selectedRoleId,
+                        onSelect = { viewModel.onRoleSelected(it) }
                     )
-                    if (uiState.users.isEmpty() && !uiState.isLoadingUsers) {
-                        Spacer(modifier = Modifier.height(4.dp))
-                        Text(
-                            text = "No users found in this role.",
-                            style = MaterialTheme.typography.bodySmall,
-                            color = MaterialTheme.colorScheme.error
-                        )
+
+                    if (uiState.selectedRoleId != null) {
+                        Spacer(modifier = Modifier.height(16.dp))
+                        
+                        var searchDropdownExpanded by remember { mutableStateOf(false) }
+
+                        ExposedDropdownMenuBox(
+                            expanded = searchDropdownExpanded,
+                            onExpandedChange = { searchDropdownExpanded = it }
+                        ) {
+                            OutlinedTextField(
+                                value = uiState.searchQuery,
+                                onValueChange = { 
+                                    viewModel.onSearchQueryChanged(it)
+                                    searchDropdownExpanded = true
+                                },
+                                label = { Text("Search User by Name (min 2 chars) *") },
+                                trailingIcon = {
+                                    if (uiState.isLoadingUsers) {
+                                        CircularProgressIndicator(modifier = Modifier.size(20.dp), strokeWidth = 2.dp)
+                                    } else {
+                                        ExposedDropdownMenuDefaults.TrailingIcon(expanded = searchDropdownExpanded)
+                                    }
+                                },
+                                modifier = Modifier.fillMaxWidth().menuAnchor(),
+                                singleLine = true
+                            )
+                            if (uiState.searchResults.isNotEmpty()) {
+                                ExposedDropdownMenu(
+                                    expanded = searchDropdownExpanded,
+                                    onDismissRequest = { searchDropdownExpanded = false }
+                                ) {
+                                    uiState.searchResults.forEach { (userId, name) ->
+                                        DropdownMenuItem(
+                                            text = { Text(name) },
+                                            onClick = {
+                                                viewModel.onUserSelected(userId, name)
+                                                searchDropdownExpanded = false
+                                            }
+                                        )
+                                    }
+                                }
+                            }
+                        }
                     }
-                } else if (uiState.recipientMode == NotificationRecipientMode.BULK_ROLE && uiState.selectedRoleId != null && !uiState.isLoadingUsers) {
-                    Spacer(modifier = Modifier.height(8.dp))
-                    Card(
-                        modifier = Modifier.fillMaxWidth(),
-                        colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surfaceVariant)
+                } else {
+                    // Broadcast Mode
+                    Row(
+                        verticalAlignment = Alignment.CenterVertically,
+                        modifier = Modifier.fillMaxWidth()
                     ) {
-                        Text(
-                            text = "Will send to ${uiState.users.size} user(s) in selected role.",
-                            style = MaterialTheme.typography.bodyMedium,
-                            modifier = Modifier.padding(12.dp)
+                        Checkbox(
+                            checked = uiState.broadcastGlobal,
+                            onCheckedChange = { viewModel.onBroadcastGlobalChanged(it) }
                         )
+                        Text("Global (All Users)")
+                    }
+
+                    if (!uiState.broadcastGlobal) {
+                        Spacer(modifier = Modifier.height(8.dp))
+                        Text("Or select specific roles:", style = MaterialTheme.typography.bodyMedium)
+                        Spacer(modifier = Modifier.height(4.dp))
+                        Column {
+                            roles.forEach { (roleId, roleName) ->
+                                Row(
+                                    verticalAlignment = Alignment.CenterVertically,
+                                    modifier = Modifier.fillMaxWidth().clickable { viewModel.onBroadcastRoleToggled(roleId) }
+                                ) {
+                                    Checkbox(
+                                        checked = uiState.broadcastSelectedRoleIds.contains(roleId),
+                                        onCheckedChange = { viewModel.onBroadcastRoleToggled(roleId) }
+                                    )
+                                    Text(roleName)
+                                }
+                            }
+                        }
                     }
                 }
 

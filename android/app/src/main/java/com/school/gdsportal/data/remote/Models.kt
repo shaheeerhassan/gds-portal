@@ -89,6 +89,12 @@ data class BulkNotificationsRequest(
     val notifications: List<Notification>
 )
 
+data class BroadcastNotificationRequest(
+    val global: Boolean,
+    val targetRoleIds: List<Int>?,
+    val notification: Notification
+)
+
 data class SchoolClass(
     val classId: Int,
     val className: String,

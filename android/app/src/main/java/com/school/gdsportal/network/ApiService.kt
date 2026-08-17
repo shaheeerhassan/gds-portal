@@ -156,6 +156,9 @@ interface ApiService {
     @GET("api/teachers/search/{term}")
     suspend fun searchTeachers(@Path("term") term: String): Response<ApiResponse<List<Teacher>>>
 
+    @GET("api/students/search/{term}")
+    suspend fun searchStudents(@Path("term") term: String): Response<ApiResponse<List<com.school.gdsportal.data.remote.Student>>>
+
     @GET("api/announcements/global")
     suspend fun getGlobalAnnouncements(): Response<ApiResponse<List<Announcement>>>
 
@@ -166,7 +169,10 @@ interface ApiService {
     suspend fun getAnnouncementById(@Path("id") id: Long): Response<ApiResponse<Announcement>>
 
     @POST("api/announcements/")
-    suspend fun createAnnouncement(@Body announcement: Announcement): Response<ApiResponse<Announcement>>
+    suspend fun createAnnouncement(
+        @Body announcement: Announcement,
+        @Query("notify") notify: Boolean = false
+    ): Response<ApiResponse<Announcement>>
 
     @PUT("api/announcements/{id}")
     suspend fun updateAnnouncement(@Path("id") id: Long, @Body announcement: Announcement): Response<ApiResponse<String>>
@@ -195,6 +201,9 @@ interface ApiService {
 
     @POST("api/notifications/bulk")
     suspend fun createBulkNotifications(@Body request: com.school.gdsportal.data.remote.BulkNotificationsRequest): Response<ApiResponse<Void>>
+
+    @POST("api/notifications/broadcast")
+    suspend fun broadcastNotification(@Body request: com.school.gdsportal.data.remote.BroadcastNotificationRequest): Response<ApiResponse<Void>>
 
     @PUT("api/notifications/read-all")
     suspend fun markAllNotificationsAsRead(): Response<ApiResponse<Void>>

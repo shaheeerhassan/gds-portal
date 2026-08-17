@@ -175,6 +175,20 @@ fun AnnouncementCreateEditScreen(
                         }
                     }
 
+                    if (!uiState.isEditMode) {
+                        Spacer(modifier = Modifier.height(16.dp))
+                        Row(
+                            verticalAlignment = Alignment.CenterVertically,
+                            modifier = Modifier.fillMaxWidth()
+                        ) {
+                            Checkbox(
+                                checked = uiState.notify,
+                                onCheckedChange = { viewModel.onNotifyChanged(it) }
+                            )
+                            Text("Send push/inbox alert to target audience")
+                        }
+                    }
+
                     Spacer(modifier = Modifier.height(32.dp))
 
                     Button(
