@@ -71,6 +71,24 @@ data class NotificationCountResponse(
     val count: Int
 )
 
+data class Notification(
+    val notificationId: Long = 0,
+    val userId: Long = 0,
+    val notificationType: String = "NEW_ANNOUNCEMENT",
+    val title: String = "",
+    val message: String = "",
+    val referenceTable: String? = null,
+    val referenceId: Long? = null,
+    @SerializedName(value = "isRead", alternate = ["read"])
+    val isRead: Boolean = false,
+    val createdAt: String? = null,
+    val readAt: String? = null
+)
+
+data class BulkNotificationsRequest(
+    val notifications: List<Notification>
+)
+
 data class SchoolClass(
     val classId: Int,
     val className: String,

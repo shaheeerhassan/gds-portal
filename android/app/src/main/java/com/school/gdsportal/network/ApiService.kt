@@ -174,8 +174,46 @@ interface ApiService {
     @PUT("api/announcements/disable/{id}")
     suspend fun disableAnnouncement(@Path("id") id: Long): Response<ApiResponse<String>>
 
+    // Notifications
     @GET("api/notifications/me/unread-count")
     suspend fun getUnreadNotificationCount(): Response<ApiResponse<Int>>
+
+    @GET("api/notifications/me/unread")
+    suspend fun getUnreadNotifications(): Response<ApiResponse<List<com.school.gdsportal.data.remote.Notification>>>
+
+    @GET("api/notifications/me")
+    suspend fun getMyNotifications(
+        @Query("limit") limit: Int? = null,
+        @Query("offset") offset: Int? = null
+    ): Response<ApiResponse<List<com.school.gdsportal.data.remote.Notification>>>
+
+    @GET("api/notifications/id/{notificationId}")
+    suspend fun getNotificationById(@Path("notificationId") notificationId: Long): Response<ApiResponse<com.school.gdsportal.data.remote.Notification>>
+
+    @POST("api/notifications/")
+    suspend fun createNotification(@Body notification: com.school.gdsportal.data.remote.Notification): Response<ApiResponse<com.school.gdsportal.data.remote.Notification>>
+
+    @POST("api/notifications/bulk")
+    suspend fun createBulkNotifications(@Body request: com.school.gdsportal.data.remote.BulkNotificationsRequest): Response<ApiResponse<Void>>
+
+    @PUT("api/notifications/read-all")
+    suspend fun markAllNotificationsAsRead(): Response<ApiResponse<Void>>
+
+    @PUT("api/notifications/read/{notificationId}")
+    suspend fun markNotificationAsRead(@Path("notificationId") notificationId: Long): Response<ApiResponse<Void>>
+
+    @DELETE("api/notifications/me/all")
+    suspend fun deleteAllMyNotifications(): Response<ApiResponse<Void>>
+
+    @DELETE("api/notifications/{notificationId}")
+    suspend fun deleteNotificationById(@Path("notificationId") notificationId: Long): Response<ApiResponse<Void>>
+
+    // Users
+    @GET("api/users/")
+    suspend fun getAllUsers(): Response<ApiResponse<List<User>>>
+
+    @GET("api/users/role/{roleId}")
+    suspend fun getUsersByRole(@Path("roleId") roleId: Int): Response<ApiResponse<List<User>>>
 
     @GET("api/classes/count")
     suspend fun getClassesCount(): Response<ApiResponse<Int>>

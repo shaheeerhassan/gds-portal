@@ -1487,6 +1487,43 @@ fun AdminAppWrapper(
                 onSuccess = { navController.navigateUp() }
             )
         }
+
+        composable("notifications") {
+            val viewModel: com.school.gdsportal.ui.admin.communication.notifications.NotificationsDirectoryViewModel = androidx.lifecycle.viewmodel.compose.viewModel(
+                factory = com.school.gdsportal.ui.admin.communication.notifications.NotificationsDirectoryViewModel.Factory(appContainer.apiService)
+            )
+            com.school.gdsportal.ui.admin.communication.notifications.NotificationsDirectoryScreen(
+                viewModel = viewModel,
+                onBackClick = { navController.navigateUp() },
+                onCreateClick = { navController.navigate("notifications/create") },
+                onNotificationClick = { id -> navController.navigate("notifications/$id") }
+            )
+        }
+
+        composable("notifications/create") {
+            val viewModel: com.school.gdsportal.ui.admin.communication.notifications.NotificationCreateViewModel = androidx.lifecycle.viewmodel.compose.viewModel(
+                factory = com.school.gdsportal.ui.admin.communication.notifications.NotificationCreateViewModel.Factory(appContainer.apiService)
+            )
+            com.school.gdsportal.ui.admin.communication.notifications.NotificationCreateScreen(
+                viewModel = viewModel,
+                onBackClick = { navController.navigateUp() },
+                onSuccess = { navController.navigateUp() }
+            )
+        }
+
+        composable(
+            route = "notifications/{notificationId}",
+            arguments = listOf(navArgument("notificationId") { type = NavType.LongType })
+        ) { backStackEntry ->
+            val id = backStackEntry.arguments?.getLong("notificationId") ?: return@composable
+            val viewModel: com.school.gdsportal.ui.admin.communication.notifications.NotificationDetailViewModel = androidx.lifecycle.viewmodel.compose.viewModel(
+                factory = com.school.gdsportal.ui.admin.communication.notifications.NotificationDetailViewModel.Factory(appContainer.apiService, id)
+            )
+            com.school.gdsportal.ui.admin.communication.notifications.NotificationDetailScreen(
+                viewModel = viewModel,
+                onBackClick = { navController.navigateUp() }
+            )
+        }
         }
     }
 }

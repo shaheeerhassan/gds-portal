@@ -91,7 +91,7 @@ fun CommunicationLandingScreen(onBack: () -> Unit, onNavigate: (String) -> Unit)
         description = "School communication",
         rows = listOf(
             NavigationRowData("Announcements", "announcements", isImplemented = true),
-            NavigationRowData("Notifications", "admin_notifications", isImplemented = false)
+            NavigationRowData("Notifications", "notifications", isImplemented = true)
         ),
         onBackClick = onBack,
         onRowClick = onNavigate
