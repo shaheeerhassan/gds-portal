@@ -1340,6 +1340,33 @@ fun AdminAppWrapper(
                 )
             }
 
+            composable("reports/teacher-performance") {
+                val viewModel: com.school.gdsportal.ui.admin.reports.teacherperformance.TeacherPerformanceReportSelectorViewModel = androidx.lifecycle.viewmodel.compose.viewModel(
+                    factory = com.school.gdsportal.ui.admin.reports.teacherperformance.TeacherPerformanceReportSelectorViewModel.Factory(appContainer.apiService)
+                )
+                com.school.gdsportal.ui.admin.reports.teacherperformance.TeacherPerformanceReportSelectorScreen(
+                    viewModel = viewModel,
+                    onBackClick = { navController.navigateUp() },
+                    onGenerateReportClick = { teacherId, academicYearId ->
+                        navController.navigate("reports/teacher-performance/$teacherId/$academicYearId")
+                    }
+                )
+            }
+
+            composable("reports/teacher-performance/{teacherId}/{academicYearId}") { backStackEntry ->
+                val teacherId = backStackEntry.arguments?.getString("teacherId")?.toLongOrNull() ?: 0L
+                val academicYearId = backStackEntry.arguments?.getString("academicYearId")?.toIntOrNull() ?: 0
+                val viewModel: com.school.gdsportal.ui.admin.reports.teacherperformance.TeacherPerformanceReportViewModel = androidx.lifecycle.viewmodel.compose.viewModel(
+                    factory = com.school.gdsportal.ui.admin.reports.teacherperformance.TeacherPerformanceReportViewModel.Factory(
+                        appContainer.apiService, teacherId, academicYearId
+                    )
+                )
+                com.school.gdsportal.ui.admin.reports.teacherperformance.TeacherPerformanceReportScreen(
+                    viewModel = viewModel,
+                    onBackClick = { navController.navigateUp() }
+                )
+            }
+
             composable("admin_profile_landing") {
                 ProfileLandingScreen(
                     onBack = { navController.navigateUp() },

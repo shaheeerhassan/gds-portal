@@ -489,4 +489,10 @@ interface ApiService {
         @Path("month") month: Int,
         @Path("year") year: Int
     ): Response<ApiResponse<com.school.gdsportal.data.remote.dto.ClassAttendanceReportData>>
+
+    @GET("api/reports/teacher-performance/{teacherId}/{academicYearId}")
+    suspend fun getTeacherPerformanceReport(
+        @Path("teacherId") teacherId: Long,
+        @Path("academicYearId") academicYearId: Int
+    ): Response<ApiResponse<com.school.gdsportal.data.remote.dto.TeacherPerformanceReportData>>
 }
