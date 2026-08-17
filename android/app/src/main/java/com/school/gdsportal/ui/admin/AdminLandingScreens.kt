@@ -109,7 +109,7 @@ fun ReportsLandingScreen(onBack: () -> Unit, onNavigate: (String) -> Unit) {
             NavigationRowData("Class Attendance", "reports/class-attendance", isImplemented = true),
             NavigationRowData("Teacher Performance", "reports/teacher-performance", isImplemented = true),
             NavigationRowData("Examination Report", "reports/examination", isImplemented = true),
-            NavigationRowData("Student Attendance Summary", "reports/student-attendance-summary", isImplemented = false)
+            NavigationRowData("Student Attendance Summary", "reports/student-attendance-summary", isImplemented = true)
         ),
         onBackClick = onBack,
         onRowClick = onNavigate

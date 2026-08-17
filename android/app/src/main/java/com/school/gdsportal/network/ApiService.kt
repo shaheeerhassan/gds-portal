@@ -500,4 +500,10 @@ interface ApiService {
     suspend fun getExaminationReport(
         @Path("examinationId") examinationId: Long
     ): Response<ApiResponse<com.school.gdsportal.data.remote.dto.ExaminationReportData>>
+
+    @GET("api/reports/student-attendance-summary/{studentId}/{academicYearId}")
+    suspend fun getStudentAttendanceSummary(
+        @Path("studentId") studentId: Long,
+        @Path("academicYearId") academicYearId: Int
+    ): Response<ApiResponse<com.school.gdsportal.data.remote.dto.StudentAttendanceSummaryData>>
 }

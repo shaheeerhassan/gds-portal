@@ -1393,6 +1393,37 @@ fun AdminAppWrapper(
                 )
             }
 
+            composable("reports/student-attendance-summary") {
+                val viewModel: com.school.gdsportal.ui.admin.reports.studentattendancesummary.StudentAttendanceSummarySelectionViewModel = androidx.lifecycle.viewmodel.compose.viewModel(
+                    factory = com.school.gdsportal.ui.admin.reports.studentattendancesummary.StudentAttendanceSummarySelectionViewModel.Factory(appContainer.apiService)
+                )
+                com.school.gdsportal.ui.admin.reports.studentattendancesummary.StudentAttendanceSummarySelectionScreen(
+                    viewModel = viewModel,
+                    onBackClick = { navController.navigateUp() },
+                    onGenerateReportClick = { studentId, academicYearId, studentName, regNum ->
+                        navController.navigate("reports/student-attendance-summary/$studentId/$academicYearId/${android.net.Uri.encode(studentName)}/${android.net.Uri.encode(regNum)}")
+                    }
+                )
+            }
+
+            composable("reports/student-attendance-summary/{studentId}/{academicYearId}/{studentName}/{regNum}") { backStackEntry ->
+                val studentId = backStackEntry.arguments?.getString("studentId")?.toLongOrNull() ?: 0L
+                val academicYearId = backStackEntry.arguments?.getString("academicYearId")?.toIntOrNull() ?: 0
+                val studentName = android.net.Uri.decode(backStackEntry.arguments?.getString("studentName") ?: "")
+                val regNum = android.net.Uri.decode(backStackEntry.arguments?.getString("regNum") ?: "")
+                val viewModel: com.school.gdsportal.ui.admin.reports.studentattendancesummary.StudentAttendanceSummaryViewModel = androidx.lifecycle.viewmodel.compose.viewModel(
+                    factory = com.school.gdsportal.ui.admin.reports.studentattendancesummary.StudentAttendanceSummaryViewModel.Factory(
+                        appContainer.apiService, studentId, academicYearId
+                    )
+                )
+                com.school.gdsportal.ui.admin.reports.studentattendancesummary.StudentAttendanceSummaryScreen(
+                    viewModel = viewModel,
+                    studentName = studentName,
+                    regNum = regNum,
+                    onBackClick = { navController.navigateUp() }
+                )
+            }
+
             composable("admin_profile_landing") {
                 ProfileLandingScreen(
                     onBack = { navController.navigateUp() },
