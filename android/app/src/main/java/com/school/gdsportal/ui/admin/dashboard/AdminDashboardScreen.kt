@@ -338,7 +338,7 @@ fun AnnouncementRow(announcement: Announcement) {
                 modifier = Modifier.weight(1f)
             )
             Text(
-                text = formatDate(announcement.createdAt),
+                text = formatDate(announcement.createdAt ?: ""),
                 style = MaterialTheme.typography.labelMedium,
                 color = MaterialTheme.colorScheme.secondary,
                 modifier = Modifier.padding(start = 8.dp)

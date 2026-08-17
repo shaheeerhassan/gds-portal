@@ -32,12 +32,17 @@ data class AcademicYear(
 )
 
 data class Announcement(
-    val id: Int,
+    val announcementId: Long = 0,
     val title: String,
     val content: String,
-    val createdAt: String,
-    val targetRole: String? = null,
-    val active: Boolean = true
+    val createdBy: Long = 0,
+    val targetRoleId: Int? = null,
+    val classId: Int? = null,
+    val sectionId: Int? = null,
+    @SerializedName(value = "isActive", alternate = ["active"])
+    val isActive: Boolean = true,
+    val createdAt: String? = null,
+    val updatedAt: String? = null
 )
 
 data class TeacherAttendance(

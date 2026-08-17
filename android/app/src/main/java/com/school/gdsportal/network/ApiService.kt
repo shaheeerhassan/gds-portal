@@ -159,6 +159,21 @@ interface ApiService {
     @GET("api/announcements/global")
     suspend fun getGlobalAnnouncements(): Response<ApiResponse<List<Announcement>>>
 
+    @GET("api/announcements/")
+    suspend fun getAnnouncements(): Response<ApiResponse<List<Announcement>>>
+
+    @GET("api/announcements/id/{id}")
+    suspend fun getAnnouncementById(@Path("id") id: Long): Response<ApiResponse<Announcement>>
+
+    @POST("api/announcements/")
+    suspend fun createAnnouncement(@Body announcement: Announcement): Response<ApiResponse<Announcement>>
+
+    @PUT("api/announcements/{id}")
+    suspend fun updateAnnouncement(@Path("id") id: Long, @Body announcement: Announcement): Response<ApiResponse<String>>
+
+    @PUT("api/announcements/disable/{id}")
+    suspend fun disableAnnouncement(@Path("id") id: Long): Response<ApiResponse<String>>
+
     @GET("api/notifications/me/unread-count")
     suspend fun getUnreadNotificationCount(): Response<ApiResponse<Int>>
 

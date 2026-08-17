@@ -1242,7 +1242,7 @@ fun AdminAppWrapper(
             composable("admin_communication_landing") {
                 CommunicationLandingScreen(
                     onBack = { navController.navigateUp() },
-                    onNavigate = { /* TODO Phase 2 */ }
+                    onNavigate = { route -> navController.navigate(route) }
                 )
             }
 
@@ -1431,6 +1431,62 @@ fun AdminAppWrapper(
                     onLogout = onLogout
                 )
             }
+
+            composable("announcements") {
+            val viewModel: com.school.gdsportal.ui.admin.communication.announcements.AnnouncementDirectoryViewModel = androidx.lifecycle.viewmodel.compose.viewModel(
+                factory = com.school.gdsportal.ui.admin.communication.announcements.AnnouncementDirectoryViewModel.Factory(appContainer.apiService)
+            )
+            com.school.gdsportal.ui.admin.communication.announcements.AnnouncementDirectoryScreen(
+                viewModel = viewModel,
+                onBackClick = { navController.navigateUp() },
+                onCreateClick = { navController.navigate("announcements/create") },
+                onAnnouncementClick = { id -> navController.navigate("announcements/$id") }
+            )
+        }
+
+        composable("announcements/create") {
+            val viewModel: com.school.gdsportal.ui.admin.communication.announcements.AnnouncementCreateEditViewModel = androidx.lifecycle.viewmodel.compose.viewModel(
+                factory = com.school.gdsportal.ui.admin.communication.announcements.AnnouncementCreateEditViewModel.Factory(appContainer.apiService, null)
+            )
+            com.school.gdsportal.ui.admin.communication.announcements.AnnouncementCreateEditScreen(
+                viewModel = viewModel,
+                onBackClick = { navController.navigateUp() },
+                onSuccess = { id -> 
+                    navController.popBackStack()
+                    if (id != null) navController.navigate("announcements/$id")
+                }
+            )
+        }
+
+        composable(
+            route = "announcements/{announcementId}",
+            arguments = listOf(navArgument("announcementId") { type = NavType.LongType })
+        ) { backStackEntry ->
+            val id = backStackEntry.arguments?.getLong("announcementId") ?: return@composable
+            val viewModel: com.school.gdsportal.ui.admin.communication.announcements.AnnouncementDetailViewModel = androidx.lifecycle.viewmodel.compose.viewModel(
+                factory = com.school.gdsportal.ui.admin.communication.announcements.AnnouncementDetailViewModel.Factory(appContainer.apiService, id)
+            )
+            com.school.gdsportal.ui.admin.communication.announcements.AnnouncementDetailScreen(
+                viewModel = viewModel,
+                onBackClick = { navController.navigateUp() },
+                onEditClick = { navController.navigate("announcements/$id/edit") }
+            )
+        }
+
+        composable(
+            route = "announcements/{announcementId}/edit",
+            arguments = listOf(navArgument("announcementId") { type = NavType.LongType })
+        ) { backStackEntry ->
+            val id = backStackEntry.arguments?.getLong("announcementId") ?: return@composable
+            val viewModel: com.school.gdsportal.ui.admin.communication.announcements.AnnouncementCreateEditViewModel = androidx.lifecycle.viewmodel.compose.viewModel(
+                factory = com.school.gdsportal.ui.admin.communication.announcements.AnnouncementCreateEditViewModel.Factory(appContainer.apiService, id)
+            )
+            com.school.gdsportal.ui.admin.communication.announcements.AnnouncementCreateEditScreen(
+                viewModel = viewModel,
+                onBackClick = { navController.navigateUp() },
+                onSuccess = { navController.navigateUp() }
+            )
+        }
         }
     }
 }
