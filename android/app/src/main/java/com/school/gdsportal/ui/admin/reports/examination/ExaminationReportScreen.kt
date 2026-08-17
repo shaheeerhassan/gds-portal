@@ -1,4 +1,4 @@
-package com.school.gdsportal.ui.admin.reports.teacherperformance
+package com.school.gdsportal.ui.admin.reports.examination
 
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
@@ -14,8 +14,8 @@ import androidx.compose.ui.unit.dp
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun TeacherPerformanceReportScreen(
-    viewModel: TeacherPerformanceReportViewModel,
+fun ExaminationReportScreen(
+    viewModel: ExaminationReportViewModel,
     onBackClick: () -> Unit
 ) {
     val uiState by viewModel.uiState.collectAsState()
@@ -44,7 +44,7 @@ fun TeacherPerformanceReportScreen(
     Scaffold(
         topBar = {
             TopAppBar(
-                title = { Text("Teacher Performance") },
+                title = { Text("Examination Report") },
                 navigationIcon = {
                     IconButton(onClick = onBackClick) {
                         Icon(Icons.AutoMirrored.Filled.ArrowBack, contentDescription = "Back")
@@ -66,12 +66,17 @@ fun TeacherPerformanceReportScreen(
                     CircularProgressIndicator()
                     Spacer(modifier = Modifier.height(16.dp))
                     Text(
-                        text = "Generating teacher performance report...",
+                        text = "Generating examination report...",
                         color = MaterialTheme.colorScheme.onSurfaceVariant
                     )
                 }
             } else if (uiState.reportData != null) {
                 val data = uiState.reportData!!
+                
+                // Get header info from first result if exists
+                val examName = data.results.firstOrNull()?.exam_name ?: "Examination"
+                val subjectName = data.results.firstOrNull()?.subject_name ?: ""
+
                 LazyColumn(
                     modifier = Modifier.fillMaxSize(),
                     contentPadding = PaddingValues(16.dp),
@@ -80,16 +85,18 @@ fun TeacherPerformanceReportScreen(
                     item {
                         Column {
                             Text(
-                                text = uiState.teacherName,
+                                text = examName,
                                 style = MaterialTheme.typography.headlineSmall,
                                 fontWeight = FontWeight.Bold
                             )
-                            Spacer(modifier = Modifier.height(4.dp))
-                            Text(
-                                text = "Academic Year: ${uiState.academicYearName}",
-                                style = MaterialTheme.typography.bodyMedium,
-                                color = MaterialTheme.colorScheme.onSurfaceVariant
-                            )
+                            if (subjectName.isNotEmpty()) {
+                                Spacer(modifier = Modifier.height(4.dp))
+                                Text(
+                                    text = subjectName,
+                                    style = MaterialTheme.typography.bodyMedium,
+                                    color = MaterialTheme.colorScheme.onSurfaceVariant
+                                )
+                            }
                         }
                     }
 
@@ -112,8 +119,9 @@ fun TeacherPerformanceReportScreen(
                                     modifier = Modifier.fillMaxWidth(),
                                     horizontalArrangement = Arrangement.SpaceBetween
                                 ) {
-                                    SummaryItem("TOTAL ASSIGNMENTS", data.total_assignments.toString())
-                                    SummaryItem("TOTAL SUBMISSIONS", data.total_submissions.toString())
+                                    SummaryItem("TOTAL STUDENTS", data.total_students.toString())
+                                    SummaryItem("PASSED", data.passed_students.toString())
+                                    SummaryItem("PASS %", data.pass_percentage?.let { "$it%" } ?: "—")
                                 }
                                 Spacer(modifier = Modifier.height(16.dp))
                                 HorizontalDivider()
@@ -122,23 +130,24 @@ fun TeacherPerformanceReportScreen(
                                     modifier = Modifier.fillMaxWidth(),
                                     horizontalArrangement = Arrangement.SpaceBetween
                                 ) {
-                                    SummaryItem("GRADED", data.graded_assignments.toString())
-                                    SummaryItem("PENDING", data.pending_submissions_total.toString())
+                                    SummaryItem("AVERAGE MARKS", data.average_marks?.toString() ?: "—")
+                                    SummaryItem("HIGHEST MARKS", data.highest_marks?.toString() ?: "—")
                                 }
                                 Spacer(modifier = Modifier.height(16.dp))
-                                HorizontalDivider()
-                                Spacer(modifier = Modifier.height(16.dp))
-                                SummaryItem(
-                                    label = "OVERALL AVERAGE MARKS",
-                                    value = data.overall_average_marks?.toString() ?: "—"
-                                )
+                                Row(
+                                    modifier = Modifier.fillMaxWidth(),
+                                    horizontalArrangement = Arrangement.SpaceBetween
+                                ) {
+                                    SummaryItem("LOWEST MARKS", data.lowest_marks?.toString() ?: "—")
+                                    SummaryItem("PASSING MARKS", data.passing_marks.toString())
+                                }
                             }
                         }
                     }
 
                     item {
                         Text(
-                            text = "ASSIGNMENT PERFORMANCE",
+                            text = "STUDENT RESULTS",
                             style = MaterialTheme.typography.labelLarge,
                             fontWeight = FontWeight.Bold,
                             color = MaterialTheme.colorScheme.primary,
@@ -148,12 +157,24 @@ fun TeacherPerformanceReportScreen(
 
                     if (data.results.isEmpty()) {
                         item {
-                            Text(
-                                text = "No assignment performance records found for this teacher and academic year.",
-                                style = MaterialTheme.typography.bodyLarge,
-                                color = MaterialTheme.colorScheme.onSurfaceVariant,
-                                modifier = Modifier.padding(vertical = 32.dp)
-                            )
+                            Column(
+                                modifier = Modifier
+                                    .fillMaxWidth()
+                                    .padding(vertical = 32.dp),
+                                horizontalAlignment = Alignment.CenterHorizontally
+                            ) {
+                                Text(
+                                    text = "No results available",
+                                    style = MaterialTheme.typography.titleMedium,
+                                    fontWeight = FontWeight.Bold
+                                )
+                                Spacer(modifier = Modifier.height(8.dp))
+                                Text(
+                                    text = "No student marks or results are available for this examination.",
+                                    style = MaterialTheme.typography.bodyMedium,
+                                    color = MaterialTheme.colorScheme.onSurfaceVariant
+                                )
+                            }
                         }
                     } else {
                         items(data.results) { record ->
@@ -164,46 +185,55 @@ fun TeacherPerformanceReportScreen(
                                 Column(
                                     modifier = Modifier.padding(16.dp)
                                 ) {
+                                    Text(
+                                        text = record.student_name,
+                                        style = MaterialTheme.typography.titleMedium,
+                                        fontWeight = FontWeight.Bold
+                                    )
+                                    Spacer(modifier = Modifier.height(8.dp))
+                                    
                                     Row(
                                         modifier = Modifier.fillMaxWidth(),
-                                        horizontalArrangement = Arrangement.SpaceBetween,
-                                        verticalAlignment = Alignment.CenterVertically
+                                        horizontalArrangement = Arrangement.SpaceBetween
+                                    ) {
+                                        Column {
+                                            Text(
+                                                text = "Marks",
+                                                style = MaterialTheme.typography.bodySmall,
+                                                color = MaterialTheme.colorScheme.onSurfaceVariant
+                                            )
+                                            val obtained = record.marks_obtained?.toString() ?: "—"
+                                            Text(
+                                                text = "$obtained / ${record.max_marks}",
+                                                style = MaterialTheme.typography.bodyMedium,
+                                                fontWeight = FontWeight.Medium
+                                            )
+                                        }
+                                        Column(horizontalAlignment = Alignment.End) {
+                                            Text(
+                                                text = "Grade",
+                                                style = MaterialTheme.typography.bodySmall,
+                                                color = MaterialTheme.colorScheme.onSurfaceVariant
+                                            )
+                                            Text(
+                                                text = record.grade ?: "—",
+                                                style = MaterialTheme.typography.bodyMedium,
+                                                fontWeight = FontWeight.Bold
+                                            )
+                                        }
+                                    }
+                                    Spacer(modifier = Modifier.height(8.dp))
+                                    Row(
+                                        modifier = Modifier.fillMaxWidth(),
+                                        horizontalArrangement = Arrangement.End
                                     ) {
                                         Text(
-                                            text = record.assignment_title,
-                                            style = MaterialTheme.typography.titleMedium,
+                                            text = record.percentage?.let { "$it%" } ?: "—",
+                                            style = MaterialTheme.typography.bodySmall,
+                                            color = MaterialTheme.colorScheme.primary,
                                             fontWeight = FontWeight.Bold
                                         )
                                     }
-                                    Spacer(modifier = Modifier.height(8.dp))
-                                    
-                                    val sectionName = uiState.sectionLookup[record.section_id] ?: "Section"
-                                    
-                                    Text(
-                                        text = "${record.subject_name} • $sectionName",
-                                        style = MaterialTheme.typography.bodyMedium,
-                                        color = MaterialTheme.colorScheme.onSurfaceVariant,
-                                        fontWeight = FontWeight.Medium
-                                    )
-                                    Spacer(modifier = Modifier.height(12.dp))
-                                    
-                                    Text(
-                                        text = "Submissions: ${record.total_submissions}",
-                                        style = MaterialTheme.typography.bodySmall,
-                                        color = MaterialTheme.colorScheme.onSurface
-                                    )
-                                    Spacer(modifier = Modifier.height(4.dp))
-                                    Text(
-                                        text = "Average Marks: ${record.average_marks?.toString() ?: "—"}",
-                                        style = MaterialTheme.typography.bodySmall,
-                                        color = MaterialTheme.colorScheme.onSurface
-                                    )
-                                    Spacer(modifier = Modifier.height(4.dp))
-                                    Text(
-                                        text = "Pending: ${record.pending_submissions}",
-                                        style = MaterialTheme.typography.bodySmall,
-                                        color = MaterialTheme.colorScheme.onSurface
-                                    )
                                 }
                             }
                         }

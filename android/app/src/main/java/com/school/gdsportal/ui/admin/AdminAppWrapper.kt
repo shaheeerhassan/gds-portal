@@ -1367,6 +1367,32 @@ fun AdminAppWrapper(
                 )
             }
 
+            composable("reports/examination") {
+                val viewModel: com.school.gdsportal.ui.admin.reports.examination.ExaminationReportSelectionViewModel = androidx.lifecycle.viewmodel.compose.viewModel(
+                    factory = com.school.gdsportal.ui.admin.reports.examination.ExaminationReportSelectionViewModel.Factory(appContainer.apiService)
+                )
+                com.school.gdsportal.ui.admin.reports.examination.ExaminationReportSelectionScreen(
+                    viewModel = viewModel,
+                    onBackClick = { navController.navigateUp() },
+                    onGenerateReportClick = { examinationId ->
+                        navController.navigate("reports/examination/$examinationId")
+                    }
+                )
+            }
+
+            composable("reports/examination/{examinationId}") { backStackEntry ->
+                val examinationId = backStackEntry.arguments?.getString("examinationId")?.toLongOrNull() ?: 0L
+                val viewModel: com.school.gdsportal.ui.admin.reports.examination.ExaminationReportViewModel = androidx.lifecycle.viewmodel.compose.viewModel(
+                    factory = com.school.gdsportal.ui.admin.reports.examination.ExaminationReportViewModel.Factory(
+                        appContainer.apiService, examinationId
+                    )
+                )
+                com.school.gdsportal.ui.admin.reports.examination.ExaminationReportScreen(
+                    viewModel = viewModel,
+                    onBackClick = { navController.navigateUp() }
+                )
+            }
+
             composable("admin_profile_landing") {
                 ProfileLandingScreen(
                     onBack = { navController.navigateUp() },
