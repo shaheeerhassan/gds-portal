@@ -1308,6 +1308,38 @@ fun AdminAppWrapper(
                 )
             }
 
+            composable("reports/class-attendance") {
+                val viewModel: com.school.gdsportal.ui.admin.reports.classattendance.ClassAttendanceReportSelectorViewModel = androidx.lifecycle.viewmodel.compose.viewModel(
+                    factory = com.school.gdsportal.ui.admin.reports.classattendance.ClassAttendanceReportSelectorViewModel.Factory(appContainer.apiService)
+                )
+                com.school.gdsportal.ui.admin.reports.classattendance.ClassAttendanceReportSelectorScreen(
+                    viewModel = viewModel,
+                    onBackClick = { navController.navigateUp() },
+                    onGenerateReportClick = { sectionId, month, year, classId, academicYearId ->
+                        navController.navigate("reports/class-attendance/$sectionId/$month/$year/$classId/$academicYearId")
+                    }
+                )
+            }
+
+            composable("reports/class-attendance/{sectionId}/{month}/{year}/{classId}/{academicYearId}") { backStackEntry ->
+                val sectionId = backStackEntry.arguments?.getString("sectionId")?.toIntOrNull() ?: 0
+                val month = backStackEntry.arguments?.getString("month")?.toIntOrNull() ?: 0
+                val year = backStackEntry.arguments?.getString("year")?.toIntOrNull() ?: 0
+                val classId = backStackEntry.arguments?.getString("classId")?.toIntOrNull() ?: 0
+                val academicYearId = backStackEntry.arguments?.getString("academicYearId")?.toIntOrNull() ?: 0
+                val viewModel: com.school.gdsportal.ui.admin.reports.classattendance.ClassAttendanceReportViewModel = androidx.lifecycle.viewmodel.compose.viewModel(
+                    factory = com.school.gdsportal.ui.admin.reports.classattendance.ClassAttendanceReportViewModel.Factory(
+                        appContainer.apiService, sectionId, month, year, classId, academicYearId
+                    )
+                )
+                com.school.gdsportal.ui.admin.reports.classattendance.ClassAttendanceReportScreen(
+                    viewModel = viewModel,
+                    month = month,
+                    year = year,
+                    onBackClick = { navController.navigateUp() }
+                )
+            }
+
             composable("admin_profile_landing") {
                 ProfileLandingScreen(
                     onBack = { navController.navigateUp() },

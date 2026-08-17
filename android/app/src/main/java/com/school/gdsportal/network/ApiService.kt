@@ -482,4 +482,11 @@ interface ApiService {
         @Path("month") month: Int,
         @Path("year") year: Int
     ): Response<ApiResponse<com.school.gdsportal.data.remote.dto.TeacherAttendanceReportData>>
+
+    @GET("api/reports/class-attendance/{sectionId}/{month}/{year}")
+    suspend fun getClassAttendanceReport(
+        @Path("sectionId") sectionId: Int,
+        @Path("month") month: Int,
+        @Path("year") year: Int
+    ): Response<ApiResponse<com.school.gdsportal.data.remote.dto.ClassAttendanceReportData>>
 }
