@@ -20,7 +20,7 @@ public class TeacherDaoImpl implements TeacherDao {
     private static final String SELECT_BY_EMPLOYEE_ID = "SELECT * FROM teachers WHERE employee_id = ?";
     private static final String SELECT_BY_EMAIL = "SELECT t.* FROM teachers t JOIN users u ON t.user_id = u.user_id WHERE u.email = ?";
     private static final String SELECT_ALL = "SELECT * FROM teachers WHERE is_active = TRUE ORDER BY teacher_id";
-    private static final String SELECT_BY_NAME_EMPID = "SELECT * FROM teachers WHERE first_name LIKE ? OR last_name LIKE ? OR employee_id LIKE ? ORDER BY teacher_id";
+    private static final String SELECT_BY_NAME_EMPID = "SELECT * FROM teachers WHERE first_name LIKE ? OR last_name LIKE ? OR employee_id LIKE ? OR CONCAT(first_name, ' ', last_name) LIKE ? ORDER BY teacher_id";
     private static final String SELECT_BY_SUBJECT = "SELECT DISTINCT t.* FROM teachers t JOIN teacher_subjects ts ON t.teacher_id = ts.teacher_id WHERE ts.subject_id = ? ORDER BY t.teacher_id";
     private static final String SELECT_BY_SECTION = "SELECT DISTINCT t.* FROM teachers t JOIN teacher_classes tc ON t.teacher_id = tc.teacher_id WHERE tc.section_id = ? AND tc.academic_year_id = ? ORDER BY t.teacher_id";
     private static final String SELECT_CLASS_TEACHERS = "SELECT t.*, s.* FROM teachers t JOIN class_teacher_assignments cta ON t.teacher_id = cta.teacher_id JOIN sections s ON cta.section_id = s.section_id WHERE cta.is_active = TRUE";
@@ -97,6 +97,7 @@ public class TeacherDaoImpl implements TeacherDao {
             ps.setString(1, pattern);
             ps.setString(2, pattern);
             ps.setString(3, pattern);
+            ps.setString(4, pattern);
 
             try (ResultSet resultSet = ps.executeQuery()) {
                 List<Teacher> teachers = new ArrayList<>();

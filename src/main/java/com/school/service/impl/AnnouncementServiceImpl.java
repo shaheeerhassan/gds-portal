@@ -5,6 +5,7 @@ import com.school.dao.interfaces.AnnouncementDao;
 import com.school.exceptions.ResourceNotFoundException;
 import com.school.model.Announcement;
 import com.school.service.interfaces.AnnouncementService;
+import com.school.web.auth.AuthContext;
 
 import java.util.List;
 
@@ -14,16 +15,23 @@ public class AnnouncementServiceImpl implements AnnouncementService {
 
     private final AnnouncementDao announcementDao;
 
+    private final com.school.service.interfaces.NotificationService notificationService;
+
     public AnnouncementServiceImpl() {
         announcementDao = new AnnouncementDaoImpl();
+        notificationService = new NotificationServiceImpl();
     }
 
     @Override
-    public Announcement createAnnouncement(Announcement announcement) {
+    public Announcement createAnnouncement(Announcement announcement, boolean notify) {
         validateAnnouncement(announcement);
-
+        announcement.setActive(true);
         if (!announcementDao.insertAnnouncement(announcement))
             throw new IllegalStateException("Failed to create announcement.");
+
+        if (notify) {
+            notificationService.generateNotificationsForAnnouncement(announcement);
+        }
 
         return announcement;
     }

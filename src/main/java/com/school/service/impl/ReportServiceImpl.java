@@ -2,13 +2,12 @@ package com.school.service.impl;
 
 import com.school.dao.impl.ReportDaoImpl;
 import com.school.dao.interfaces.ReportDao;
+import com.school.exceptions.ResourceNotFoundException;
 import com.school.exceptions.ValidationException;
+import com.school.model.Subject;
 import com.school.service.interfaces.ReportService;
 
-import java.util.ArrayList;
-import java.util.LinkedHashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 public class ReportServiceImpl implements ReportService {
 
@@ -27,28 +26,29 @@ public class ReportServiceImpl implements ReportService {
         validatePositive(academicYearId, "academicYearId");
 
         Map<String, Object> report = reportDao.getStudentPerformanceReport(studentId, academicYearId);
+        if (report == null) {
+            throw new ResourceNotFoundException("Student not found: " + studentId);
+        }
+
         List<Map<String, Object>> results = asList(report.get("results"));
+        Set<Object> subjects = new HashSet<>();
 
         double totalObtained = 0;
         double totalMax = 0;
-        int gradedRows = 0;
         for (Map<String, Object> row : results) {
             double obtained = toDouble(row.get("marks_obtained"));
             double max = toDouble(row.get("max_marks"));
             totalObtained += obtained;
             totalMax += max;
-            if (max > 0) {
-                row.put("percentage", round(obtained / max * 100));
-                gradedRows++;
-            }
+            row.put("percentage", max > 0 ? round(obtained / max * 100) : 0.0);
+            subjects.add(row.get("subject_name"));
         }
 
-        report.put("total_subjects", results.size());
+        report.put("total_exams", results.size());
         report.put("total_marks_obtained", round(totalObtained));
         report.put("total_max_marks", round(totalMax));
-        report.put("graded_subjects", gradedRows);
-        if (totalMax > 0)
-            report.put("overall_percentage", round(totalObtained / totalMax * 100));
+        report.put("total_subjects", subjects.size());
+        report.put("overall_percentage", totalMax > 0 ? round(totalObtained / totalMax * 100) : 0.0);
         return report;
     }
 
@@ -79,8 +79,10 @@ public class ReportServiceImpl implements ReportService {
         validateYear(year);
 
         List<Map<String, Object>> rows = reportDao.getClassAttendanceReport(sectionId, month, year);
+        if (rows == null) {
+            throw new ResourceNotFoundException("Section not found: " + sectionId);
+        }
 
-        Map<String, Object> summary = new LinkedHashMap<>();
         int present = 0, absent = 0, late = 0, leave = 0;
         for (Map<String, Object> row : rows) {
             switch (String.valueOf(row.get("status"))) {
@@ -92,18 +94,21 @@ public class ReportServiceImpl implements ReportService {
             }
         }
 
-        Map<String, Object> result = new LinkedHashMap<>();
-        result.put("section_id", sectionId);
-        result.put("month", month);
-        result.put("year", year);
-        result.put("results", rows);
+        Map<String, Object> summary = new LinkedHashMap<>();
         summary.put("present_records", present);
         summary.put("absent_records", absent);
         summary.put("late_records", late);
         summary.put("leave_records", leave);
         summary.put("total_records", rows.size());
-        if (!rows.isEmpty())
+        if (!rows.isEmpty()) {
             summary.put("attendance_rate", round(present * 100.0 / rows.size()));
+        }
+
+        Map<String, Object> result = new LinkedHashMap<>();
+        result.put("section_id", sectionId);
+        result.put("month", month);
+        result.put("year", year);
+        result.put("results", rows);
         result.put("summary", summary);
         return result;
     }
@@ -114,12 +119,16 @@ public class ReportServiceImpl implements ReportService {
         validatePositive(academicYearId, "academicYearId");
 
         Map<String, Object> report = reportDao.getTeacherPerformanceReport(teacherId, academicYearId);
+        if (report == null) {
+            throw new ResourceNotFoundException("Teacher not found: " + teacherId);
+        }
+
         List<Map<String, Object>> results = asList(report.get("results"));
 
         long totalAssignments = results.size();
         long totalSubmissions = 0;
         long pendingSubmissions = 0;
-        double averageSum = 0;
+        double averageSum = 0; // sum of per-assignment averages (see note on weighting above)
         int gradedAssignments = 0;
         for (Map<String, Object> row : results) {
             totalSubmissions += toLong(row.get("total_submissions"));
@@ -134,8 +143,9 @@ public class ReportServiceImpl implements ReportService {
         report.put("total_submissions", totalSubmissions);
         report.put("pending_submissions_total", pendingSubmissions);
         report.put("graded_assignments", gradedAssignments);
-        if (gradedAssignments > 0)
+        if (gradedAssignments > 0) {
             report.put("overall_average_marks", round(averageSum / gradedAssignments));
+        }
         return report;
     }
 
@@ -144,6 +154,10 @@ public class ReportServiceImpl implements ReportService {
         validatePositive(examinationId, "examinationId");
 
         List<Map<String, Object>> rows = reportDao.getExaminationReport(examinationId);
+
+        if (rows == null) {
+            throw new ResourceNotFoundException("Exam not found");
+        }
 
         Map<String, Object> result = new LinkedHashMap<>();
         result.put("examination_id", examinationId);
@@ -195,11 +209,9 @@ public class ReportServiceImpl implements ReportService {
         validatePositive(academicYearId, "academicYearId");
 
         Map<String, Object> summary = reportDao.getStudentAttendanceSummary(studentId, academicYearId);
-
-        int total = toInt(summary.get("total_days"));
-        int present = toInt(summary.get("present_days"));
-        if (total > 0)
-            summary.put("attendance_rate", round(present * 100.0 / total));
+        if (summary == null) {
+            throw new ResourceNotFoundException("Student or academic year not found");
+        }
         return summary;
     }
 

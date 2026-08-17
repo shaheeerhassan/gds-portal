@@ -67,6 +67,18 @@ public class NotificationController extends BaseServlet {
     protected void doPost(HttpServletRequest req, HttpServletResponse resp) throws IOException {
         String path = pathInfo(req);
 
+        if ("/broadcast".equals(path)) {
+            RoleGuard.requireRole(req, ROLE_ADMIN, ROLE_PRINCIPAL);
+            com.school.model.BroadcastNotificationRequest request = readBody(req, com.school.model.BroadcastNotificationRequest.class);
+            if (request == null || request.getNotification() == null)
+                throw new ValidationException("Broadcast notification request is required.");
+            if (request.getNotification().getCreatedAt() == null)
+                request.getNotification().setCreatedAt(LocalDateTime.now());
+            
+            notificationService.broadcastNotification(request);
+            writeStatusMessage(resp, "Broadcast notifications created.");
+            return;
+        }
         if ("/bulk".equals(path)) {
             RoleGuard.requireRole(req, ROLE_ADMIN, ROLE_PRINCIPAL);
             BulkNotificationsRequest request = readBody(req, BulkNotificationsRequest.class);
