@@ -131,8 +131,13 @@ fun AnnouncementCreateEditScreen(
 
                     when (uiState.targetType) {
                         AnnouncementTargetType.ROLE -> {
-                            // Dummy roles for now, or we could fetch them. In the portal we have constants.
-                            val roles = listOf(2 to "Principal", 3 to "Teacher", 4 to "Student", 5 to "Parent")
+                            val roles = listOf(
+                                1 to "Administrator",
+                                2 to "Principal",
+                                3 to "Teacher",
+                                4 to "Student",
+                                5 to "Parent"
+                            )
                             FilterDropdown(
                                 label = "Role",
                                 items = roles,
@@ -151,7 +156,11 @@ fun AnnouncementCreateEditScreen(
 
                             if (uiState.targetType == AnnouncementTargetType.SECTION) {
                                 Spacer(modifier = Modifier.height(16.dp))
-                                val sectionItems = uiState.sections.map { it.sectionId to it.sectionName }
+                                val selectedClass = uiState.classes.firstOrNull { it.classId == uiState.selectedClassId }
+                                val className = selectedClass?.className ?: ""
+                                val sectionItems = uiState.sections.map { 
+                                    it.sectionId to if (className.isNotBlank()) "$className - ${it.sectionName}" else it.sectionName 
+                                }
                                 FilterDropdown(
                                     label = "Section",
                                     items = sectionItems,

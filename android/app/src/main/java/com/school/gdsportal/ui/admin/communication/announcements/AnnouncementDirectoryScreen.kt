@@ -176,7 +176,16 @@ fun AnnouncementRow(announcement: Announcement, onClick: () -> Unit) {
                 }
                 
                 val targetText = when {
-                    announcement.targetRoleId != null -> "Role Audience"
+                    announcement.targetRoleId != null -> {
+                        when (announcement.targetRoleId) {
+                            1 -> "Role: Administrator"
+                            2 -> "Role: Principal"
+                            3 -> "Role: Teacher"
+                            4 -> "Role: Student"
+                            5 -> "Role: Parent"
+                            else -> "Role ID: ${announcement.targetRoleId}"
+                        }
+                    }
                     announcement.sectionId != null -> "Section Audience"
                     announcement.classId != null -> "Class Audience"
                     else -> "Global"

@@ -70,18 +70,31 @@ class AnnouncementDetailViewModel(
     private suspend fun resolveTargetName(announcement: Announcement): String {
         return when {
             announcement.targetRoleId != null -> {
-                // To keep it simple without N+1 requests, we can just say "Role ID: ${announcement.targetRoleId}"
-                // Or if we have a getRoles API we could call it. Since there isn't a direct API for one role,
-                // we'll just format it. A real system might have a roles endpoint.
-                "Role ID: ${announcement.targetRoleId}"
+                when (announcement.targetRoleId) {
+                    1 -> "Administrator"
+                    2 -> "Principal"
+                    3 -> "Teacher"
+                    4 -> "Student"
+                    5 -> "Parent"
+                    else -> "Role ID: ${announcement.targetRoleId}"
+                }
             }
             announcement.sectionId != null -> {
                 try {
-                    val res = apiService.getSectionById(announcement.sectionId)
-                    if (res.isSuccessful) {
-                        res.body()?.data?.sectionName ?: "Section ID: ${announcement.sectionId}"
+                    val secRes = apiService.getSectionById(announcement.sectionId)
+                    val section = if (secRes.isSuccessful) secRes.body()?.data else null
+                    val secName = section?.sectionName ?: "Section ${announcement.sectionId}"
+                    val classId = section?.classId ?: announcement.classId
+                    if (classId != null) {
+                        val clsRes = apiService.getClassById(classId)
+                        val clsName = if (clsRes.isSuccessful) clsRes.body()?.data?.className else null
+                        if (clsName != null) {
+                            "$clsName - $secName"
+                        } else {
+                            secName
+                        }
                     } else {
-                        "Section ID: ${announcement.sectionId}"
+                        secName
                     }
                 } catch (e: Exception) {
                     "Section ID: ${announcement.sectionId}"
@@ -99,7 +112,7 @@ class AnnouncementDetailViewModel(
                     "Class ID: ${announcement.classId}"
                 }
             }
-            else -> "Global"
+            else -> "Global (All)"
         }
     }
 
