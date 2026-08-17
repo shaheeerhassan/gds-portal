@@ -98,6 +98,17 @@ fun ExaminationReportSelectionScreen(
                         enabled = uiState.selectedClassId != null && uiState.sections.isNotEmpty()
                     )
 
+                    Spacer(modifier = Modifier.height(16.dp))
+
+                    val subjectItems = uiState.subjects.map { it.subjectId to it.subjectName }
+                    FilterDropdown(
+                        label = "Subject",
+                        items = subjectItems,
+                        selectedId = uiState.selectedSubjectId,
+                        onSelect = { viewModel.selectSubject(it) },
+                        enabled = uiState.selectedSectionId != null && uiState.subjects.isNotEmpty()
+                    )
+
                     Spacer(modifier = Modifier.height(24.dp))
 
                     Text(
@@ -107,7 +118,7 @@ fun ExaminationReportSelectionScreen(
                     )
                     Spacer(modifier = Modifier.height(8.dp))
 
-                    val examItems = uiState.examinations.map {
+                    val examItems = uiState.filteredExaminations.map {
                         it.examinationId.toInt() to "${it.examName} (${it.examDate})"
                     }
                     FilterDropdown(
@@ -115,7 +126,7 @@ fun ExaminationReportSelectionScreen(
                         items = examItems,
                         selectedId = uiState.selectedExaminationId?.toInt(),
                         onSelect = { viewModel.selectExamination(it.toLong()) },
-                        enabled = uiState.selectedSectionId != null && uiState.examinations.isNotEmpty()
+                        enabled = uiState.selectedSubjectId != null && uiState.filteredExaminations.isNotEmpty()
                     )
 
                     Spacer(modifier = Modifier.height(32.dp))

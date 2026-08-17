@@ -7,6 +7,7 @@ import com.school.gdsportal.data.remote.AcademicYear
 import com.school.gdsportal.data.remote.Examination
 import com.school.gdsportal.data.remote.SchoolClass
 import com.school.gdsportal.data.remote.Section
+import com.school.gdsportal.data.remote.Subject
 import com.school.gdsportal.network.ApiService
 import kotlinx.coroutines.async
 import kotlinx.coroutines.coroutineScope
@@ -28,7 +29,11 @@ data class ExaminationReportSelectionUiState(
     val sections: List<Section> = emptyList(),
     val selectedSectionId: Int? = null,
 
-    val examinations: List<Examination> = emptyList(),
+    val subjects: List<Subject> = emptyList(),
+    val selectedSubjectId: Int? = null,
+
+    val allExaminations: List<Examination> = emptyList(),
+    val filteredExaminations: List<Examination> = emptyList(),
     val selectedExaminationId: Long? = null
 )
 
@@ -83,8 +88,11 @@ class ExaminationReportSelectionViewModel(
             selectedClassId = null,
             selectedSectionId = null,
             sections = emptyList(),
+            selectedSubjectId = null,
+            subjects = emptyList(),
             selectedExaminationId = null,
-            examinations = emptyList()
+            allExaminations = emptyList(),
+            filteredExaminations = emptyList()
         )
     }
 
@@ -94,8 +102,11 @@ class ExaminationReportSelectionViewModel(
             selectedClassId = id,
             selectedSectionId = null,
             sections = emptyList(),
+            selectedSubjectId = null,
+            subjects = emptyList(),
             selectedExaminationId = null,
-            examinations = emptyList()
+            allExaminations = emptyList(),
+            filteredExaminations = emptyList()
         )
         val yearId = _uiState.value.selectedAcademicYearId
         if (id != null && yearId != null) {
@@ -119,25 +130,52 @@ class ExaminationReportSelectionViewModel(
         val id = if (sectionId == 0) null else sectionId
         _uiState.value = _uiState.value.copy(
             selectedSectionId = id,
+            selectedSubjectId = null,
+            subjects = emptyList(),
             selectedExaminationId = null,
-            examinations = emptyList()
+            allExaminations = emptyList(),
+            filteredExaminations = emptyList()
         )
         val yearId = _uiState.value.selectedAcademicYearId
         if (id != null && yearId != null) {
-            loadExaminations(id, yearId)
+            loadSubjectsAndExaminations(id, yearId)
         }
     }
 
-    private fun loadExaminations(sectionId: Int, yearId: Int) {
+    private fun loadSubjectsAndExaminations(sectionId: Int, yearId: Int) {
         viewModelScope.launch {
             try {
-                val res = apiService.getExaminationsBySection(sectionId, yearId)
-                if (res.isSuccessful) {
-                    val exams = res.body()?.data ?: emptyList()
-                    _uiState.value = _uiState.value.copy(examinations = exams)
+                coroutineScope {
+                    val subDef = async { apiService.getSubjectsBySection(sectionId, yearId) }
+                    val examDef = async { apiService.getExaminationsBySection(sectionId, yearId) }
+
+                    val subRes = subDef.await()
+                    val examRes = examDef.await()
+
+                    val subjects = if (subRes.isSuccessful) subRes.body()?.data ?: emptyList() else emptyList()
+                    val exams = if (examRes.isSuccessful) examRes.body()?.data ?: emptyList() else emptyList()
+
+                    _uiState.value = _uiState.value.copy(
+                        subjects = subjects,
+                        allExaminations = exams
+                    )
                 }
             } catch (_: Exception) { }
         }
+    }
+
+    fun selectSubject(subjectId: Int?) {
+        val id = if (subjectId == 0) null else subjectId
+        val filtered = if (id == null) {
+            emptyList()
+        } else {
+            _uiState.value.allExaminations.filter { it.subjectId == id }
+        }
+        _uiState.value = _uiState.value.copy(
+            selectedSubjectId = id,
+            selectedExaminationId = null,
+            filteredExaminations = filtered
+        )
     }
 
     fun selectExamination(examId: Long?) {
