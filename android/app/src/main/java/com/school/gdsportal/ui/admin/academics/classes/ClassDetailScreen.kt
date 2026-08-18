@@ -15,6 +15,7 @@ import androidx.compose.ui.unit.dp
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun ClassDetailScreen(
+    isReadOnly: Boolean = false,
     viewModel: ClassDetailViewModel,
     onBackClick: () -> Unit,
     onEditClick: () -> Unit
@@ -67,7 +68,8 @@ fun ClassDetailScreen(
                     }
                 },
                 actions = {
-                    if (uiState.schoolClass != null && !uiState.isLoading) {
+                    // Combine the existing null/loading checks with the read-only check
+                    if (!isReadOnly && uiState.schoolClass != null && !uiState.isLoading) {
                         Box {
                             IconButton(onClick = { showMenu = true }) {
                                 Icon(Icons.Default.MoreVert, contentDescription = "More options")

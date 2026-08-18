@@ -47,7 +47,7 @@ class LoginViewModel(
                 val responseBody = response.body()
                 if (response.isSuccessful && responseBody != null && responseBody.success) {
                     val token = responseBody.data?.token
-                    val role = responseBody.data?.role
+                    val role = responseBody.data?.profile?.role?.roleName
                     
                     if (token != null) {
                         tokenManager.saveToken(token)

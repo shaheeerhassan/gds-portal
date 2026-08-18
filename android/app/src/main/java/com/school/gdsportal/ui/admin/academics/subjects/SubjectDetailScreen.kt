@@ -16,6 +16,7 @@ import androidx.compose.ui.unit.dp
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun SubjectDetailScreen(
+    isReadOnly: Boolean = false,
     viewModel: SubjectDetailViewModel,
     onBackClick: () -> Unit,
     onEditClick: () -> Unit
@@ -78,7 +79,7 @@ fun SubjectDetailScreen(
                     }
                 },
                 actions = {
-                    if (subject != null) {
+                    if (!isReadOnly && subject != null) {
                         Box {
                             IconButton(onClick = { showMenu = true }) {
                                 Icon(Icons.Default.MoreVert, contentDescription = "More options")

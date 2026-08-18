@@ -24,6 +24,7 @@ import java.time.format.DateTimeParseException
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun AcademicYearsDirectoryScreen(
+    isReadOnly: Boolean = false,
     viewModel: AcademicYearsDirectoryViewModel,
     onBackClick: () -> Unit,
     onAddClick: () -> Unit,
@@ -46,8 +47,10 @@ fun AcademicYearsDirectoryScreen(
                     }
                 },
                 actions = {
-                    IconButton(onClick = onAddClick) {
-                        Icon(Icons.Default.Add, contentDescription = "Add Academic Year")
+                    if (!isReadOnly) {
+                        IconButton(onClick = onAddClick) {
+                            Icon(Icons.Default.Add, contentDescription = "Add Academic Year")
+                        }
                     }
                 }
             )

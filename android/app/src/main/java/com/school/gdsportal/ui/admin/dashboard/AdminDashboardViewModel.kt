@@ -9,7 +9,6 @@ import com.school.gdsportal.data.remote.Announcement
 import com.school.gdsportal.data.remote.User
 import com.school.gdsportal.network.ApiService
 import kotlinx.coroutines.async
-import kotlinx.coroutines.awaitAll
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
@@ -21,6 +20,7 @@ import java.util.Locale
 
 data class AdminDashboardUiState(
     val isLoading: Boolean = true,
+    val isRefreshing: Boolean = false, // Added for pull-to-refresh
     val error: String? = null,
     val user: User? = null,
     val currentAcademicYear: AcademicYear? = null,
@@ -44,17 +44,24 @@ class AdminDashboardViewModel(
     val uiState: StateFlow<AdminDashboardUiState> = _uiState.asStateFlow()
 
     init {
-        loadDashboardData()
+        loadDashboardData(isRefresh = false)
     }
 
-    fun loadDashboardData() {
-        _uiState.update { it.copy(isLoading = true, error = null) }
+    fun refreshDashboard() {
+        loadDashboardData(isRefresh = true)
+    }
+
+    private fun loadDashboardData(isRefresh: Boolean) {
+        _uiState.update {
+            if (isRefresh) it.copy(isRefreshing = true, error = null)
+            else it.copy(isLoading = true, error = null)
+        }
 
         viewModelScope.launch {
             try {
                 val todayString = SimpleDateFormat("yyyy-MM-dd", Locale.getDefault()).format(Date())
 
-                // Fetch everything concurrently to ensure fast loading times
+                // Fetch everything concurrently
                 val userDef = async { apiService.getCurrentUser() }
                 val academicYearDef = async { apiService.getCurrentAcademicYear() }
                 val totalStudentsDef = async { apiService.getTotalStudentCount() }
@@ -86,6 +93,7 @@ class AdminDashboardViewModel(
                 _uiState.update {
                     it.copy(
                         isLoading = false,
+                        isRefreshing = false,
                         user = userRes.body()?.data,
                         currentAcademicYear = academicYearRes.body()?.data,
                         totalStudents = totalStudentsRes.body()?.data ?: 0,
@@ -104,7 +112,8 @@ class AdminDashboardViewModel(
                 _uiState.update {
                     it.copy(
                         isLoading = false,
-                        error = "Unable to load dashboard data. Please check your connection."
+                        isRefreshing = false,
+                        error = "Unable to load dashboard data. Swipe down to refresh."
                     )
                 }
             }

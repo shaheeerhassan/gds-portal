@@ -16,6 +16,7 @@ import androidx.compose.ui.unit.dp
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun AcademicYearDetailScreen(
+    isReadOnly: Boolean = false,
     viewModel: AcademicYearDetailViewModel,
     onBackClick: () -> Unit,
     onEditClick: () -> Unit
@@ -61,7 +62,8 @@ fun AcademicYearDetailScreen(
                     }
                 },
                 actions = {
-                    if (uiState.academicYear != null) {
+                    // Hide the entire options menu in read-only mode
+                    if (!isReadOnly && uiState.academicYear != null) {
                         IconButton(onClick = { showMenu = true }) {
                             Icon(Icons.Default.MoreVert, contentDescription = "Options")
                         }

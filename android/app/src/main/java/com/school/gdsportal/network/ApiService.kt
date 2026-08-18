@@ -11,7 +11,6 @@ import com.google.gson.JsonObject
 
 // Placeholder API Service. You will provide Data Classes later.
 import com.school.gdsportal.data.remote.LoginRequest
-import com.school.gdsportal.data.remote.LoginResponse
 import com.school.gdsportal.data.remote.User
 import com.school.gdsportal.data.remote.AcademicYear
 import com.school.gdsportal.data.remote.Announcement
@@ -24,10 +23,11 @@ import com.school.gdsportal.data.remote.dto.PaginatedResponse
 import com.school.gdsportal.data.remote.ClassTeacherAssignment
 
 import com.school.gdsportal.data.remote.ApiResponse
+import com.school.gdsportal.data.remote.LoginData
 
 interface ApiService {
     @POST("api/auth/login")
-    suspend fun login(@Body credentials: LoginRequest): Response<ApiResponse<LoginResponse>>
+    suspend fun login(@Body request: LoginRequest): Response<ApiResponse<LoginData>>
 
     @POST("api/auth/change-password")
     suspend fun changePassword(@Body request: com.school.gdsportal.data.remote.ChangePasswordRequest): Response<ApiResponse<Void>>

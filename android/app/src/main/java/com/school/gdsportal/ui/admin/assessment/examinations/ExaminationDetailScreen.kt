@@ -18,6 +18,7 @@ import com.school.gdsportal.data.remote.ExaminationStatus
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun ExaminationDetailScreen(
+    isReadOnly: Boolean = false,
     viewModel: ExaminationDetailViewModel,
     onBackClick: () -> Unit,
     onEditClick: (Long) -> Unit
@@ -93,7 +94,7 @@ fun ExaminationDetailScreen(
                     }
                 },
                 actions = {
-                    if (exam != null) {
+                    if (!isReadOnly && exam != null) {
                         IconButton(onClick = { expandedMenu = true }) {
                             Icon(Icons.Default.MoreVert, contentDescription = "More Options")
                         }

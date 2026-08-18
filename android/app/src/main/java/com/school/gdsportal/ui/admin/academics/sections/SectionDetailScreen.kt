@@ -16,6 +16,7 @@ import androidx.compose.ui.Alignment
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun SectionDetailScreen(
+    isReadOnly: Boolean = false,
     viewModel: SectionDetailViewModel,
     onBackClick: () -> Unit,
     onEditClick: () -> Unit
@@ -78,7 +79,8 @@ fun SectionDetailScreen(
                     }
                 },
                 actions = {
-                    if (uiState.section != null) {
+                    // Hide the options menu in read-only mode
+                    if (!isReadOnly && uiState.section != null) {
                         Box {
                             IconButton(onClick = { showMenu = true }) {
                                 Icon(Icons.Default.MoreVert, contentDescription = "More options")

@@ -1,13 +1,14 @@
 package com.school.gdsportal.ui.admin.dashboard
 
-import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.CircleShape
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.Announcement
+import androidx.compose.material.icons.automirrored.filled.Assignment
 import androidx.compose.material.icons.filled.*
 import androidx.compose.material3.*
 import androidx.compose.runtime.Composable
@@ -22,12 +23,11 @@ import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import com.school.gdsportal.data.remote.Announcement
 import com.school.gdsportal.ui.admin.components.AdminTopAppBar
-import java.text.SimpleDateFormat
-import java.util.Locale
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun AdminDashboardScreen(
+    isReadOnly: Boolean = false, // Added to protect Principal view
     viewModel: AdminDashboardViewModel,
     onMenuClick: () -> Unit,
     onNavigate: (String) -> Unit = {}
@@ -40,7 +40,37 @@ fun AdminDashboardScreen(
         topBar = {
             AdminTopAppBar(
                 title = "GDS Portal",
-                onMenuClick = onMenuClick
+                onMenuClick = onMenuClick,
+                actions = {
+                    IconButton(onClick = { viewModel.refreshDashboard() }) {
+                        if (uiState.isRefreshing) {
+                            CircularProgressIndicator(
+                                modifier = Modifier.size(20.dp),
+                                strokeWidth = 2.dp,
+                                color = MaterialTheme.colorScheme.onBackground
+                            )
+                        } else {
+                            Icon(Icons.Default.Refresh, contentDescription = "Refresh Dashboard")
+                        }
+                    }
+
+                    Box(modifier = Modifier.padding(end = 16.dp)) {
+                        // Routes to unread notifications view
+                        IconButton(onClick = { onNavigate("notifications") }) {
+                            Icon(Icons.Default.NotificationsNone, contentDescription = "Notifications")
+                        }
+                        if (uiState.unreadNotifications > 0) {
+                            Badge(
+                                modifier = Modifier
+                                    .align(Alignment.TopEnd)
+                                    .padding(top = 8.dp, end = 8.dp),
+                                containerColor = MaterialTheme.colorScheme.error
+                            ) {
+                                Text(uiState.unreadNotifications.toString())
+                            }
+                        }
+                    }
+                }
             )
         }
     ) { innerPadding ->
@@ -56,7 +86,7 @@ fun AdminDashboardScreen(
                     .padding(horizontal = 16.dp),
                 verticalArrangement = Arrangement.spacedBy(24.dp)
             ) {
-                // Header section with personalized greeting
+                // Header
                 item {
                     Spacer(modifier = Modifier.height(16.dp))
                     Column {
@@ -66,35 +96,33 @@ fun AdminDashboardScreen(
                             color = MaterialTheme.colorScheme.onSurfaceVariant
                         )
                         Text(
-                            text = uiState.user?.firstName ?: "Administrator",
-                            style = MaterialTheme.typography.headlineMedium,
+                            text = uiState.user?.firstName?: "Administrator",
+                            style = MaterialTheme.typography.headlineLarge,
                             fontWeight = FontWeight.Bold,
                             color = MaterialTheme.colorScheme.onSurface
                         )
                         uiState.currentAcademicYear?.let { year ->
-                            Spacer(modifier = Modifier.height(4.dp))
+                            Spacer(modifier = Modifier.height(8.dp))
                             Surface(
-                                color = MaterialTheme.colorScheme.primaryContainer,
-                                shape = MaterialTheme.shapes.small
+                                color = MaterialTheme.colorScheme.secondaryContainer,
+                                shape = RoundedCornerShape(8.dp)
                             ) {
                                 Text(
-                                    text = year.yearName,
-                                    modifier = Modifier.padding(horizontal = 8.dp, vertical = 2.dp),
-                                    style = MaterialTheme.typography.labelSmall,
-                                    color = MaterialTheme.colorScheme.onPrimaryContainer
+                                    text = "Session: ${year.yearName}",
+                                    modifier = Modifier.padding(horizontal = 12.dp, vertical = 4.dp),
+                                    style = MaterialTheme.typography.labelMedium,
+                                    color = MaterialTheme.colorScheme.onSecondaryContainer
                                 )
                             }
                         }
                     }
                 }
 
-                // Error section
                 if (uiState.error != null) {
                     item {
-                        Card(
-                            colors = CardDefaults.cardColors(
-                                containerColor = MaterialTheme.colorScheme.errorContainer
-                            ),
+                        Surface(
+                            color = MaterialTheme.colorScheme.errorContainer,
+                            shape = RoundedCornerShape(12.dp),
                             modifier = Modifier.fillMaxWidth()
                         ) {
                             Row(
@@ -113,148 +141,166 @@ fun AdminDashboardScreen(
                                     color = MaterialTheme.colorScheme.onErrorContainer,
                                     modifier = Modifier.weight(1f)
                                 )
-                                IconButton(onClick = { viewModel.loadDashboardData() }) {
-                                    Icon(
-                                        imageVector = Icons.Default.Refresh,
-                                        contentDescription = "Retry",
-                                        tint = MaterialTheme.colorScheme.error
-                                    )
-                                }
                             }
                         }
                     }
                 }
 
-                // Metrics cards for quick overview
+                // Attendance Overview
                 item {
                     Column(verticalArrangement = Arrangement.spacedBy(16.dp)) {
                         Text(
-                            text = "Today's Attendance",
+                            text = "Today's Overview",
                             style = MaterialTheme.typography.titleMedium,
-                            fontWeight = FontWeight.Bold
+                            fontWeight = FontWeight.SemiBold
                         )
                         Row(
                             modifier = Modifier.fillMaxWidth(),
                             horizontalArrangement = Arrangement.spacedBy(16.dp)
                         ) {
-                            DashboardMetricCard(
-                                label = "Students",
+                            FlatMetricCard(
+                                label = "Students Present",
                                 value = "${uiState.presentStudents}/${uiState.totalStudents}",
-                                subLabel = "Present today",
                                 icon = Icons.Default.Groups,
+                                containerColor = MaterialTheme.colorScheme.primaryContainer,
+                                contentColor = MaterialTheme.colorScheme.onPrimaryContainer,
                                 modifier = Modifier.weight(1f),
-                                onClick = { onNavigate("students") }
+                                onClick = { onNavigate("student-attendance") }
                             )
-                            DashboardMetricCard(
-                                label = "Teachers",
+                            FlatMetricCard(
+                                label = "Teachers Present",
                                 value = "${uiState.presentTeachers}/${uiState.totalTeachers}",
-                                subLabel = "Present today",
                                 icon = Icons.Default.School,
+                                containerColor = MaterialTheme.colorScheme.tertiaryContainer,
+                                contentColor = MaterialTheme.colorScheme.onTertiaryContainer,
                                 modifier = Modifier.weight(1f),
-                                onClick = { onNavigate("teachers") }
+                                onClick = { onNavigate("admin_teacher_attendance") }
                             )
                         }
                     }
                 }
 
-                // Quick Actions section
+                // Quick Actions (Hidden from Principal)
+                if (!isReadOnly) {
+                    item {
+                        Column(verticalArrangement = Arrangement.spacedBy(16.dp)) {
+                            Text(
+                                text = "Quick Actions",
+                                style = MaterialTheme.typography.titleMedium,
+                                fontWeight = FontWeight.SemiBold
+                            )
+                            Row(
+                                modifier = Modifier.fillMaxWidth(),
+                                horizontalArrangement = Arrangement.spacedBy(12.dp)
+                            ) {
+                                FlatQuickAction(
+                                    title = "Add Student",
+                                    icon = Icons.Default.PersonAdd,
+                                    onClick = { onNavigate("students/create") },
+                                    modifier = Modifier.weight(1f)
+                                )
+                                FlatQuickAction(
+                                    title = "Add Teacher",
+                                    icon = Icons.Default.PersonAddAlt,
+                                    onClick = { onNavigate("teachers/create") },
+                                    modifier = Modifier.weight(1f)
+                                )
+                                FlatQuickAction(
+                                    title = "Broadcast",
+                                    icon = Icons.AutoMirrored.Filled.Announcement,
+                                    onClick = { onNavigate("announcements/create") },
+                                    modifier = Modifier.weight(1f)
+                                )
+                            }
+                        }
+                    }
+                }
+
+                // NEW: School Management Section (Visible to both)
                 item {
                     Column(verticalArrangement = Arrangement.spacedBy(16.dp)) {
                         Text(
-                            text = "Quick Actions",
+                            text = "School Management",
                             style = MaterialTheme.typography.titleMedium,
-                            fontWeight = FontWeight.Bold
+                            fontWeight = FontWeight.SemiBold
                         )
                         Row(
                             modifier = Modifier.fillMaxWidth(),
                             horizontalArrangement = Arrangement.spacedBy(12.dp)
                         ) {
-                            QuickActionButton(
-                                title = "New Student",
-                                icon = Icons.Default.PersonAdd,
-                                onClick = { onNavigate("students/create") },
+                            FlatQuickAction(
+                                title = "Timetable",
+                                icon = Icons.Default.CalendarToday,
+                                onClick = { onNavigate("timetable") },
                                 modifier = Modifier.weight(1f)
                             )
-                            QuickActionButton(
-                                title = "New Teacher",
-                                icon = Icons.Default.PersonAddAlt,
-                                onClick = { onNavigate("teachers/create") },
+                            FlatQuickAction(
+                                title = "Exams",
+                                icon = Icons.Default.Book,
+                                onClick = { onNavigate("examinations") },
                                 modifier = Modifier.weight(1f)
                             )
-                            QuickActionButton(
-                                title = "Announcement",
-                                icon = Icons.AutoMirrored.Filled.Announcement,
-                                onClick = { onNavigate("announcements/create") },
+                            FlatQuickAction(
+                                title = "Assignments",
+                                icon = Icons.AutoMirrored.Filled.Assignment,
+                                onClick = { onNavigate("assignments") },
+                                modifier = Modifier.weight(1f)
+                            )
+                            FlatQuickAction(
+                                title = "Parents",
+                                icon = Icons.Default.FamilyRestroom,
+                                onClick = { onNavigate("parents") },
                                 modifier = Modifier.weight(1f)
                             )
                         }
                     }
                 }
 
-                // Latest Announcements section
-                item {
-                    Row(
-                        modifier = Modifier.fillMaxWidth(),
-                        horizontalArrangement = Arrangement.SpaceBetween,
-                        verticalAlignment = Alignment.CenterVertically
-                    ) {
-                        Text(
-                            text = "Latest Announcements",
-                            style = MaterialTheme.typography.titleMedium,
-                            fontWeight = FontWeight.Bold
-                        )
-                        TextButton(onClick = { onNavigate("announcements") }) {
-                            Text("See All")
-                        }
-                    }
-                }
-
-                if (uiState.globalAnnouncements.isEmpty()) {
-                    item {
-                        EmptyStateCard("No active announcements")
-                    }
-                } else {
-                    items(uiState.globalAnnouncements.take(3), key = { it.announcementId }) { announcement ->
-                        AnnouncementDashboardItem(
-                            announcement = announcement,
-                            onClick = { onNavigate("announcements/${announcement.announcementId}") }
-                        )
-                    }
-                }
-
-                // Academic Session Summary
+                // Latest Announcements
                 item {
                     Column(verticalArrangement = Arrangement.spacedBy(16.dp)) {
-                        Text(
-                            text = "Academic Summary",
-                            style = MaterialTheme.typography.titleMedium,
-                            fontWeight = FontWeight.Bold
-                        )
-                        Card(
+                        Row(
                             modifier = Modifier.fillMaxWidth(),
-                            colors = CardDefaults.cardColors(
-                                containerColor = MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.5f)
-                            )
+                            horizontalArrangement = Arrangement.SpaceBetween,
+                            verticalAlignment = Alignment.CenterVertically
                         ) {
-                            Column(modifier = Modifier.padding(16.dp)) {
-                                Row(
-                                    modifier = Modifier.fillMaxWidth(),
-                                    horizontalArrangement = Arrangement.SpaceBetween
-                                ) {
-                                    SummaryStatItem(
-                                        label = "Classes",
-                                        value = uiState.totalClasses.toString(),
-                                        onClick = { onNavigate("classes") }
-                                    )
-                                    SummaryStatItem(
-                                        label = "Sections",
-                                        value = uiState.totalSections.toString(),
-                                        onClick = { onNavigate("sections") }
-                                    )
-                                    SummaryStatItem(
-                                        label = "Subjects",
-                                        value = uiState.totalSubjects.toString(),
-                                        onClick = { onNavigate("subjects") }
+                            Text(
+                                text = "Latest Announcements",
+                                style = MaterialTheme.typography.titleMedium,
+                                fontWeight = FontWeight.SemiBold
+                            )
+                            Text(
+                                text = "See All",
+                                style = MaterialTheme.typography.labelLarge,
+                                color = MaterialTheme.colorScheme.primary,
+                                modifier = Modifier
+                                    .clip(RoundedCornerShape(4.dp))
+                                    .clickable { onNavigate("announcements") }
+                                    .padding(4.dp)
+                            )
+                        }
+
+                        if (uiState.globalAnnouncements.isEmpty()) {
+                            Surface(
+                                modifier = Modifier.fillMaxWidth(),
+                                color = MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.5f),
+                                shape = RoundedCornerShape(12.dp)
+                            ) {
+                                Text(
+                                    text = "No active announcements",
+                                    modifier = Modifier.padding(24.dp),
+                                    style = MaterialTheme.typography.bodyMedium,
+                                    color = MaterialTheme.colorScheme.onSurfaceVariant,
+                                    textAlign = androidx.compose.ui.text.style.TextAlign.Center
+                                )
+                            }
+                        } else {
+                            Column(verticalArrangement = Arrangement.spacedBy(8.dp)) {
+                                uiState.globalAnnouncements.take(3).forEach { announcement ->
+                                    FlatAnnouncementItem(
+                                        announcement = announcement,
+                                        // Routes to the specific announcement view page
+                                        onClick = { onNavigate("announcements/${announcement.announcementId}") }
                                     )
                                 }
                             }
@@ -262,59 +308,80 @@ fun AdminDashboardScreen(
                     }
                 }
 
+                // Academics Summary
                 item {
-                    Spacer(modifier = Modifier.height(24.dp))
+                    Column(verticalArrangement = Arrangement.spacedBy(16.dp)) {
+                        Text(
+                            text = "Academics Summary",
+                            style = MaterialTheme.typography.titleMedium,
+                            fontWeight = FontWeight.SemiBold
+                        )
+                        Surface(
+                            modifier = Modifier.fillMaxWidth(),
+                            color = MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.3f),
+                            shape = RoundedCornerShape(16.dp)
+                        ) {
+                            Row(
+                                modifier = Modifier
+                                    .fillMaxWidth()
+                                    .padding(16.dp),
+                                horizontalArrangement = Arrangement.SpaceEvenly
+                            ) {
+                                FlatStatItem("Classes", uiState.totalClasses.toString()) { onNavigate("classes") }
+                                FlatStatItem("Sections", uiState.totalSections.toString()) { onNavigate("sections") }
+                                FlatStatItem("Subjects", uiState.totalSubjects.toString()) { onNavigate("subjects") }
+                            }
+                        }
+                    }
                 }
+
+                item { Spacer(modifier = Modifier.height(32.dp)) }
             }
         }
     }
 }
 
 @Composable
-private fun DashboardMetricCard(
+private fun FlatMetricCard(
     label: String,
     value: String,
-    subLabel: String,
     icon: ImageVector,
+    containerColor: androidx.compose.ui.graphics.Color,
+    contentColor: androidx.compose.ui.graphics.Color,
     modifier: Modifier = Modifier,
     onClick: () -> Unit
 ) {
-    Card(
-        modifier = modifier.clickable { onClick() },
-        colors = CardDefaults.cardColors(
-            containerColor = MaterialTheme.colorScheme.surface
-        ),
-        elevation = CardDefaults.cardElevation(defaultElevation = 2.dp)
+    Surface(
+        modifier = modifier
+            .clip(RoundedCornerShape(16.dp))
+            .clickable { onClick() },
+        color = containerColor
     ) {
         Column(modifier = Modifier.padding(16.dp)) {
             Icon(
                 imageVector = icon,
                 contentDescription = null,
-                tint = MaterialTheme.colorScheme.primary,
+                tint = contentColor,
                 modifier = Modifier.size(24.dp)
             )
             Spacer(modifier = Modifier.height(12.dp))
             Text(
                 text = value,
-                style = MaterialTheme.typography.headlineSmall,
-                fontWeight = FontWeight.Bold
+                style = MaterialTheme.typography.headlineMedium,
+                fontWeight = FontWeight.Bold,
+                color = contentColor
             )
             Text(
                 text = label,
                 style = MaterialTheme.typography.labelMedium,
-                color = MaterialTheme.colorScheme.onSurfaceVariant
-            )
-            Text(
-                text = subLabel,
-                style = MaterialTheme.typography.labelSmall,
-                color = MaterialTheme.colorScheme.primary
+                color = contentColor.copy(alpha = 0.8f)
             )
         }
     }
 }
 
 @Composable
-private fun QuickActionButton(
+private fun FlatQuickAction(
     title: String,
     icon: ImageVector,
     onClick: () -> Unit,
@@ -322,21 +389,21 @@ private fun QuickActionButton(
 ) {
     Column(
         modifier = modifier
-            .clip(MaterialTheme.shapes.medium)
+            .clip(RoundedCornerShape(12.dp))
             .clickable { onClick() }
             .padding(vertical = 8.dp),
         horizontalAlignment = Alignment.CenterHorizontally
     ) {
         Surface(
-            modifier = Modifier.size(48.dp),
+            modifier = Modifier.size(56.dp),
             shape = CircleShape,
-            color = MaterialTheme.colorScheme.secondaryContainer
+            color = MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.5f)
         ) {
             Box(contentAlignment = Alignment.Center) {
                 Icon(
                     imageVector = icon,
                     contentDescription = null,
-                    tint = MaterialTheme.colorScheme.onSecondaryContainer,
+                    tint = MaterialTheme.colorScheme.primary,
                     modifier = Modifier.size(24.dp)
                 )
             }
@@ -354,18 +421,16 @@ private fun QuickActionButton(
 }
 
 @Composable
-private fun AnnouncementDashboardItem(
+private fun FlatAnnouncementItem(
     announcement: Announcement,
     onClick: () -> Unit
 ) {
-    Card(
+    Surface(
         modifier = Modifier
             .fillMaxWidth()
+            .clip(RoundedCornerShape(12.dp))
             .clickable { onClick() },
-        colors = CardDefaults.cardColors(
-            containerColor = MaterialTheme.colorScheme.surface
-        ),
-        elevation = CardDefaults.cardElevation(defaultElevation = 1.dp)
+        color = MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.3f)
     ) {
         Row(
             modifier = Modifier.padding(16.dp),
@@ -376,9 +441,11 @@ private fun AnnouncementDashboardItem(
                     text = announcement.title,
                     style = MaterialTheme.typography.titleSmall,
                     fontWeight = FontWeight.Bold,
+                    color = MaterialTheme.colorScheme.onSurface,
                     maxLines = 1,
                     overflow = TextOverflow.Ellipsis
                 )
+                Spacer(modifier = Modifier.height(4.dp))
                 Text(
                     text = announcement.content,
                     style = MaterialTheme.typography.bodySmall,
@@ -390,58 +457,35 @@ private fun AnnouncementDashboardItem(
             Icon(
                 imageVector = Icons.Default.ChevronRight,
                 contentDescription = null,
-                tint = MaterialTheme.colorScheme.onSurfaceVariant
+                tint = MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.5f)
             )
         }
     }
 }
 
 @Composable
-private fun SummaryStatItem(
+private fun FlatStatItem(
     label: String,
     value: String,
     onClick: () -> Unit
 ) {
     Column(
         modifier = Modifier
-            .clip(MaterialTheme.shapes.small)
+            .clip(RoundedCornerShape(8.dp))
             .clickable { onClick() }
             .padding(8.dp),
         horizontalAlignment = Alignment.CenterHorizontally
     ) {
         Text(
             text = value,
-            style = MaterialTheme.typography.titleLarge,
+            style = MaterialTheme.typography.headlineSmall,
             fontWeight = FontWeight.Bold,
             color = MaterialTheme.colorScheme.primary
         )
         Text(
             text = label,
-            style = MaterialTheme.typography.labelSmall,
+            style = MaterialTheme.typography.labelMedium,
             color = MaterialTheme.colorScheme.onSurfaceVariant
         )
-    }
-}
-
-@Composable
-private fun EmptyStateCard(message: String) {
-    Card(
-        modifier = Modifier.fillMaxWidth(),
-        colors = CardDefaults.cardColors(
-            containerColor = MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.3f)
-        )
-    ) {
-        Box(
-            modifier = Modifier
-                .fillMaxWidth()
-                .padding(24.dp),
-            contentAlignment = Alignment.Center
-        ) {
-            Text(
-                text = message,
-                style = MaterialTheme.typography.bodyMedium,
-                color = MaterialTheme.colorScheme.onSurfaceVariant
-            )
-        }
     }
 }

@@ -19,6 +19,7 @@ import com.school.gdsportal.data.remote.SchoolClass
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun ClassesDirectoryScreen(
+    isReadOnly: Boolean = false,
     viewModel: ClassesDirectoryViewModel,
     onBackClick: () -> Unit,
     onAddClick: () -> Unit,
@@ -40,8 +41,10 @@ fun ClassesDirectoryScreen(
                     }
                 },
                 actions = {
-                    IconButton(onClick = onAddClick) {
-                        Icon(Icons.Default.Add, contentDescription = "Add Class")
+                    if (!isReadOnly) {
+                        IconButton(onClick = onAddClick) {
+                            Icon(Icons.Default.Add, contentDescription = "Add Class")
+                        }
                     }
                 }
             )

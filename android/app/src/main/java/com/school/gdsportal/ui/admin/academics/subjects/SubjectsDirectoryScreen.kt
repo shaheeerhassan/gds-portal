@@ -21,6 +21,7 @@ import com.school.gdsportal.data.remote.Subject
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun SubjectsDirectoryScreen(
+    isReadOnly: Boolean = false,
     viewModel: SubjectsDirectoryViewModel,
     onBackClick: () -> Unit,
     onAddClick: () -> Unit,
@@ -60,8 +61,10 @@ fun SubjectsDirectoryScreen(
                     }
                 },
                 actions = {
-                    IconButton(onClick = onAddClick) {
-                        Icon(Icons.Default.Add, contentDescription = "Create Subject")
+                    if (!isReadOnly) {
+                        IconButton(onClick = onAddClick) {
+                            Icon(Icons.Default.Add, contentDescription = "Create Subject")
+                        }
                     }
                 }
             )

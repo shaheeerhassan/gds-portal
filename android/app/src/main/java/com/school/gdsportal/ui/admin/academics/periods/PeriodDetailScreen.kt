@@ -16,6 +16,7 @@ import androidx.compose.ui.unit.dp
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun PeriodDetailScreen(
+    isReadOnly: Boolean = false,
     viewModel: PeriodDetailViewModel,
     onBackClick: () -> Unit,
     onEditClick: () -> Unit
@@ -78,7 +79,8 @@ fun PeriodDetailScreen(
                     }
                 },
                 actions = {
-                    if (period != null) {
+                    // Hide the options menu in read-only mode
+                    if (!isReadOnly && period != null) {
                         Box {
                             IconButton(onClick = { showMenu = true }) {
                                 Icon(Icons.Default.MoreVert, contentDescription = "More options")

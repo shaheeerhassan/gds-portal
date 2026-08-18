@@ -21,6 +21,7 @@ import com.school.gdsportal.data.remote.Section
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun SectionsDirectoryScreen(
+    isReadOnly: Boolean = false,
     viewModel: SectionsDirectoryViewModel,
     onBackClick: () -> Unit,
     onAddClick: () -> Unit,
@@ -64,8 +65,10 @@ fun SectionsDirectoryScreen(
                     IconButton(onClick = { showFilterSheet = true }) {
                         Icon(Icons.Default.FilterList, contentDescription = "Filter")
                     }
-                    IconButton(onClick = onAddClick) {
-                        Icon(Icons.Default.Add, contentDescription = "Create Section")
+                    if (!isReadOnly) {
+                        IconButton(onClick = onAddClick) {
+                            Icon(Icons.Default.Add, contentDescription = "Create Section")
+                        }
                     }
                 }
             )

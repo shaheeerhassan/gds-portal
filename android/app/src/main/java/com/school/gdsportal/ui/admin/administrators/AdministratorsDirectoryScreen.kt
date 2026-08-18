@@ -25,6 +25,7 @@ import com.school.gdsportal.data.remote.Administrator
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun AdministratorsDirectoryScreen(
+    isReadOnly: Boolean = false,
     viewModel: AdministratorsDirectoryViewModel,
     onBackClick: () -> Unit,
     onAddAdministratorClick: () -> Unit,
@@ -43,8 +44,10 @@ fun AdministratorsDirectoryScreen(
                     }
                 },
                 actions = {
-                    IconButton(onClick = onAddAdministratorClick) {
-                        Icon(Icons.Default.Add, contentDescription = "Add Administrator")
+                    if (!isReadOnly) {
+                        IconButton(onClick = onAddAdministratorClick) {
+                            Icon(Icons.Default.Add, contentDescription = "Add Administrator")
+                        }
                     }
                 }
             )

@@ -20,6 +20,7 @@ import com.school.gdsportal.ui.admin.teaching.teacherclasses.FilterDropdown
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun ExaminationsDirectoryScreen(
+    isReadOnly: Boolean = false,
     viewModel: ExaminationsDirectoryViewModel,
     onMenuClick: () -> Unit,
     onAddClick: () -> Unit,
@@ -50,8 +51,10 @@ fun ExaminationsDirectoryScreen(
                     }
                 },
                 actions = {
-                    IconButton(onClick = onAddClick) {
-                        Icon(Icons.Default.Add, contentDescription = "Add Examination")
+                    if (!isReadOnly) {
+                        IconButton(onClick = onAddClick) {
+                            Icon(Icons.Default.Add, contentDescription = "Add Examination")
+                        }
                     }
                 }
             )

@@ -21,6 +21,7 @@ import java.time.format.DateTimeFormatter
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun PeriodsDirectoryScreen(
+    isReadOnly: Boolean = false,
     viewModel: PeriodsDirectoryViewModel,
     onBackClick: () -> Unit,
     onAddClick: () -> Unit,
@@ -60,8 +61,10 @@ fun PeriodsDirectoryScreen(
                     }
                 },
                 actions = {
-                    IconButton(onClick = onAddClick) {
-                        Icon(Icons.Default.Add, contentDescription = "Create Period")
+                    if (!isReadOnly) {
+                        IconButton(onClick = onAddClick) {
+                            Icon(Icons.Default.Add, contentDescription = "Create Period")
+                        }
                     }
                 }
             )

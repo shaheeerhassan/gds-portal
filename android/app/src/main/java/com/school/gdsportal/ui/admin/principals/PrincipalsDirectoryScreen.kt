@@ -25,6 +25,7 @@ import com.school.gdsportal.data.remote.Principal
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun PrincipalsDirectoryScreen(
+    isReadOnly: Boolean = false,
     viewModel: PrincipalsDirectoryViewModel,
     onBackClick: () -> Unit,
     onAddPrincipalClick: () -> Unit,
@@ -43,8 +44,10 @@ fun PrincipalsDirectoryScreen(
                     }
                 },
                 actions = {
-                    IconButton(onClick = onAddPrincipalClick) {
-                        Icon(Icons.Default.Add, contentDescription = "Add Principal")
+                    if (!isReadOnly) {
+                        IconButton(onClick = onAddPrincipalClick) {
+                            Icon(Icons.Default.Add, contentDescription = "Add Principal")
+                        }
                     }
                 }
             )

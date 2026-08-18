@@ -28,6 +28,7 @@ import com.school.gdsportal.data.remote.dto.StudentDirectoryDTO
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun StudentsDirectoryScreen(
+    isReadOnly: Boolean = false,
     viewModel: StudentsDirectoryViewModel,
     onBackClick: () -> Unit,
     onAddStudentClick: () -> Unit,
@@ -46,8 +47,10 @@ fun StudentsDirectoryScreen(
                     }
                 },
                 actions = {
-                    IconButton(onClick = onAddStudentClick) {
-                        Icon(Icons.Default.Add, contentDescription = "Add Student")
+                    if (!isReadOnly) {
+                        IconButton(onClick = onAddStudentClick) {
+                            Icon(Icons.Default.Add, contentDescription = "Add Student")
+                        }
                     }
                 }
             )
