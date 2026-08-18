@@ -32,6 +32,12 @@ interface ApiService {
     @GET("api/users/me")
     suspend fun getCurrentUser(): Response<ApiResponse<User>>
 
+    @PUT("api/users/{userId}")
+    suspend fun updateUser(
+        @Path("userId") userId: Long,
+        @Body user: User
+    ): Response<ApiResponse<Void>>
+
     @GET("api/academic-years/current")
     suspend fun getCurrentAcademicYear(): Response<ApiResponse<AcademicYear>>
 

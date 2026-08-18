@@ -7,10 +7,8 @@ import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.Add
-import androidx.compose.material.icons.filled.ArrowForward
-import androidx.compose.material.icons.filled.Notifications
-import androidx.compose.material.icons.filled.Refresh
+import androidx.compose.material.icons.automirrored.filled.Announcement
+import androidx.compose.material.icons.filled.*
 import androidx.compose.material3.*
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
@@ -18,6 +16,7 @@ import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
@@ -30,7 +29,8 @@ import java.util.Locale
 @Composable
 fun AdminDashboardScreen(
     viewModel: AdminDashboardViewModel,
-    onMenuClick: () -> Unit
+    onMenuClick: () -> Unit,
+    onNavigate: (String) -> Unit = {}
 ) {
     val uiState by viewModel.uiState.collectAsState()
 
@@ -46,247 +46,224 @@ fun AdminDashboardScreen(
     ) { innerPadding ->
         if (uiState.isLoading) {
             Box(modifier = Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
-                CircularProgressIndicator(color = MaterialTheme.colorScheme.primary)
+                CircularProgressIndicator()
             }
         } else {
             LazyColumn(
                 modifier = Modifier
                     .fillMaxSize()
                     .padding(innerPadding)
-                    .padding(horizontal = 24.dp),
-                verticalArrangement = Arrangement.spacedBy(32.dp)
+                    .padding(horizontal = 16.dp),
+                verticalArrangement = Arrangement.spacedBy(24.dp)
             ) {
+                // Header section with personalized greeting
                 item {
                     Spacer(modifier = Modifier.height(16.dp))
-                    Text(
-                        text = "Good morning,\n${uiState.user?.firstName ?: "Administrator"}.",
-                        style = MaterialTheme.typography.displaySmall,
-                        color = MaterialTheme.colorScheme.onBackground
-                    )
-                    uiState.currentAcademicYear?.let { year ->
-                        Spacer(modifier = Modifier.height(8.dp))
+                    Column {
                         Text(
-                            text = "Academic Year: ${year.yearName}",
-                            style = MaterialTheme.typography.bodyMedium,
-                            color = MaterialTheme.colorScheme.secondary
+                            text = "Good morning,",
+                            style = MaterialTheme.typography.titleMedium,
+                            color = MaterialTheme.colorScheme.onSurfaceVariant
                         )
-                    }
-                }
-
-                item {
-                    if (uiState.error != null) {
-                        Row(
-                            modifier = Modifier
-                                .fillMaxWidth()
-                                .background(MaterialTheme.colorScheme.error.copy(alpha = 0.1f))
-                                .padding(12.dp),
-                            verticalAlignment = Alignment.CenterVertically
-                        ) {
-                            Text(
-                                text = uiState.error!!,
-                                style = MaterialTheme.typography.bodyMedium,
-                                color = MaterialTheme.colorScheme.error,
-                                modifier = Modifier.weight(1f)
-                            )
-                            IconButton(onClick = { viewModel.loadDashboardData() }) {
-                                Icon(
-                                    imageVector = Icons.Default.Refresh,
-                                    contentDescription = "Retry",
-                                    tint = MaterialTheme.colorScheme.error
-                                )
-                            }
-                        }
-                    } else {
-                        // Typography-led metrics grid
-                        Row(
-                            modifier = Modifier.fillMaxWidth(),
-                            horizontalArrangement = Arrangement.SpaceBetween
-                        ) {
-                            // Students Metric
-                            Column(modifier = Modifier.weight(1f)) {
-                                Text(
-                                    text = "Students",
-                                    style = MaterialTheme.typography.labelLarge,
-                                    color = MaterialTheme.colorScheme.secondary
-                                )
-                                Spacer(modifier = Modifier.height(4.dp))
-                                Row(verticalAlignment = Alignment.Bottom) {
-                                    Text(
-                                        text = "${uiState.presentStudents}",
-                                        style = MaterialTheme.typography.headlineLarge,
-                                        color = MaterialTheme.colorScheme.onBackground
-                                    )
-                                    Text(
-                                        text = " / ${uiState.totalStudents}",
-                                        style = MaterialTheme.typography.titleLarge,
-                                        color = MaterialTheme.colorScheme.secondary,
-                                        modifier = Modifier.padding(bottom = 2.dp, start = 4.dp)
-                                    )
-                                }
-                                Text(
-                                    text = "present today",
-                                    style = MaterialTheme.typography.bodyMedium,
-                                    color = MaterialTheme.colorScheme.primary
-                                )
-                            }
-
-                            // Hairline Divider
-                            Box(
-                                modifier = Modifier
-                                    .width(1.dp)
-                                    .height(80.dp)
-                                    .background(MaterialTheme.colorScheme.onBackground.copy(alpha = 0.1f))
-                            )
-
-                            // Teachers Metric
-                            Column(
-                                modifier = Modifier
-                                    .weight(1f)
-                                    .padding(start = 24.dp)
+                        Text(
+                            text = uiState.user?.firstName ?: "Administrator",
+                            style = MaterialTheme.typography.headlineMedium,
+                            fontWeight = FontWeight.Bold,
+                            color = MaterialTheme.colorScheme.onSurface
+                        )
+                        uiState.currentAcademicYear?.let { year ->
+                            Spacer(modifier = Modifier.height(4.dp))
+                            Surface(
+                                color = MaterialTheme.colorScheme.primaryContainer,
+                                shape = MaterialTheme.shapes.small
                             ) {
                                 Text(
-                                    text = "Teachers",
-                                    style = MaterialTheme.typography.labelLarge,
-                                    color = MaterialTheme.colorScheme.secondary
-                                )
-                                Spacer(modifier = Modifier.height(4.dp))
-                                Row(verticalAlignment = Alignment.Bottom) {
-                                    Text(
-                                        text = "${uiState.presentTeachers}",
-                                        style = MaterialTheme.typography.headlineLarge,
-                                        color = MaterialTheme.colorScheme.onBackground
-                                    )
-                                    Text(
-                                        text = " / ${uiState.totalTeachers}",
-                                        style = MaterialTheme.typography.titleLarge,
-                                        color = MaterialTheme.colorScheme.secondary,
-                                        modifier = Modifier.padding(bottom = 2.dp, start = 4.dp)
-                                    )
-                                }
-                                Text(
-                                    text = "present today",
-                                    style = MaterialTheme.typography.bodyMedium,
-                                    color = MaterialTheme.colorScheme.primary
+                                    text = year.yearName,
+                                    modifier = Modifier.padding(horizontal = 8.dp, vertical = 2.dp),
+                                    style = MaterialTheme.typography.labelSmall,
+                                    color = MaterialTheme.colorScheme.onPrimaryContainer
                                 )
                             }
                         }
                     }
                 }
 
-                item {
-                    Divider(
-                        color = MaterialTheme.colorScheme.onBackground.copy(alpha = 0.1f),
-                        thickness = 1.dp
-                    )
+                // Error section
+                if (uiState.error != null) {
+                    item {
+                        Card(
+                            colors = CardDefaults.cardColors(
+                                containerColor = MaterialTheme.colorScheme.errorContainer
+                            ),
+                            modifier = Modifier.fillMaxWidth()
+                        ) {
+                            Row(
+                                modifier = Modifier.padding(16.dp),
+                                verticalAlignment = Alignment.CenterVertically
+                            ) {
+                                Icon(
+                                    imageVector = Icons.Default.ErrorOutline,
+                                    contentDescription = null,
+                                    tint = MaterialTheme.colorScheme.error
+                                )
+                                Spacer(modifier = Modifier.width(12.dp))
+                                Text(
+                                    text = uiState.error!!,
+                                    style = MaterialTheme.typography.bodyMedium,
+                                    color = MaterialTheme.colorScheme.onErrorContainer,
+                                    modifier = Modifier.weight(1f)
+                                )
+                                IconButton(onClick = { viewModel.loadDashboardData() }) {
+                                    Icon(
+                                        imageVector = Icons.Default.Refresh,
+                                        contentDescription = "Retry",
+                                        tint = MaterialTheme.colorScheme.error
+                                    )
+                                }
+                            }
+                        }
+                    }
                 }
 
+                // Metrics cards for quick overview
+                item {
+                    Column(verticalArrangement = Arrangement.spacedBy(16.dp)) {
+                        Text(
+                            text = "Today's Attendance",
+                            style = MaterialTheme.typography.titleMedium,
+                            fontWeight = FontWeight.Bold
+                        )
+                        Row(
+                            modifier = Modifier.fillMaxWidth(),
+                            horizontalArrangement = Arrangement.spacedBy(16.dp)
+                        ) {
+                            DashboardMetricCard(
+                                label = "Students",
+                                value = "${uiState.presentStudents}/${uiState.totalStudents}",
+                                subLabel = "Present today",
+                                icon = Icons.Default.Groups,
+                                modifier = Modifier.weight(1f),
+                                onClick = { onNavigate("students") }
+                            )
+                            DashboardMetricCard(
+                                label = "Teachers",
+                                value = "${uiState.presentTeachers}/${uiState.totalTeachers}",
+                                subLabel = "Present today",
+                                icon = Icons.Default.School,
+                                modifier = Modifier.weight(1f),
+                                onClick = { onNavigate("teachers") }
+                            )
+                        }
+                    }
+                }
+
+                // Quick Actions section
+                item {
+                    Column(verticalArrangement = Arrangement.spacedBy(16.dp)) {
+                        Text(
+                            text = "Quick Actions",
+                            style = MaterialTheme.typography.titleMedium,
+                            fontWeight = FontWeight.Bold
+                        )
+                        Row(
+                            modifier = Modifier.fillMaxWidth(),
+                            horizontalArrangement = Arrangement.spacedBy(12.dp)
+                        ) {
+                            QuickActionButton(
+                                title = "New Student",
+                                icon = Icons.Default.PersonAdd,
+                                onClick = { onNavigate("students/create") },
+                                modifier = Modifier.weight(1f)
+                            )
+                            QuickActionButton(
+                                title = "New Teacher",
+                                icon = Icons.Default.PersonAddAlt,
+                                onClick = { onNavigate("teachers/create") },
+                                modifier = Modifier.weight(1f)
+                            )
+                            QuickActionButton(
+                                title = "Announcement",
+                                icon = Icons.AutoMirrored.Filled.Announcement,
+                                onClick = { onNavigate("announcements/create") },
+                                modifier = Modifier.weight(1f)
+                            )
+                        }
+                    }
+                }
+
+                // Latest Announcements section
                 item {
                     Row(
-                        modifier = Modifier
-                            .fillMaxWidth()
-                            .clickable { /* TODO: Navigate to Announcements list */ }
-                            .padding(vertical = 8.dp),
+                        modifier = Modifier.fillMaxWidth(),
                         horizontalArrangement = Arrangement.SpaceBetween,
                         verticalAlignment = Alignment.CenterVertically
                     ) {
                         Text(
-                            text = "Global Announcements",
-                            style = MaterialTheme.typography.titleLarge,
-                            color = MaterialTheme.colorScheme.onBackground
+                            text = "Latest Announcements",
+                            style = MaterialTheme.typography.titleMedium,
+                            fontWeight = FontWeight.Bold
                         )
-                        Icon(
-                            imageVector = Icons.Default.ArrowForward,
-                            contentDescription = "View all announcements",
-                            tint = MaterialTheme.colorScheme.primary
-                        )
+                        TextButton(onClick = { onNavigate("announcements") }) {
+                            Text("See All")
+                        }
                     }
-                    Spacer(modifier = Modifier.height(8.dp))
-                    
-                    if (uiState.globalAnnouncements.isEmpty()) {
-                        Text(
-                            text = "No active announcements at this time.",
-                            style = MaterialTheme.typography.bodyLarge,
-                            color = MaterialTheme.colorScheme.secondary
+                }
+
+                if (uiState.globalAnnouncements.isEmpty()) {
+                    item {
+                        EmptyStateCard("No active announcements")
+                    }
+                } else {
+                    items(uiState.globalAnnouncements.take(3), key = { it.announcementId }) { announcement ->
+                        AnnouncementDashboardItem(
+                            announcement = announcement,
+                            onClick = { onNavigate("announcements/${announcement.announcementId}") }
                         )
                     }
                 }
 
-                items(uiState.globalAnnouncements.take(3)) { announcement ->
-                    AnnouncementRow(announcement)
-                    Spacer(modifier = Modifier.height(16.dp))
-                }
-                
+                // Academic Session Summary
                 item {
-                    Spacer(modifier = Modifier.height(16.dp))
-                    Text(
-                        text = "Quick Actions",
-                        style = MaterialTheme.typography.titleLarge,
-                        color = MaterialTheme.colorScheme.onBackground
-                    )
-                    Spacer(modifier = Modifier.height(16.dp))
-                    
-                    Row(modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.spacedBy(16.dp)) {
-                        QuickActionItem(title = "Add Student", onClick = { }, modifier = Modifier.weight(1f))
-                        QuickActionItem(title = "Add Teacher", onClick = { }, modifier = Modifier.weight(1f))
-                    }
-                    Spacer(modifier = Modifier.height(16.dp))
-                    Row(modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.spacedBy(16.dp)) {
-                        QuickActionItem(title = "Add Parent", onClick = { }, modifier = Modifier.weight(1f))
-                        QuickActionItem(title = "Announcement", onClick = { }, modifier = Modifier.weight(1f))
-                    }
-                    
-                    Spacer(modifier = Modifier.height(24.dp))
-                    
-                    Text(
-                        text = "Current Academic Year",
-                        style = MaterialTheme.typography.titleLarge,
-                        color = MaterialTheme.colorScheme.onBackground
-                    )
-                    Spacer(modifier = Modifier.height(16.dp))
-                    
-                    Box(
-                        modifier = Modifier
-                            .fillMaxWidth()
-                            .clip(MaterialTheme.shapes.medium)
-                            .background(MaterialTheme.colorScheme.onBackground.copy(alpha = 0.04f))
-                            .padding(16.dp)
-                    ) {
-                        Column {
-                            Row(
-                                modifier = Modifier.fillMaxWidth(),
-                                horizontalArrangement = Arrangement.SpaceBetween,
-                                verticalAlignment = Alignment.CenterVertically
-                            ) {
-                                Text(
-                                    text = uiState.currentAcademicYear?.yearName ?: "Loading...",
-                                    style = MaterialTheme.typography.titleMedium,
-                                    color = MaterialTheme.colorScheme.onBackground
-                                )
-                                Row(verticalAlignment = Alignment.CenterVertically) {
-                                    Box(
-                                        modifier = Modifier
-                                            .size(8.dp)
-                                            .clip(CircleShape)
-                                            .background(MaterialTheme.colorScheme.primary)
+                    Column(verticalArrangement = Arrangement.spacedBy(16.dp)) {
+                        Text(
+                            text = "Academic Summary",
+                            style = MaterialTheme.typography.titleMedium,
+                            fontWeight = FontWeight.Bold
+                        )
+                        Card(
+                            modifier = Modifier.fillMaxWidth(),
+                            colors = CardDefaults.cardColors(
+                                containerColor = MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.5f)
+                            )
+                        ) {
+                            Column(modifier = Modifier.padding(16.dp)) {
+                                Row(
+                                    modifier = Modifier.fillMaxWidth(),
+                                    horizontalArrangement = Arrangement.SpaceBetween
+                                ) {
+                                    SummaryStatItem(
+                                        label = "Classes",
+                                        value = uiState.totalClasses.toString(),
+                                        onClick = { onNavigate("classes") }
                                     )
-                                    Spacer(modifier = Modifier.width(8.dp))
-                                    Text(
-                                        text = "Current",
-                                        style = MaterialTheme.typography.labelMedium,
-                                        color = MaterialTheme.colorScheme.primary
+                                    SummaryStatItem(
+                                        label = "Sections",
+                                        value = uiState.totalSections.toString(),
+                                        onClick = { onNavigate("sections") }
+                                    )
+                                    SummaryStatItem(
+                                        label = "Subjects",
+                                        value = uiState.totalSubjects.toString(),
+                                        onClick = { onNavigate("subjects") }
                                     )
                                 }
                             }
-                            Spacer(modifier = Modifier.height(12.dp))
-                            Text(
-                                text = "${uiState.totalClasses} Classes · ${uiState.totalSections} Sections · ${uiState.totalSubjects} Subjects",
-                                style = MaterialTheme.typography.bodyMedium,
-                                color = MaterialTheme.colorScheme.secondary
-                            )
                         }
                     }
-                    
-                    Spacer(modifier = Modifier.height(40.dp))
+                }
+
+                item {
+                    Spacer(modifier = Modifier.height(24.dp))
                 }
             }
         }
@@ -294,76 +271,177 @@ fun AdminDashboardScreen(
 }
 
 @Composable
-fun QuickActionItem(title: String, onClick: () -> Unit, modifier: Modifier = Modifier) {
-    Box(
-        modifier = modifier
-            .clip(MaterialTheme.shapes.medium)
-            .background(MaterialTheme.colorScheme.onBackground.copy(alpha = 0.04f))
-            .clickable { onClick() }
-            .padding(16.dp)
+private fun DashboardMetricCard(
+    label: String,
+    value: String,
+    subLabel: String,
+    icon: ImageVector,
+    modifier: Modifier = Modifier,
+    onClick: () -> Unit
+) {
+    Card(
+        modifier = modifier.clickable { onClick() },
+        colors = CardDefaults.cardColors(
+            containerColor = MaterialTheme.colorScheme.surface
+        ),
+        elevation = CardDefaults.cardElevation(defaultElevation = 2.dp)
     ) {
-        Row(verticalAlignment = Alignment.CenterVertically) {
+        Column(modifier = Modifier.padding(16.dp)) {
             Icon(
-                imageVector = Icons.Default.Add,
+                imageVector = icon,
                 contentDescription = null,
                 tint = MaterialTheme.colorScheme.primary,
-                modifier = Modifier.size(20.dp)
+                modifier = Modifier.size(24.dp)
             )
-            Spacer(Modifier.width(8.dp))
+            Spacer(modifier = Modifier.height(12.dp))
             Text(
-                text = title,
-                style = MaterialTheme.typography.labelLarge,
-                color = MaterialTheme.colorScheme.onBackground
+                text = value,
+                style = MaterialTheme.typography.headlineSmall,
+                fontWeight = FontWeight.Bold
+            )
+            Text(
+                text = label,
+                style = MaterialTheme.typography.labelMedium,
+                color = MaterialTheme.colorScheme.onSurfaceVariant
+            )
+            Text(
+                text = subLabel,
+                style = MaterialTheme.typography.labelSmall,
+                color = MaterialTheme.colorScheme.primary
             )
         }
     }
 }
 
 @Composable
-fun AnnouncementRow(announcement: Announcement) {
+private fun QuickActionButton(
+    title: String,
+    icon: ImageVector,
+    onClick: () -> Unit,
+    modifier: Modifier = Modifier
+) {
     Column(
-        modifier = Modifier
-            .fillMaxWidth()
-            .clickable { /* Handle click */ }
+        modifier = modifier
+            .clip(MaterialTheme.shapes.medium)
+            .clickable { onClick() }
+            .padding(vertical = 8.dp),
+        horizontalAlignment = Alignment.CenterHorizontally
     ) {
-        Row(
-            modifier = Modifier.fillMaxWidth(),
-            horizontalArrangement = Arrangement.SpaceBetween,
-            verticalAlignment = Alignment.Top
+        Surface(
+            modifier = Modifier.size(48.dp),
+            shape = CircleShape,
+            color = MaterialTheme.colorScheme.secondaryContainer
         ) {
-            Text(
-                text = announcement.title,
-                style = MaterialTheme.typography.labelLarge.copy(fontWeight = FontWeight.Bold),
-                color = MaterialTheme.colorScheme.onBackground,
-                modifier = Modifier.weight(1f)
-            )
-            Text(
-                text = formatDate(announcement.createdAt ?: ""),
-                style = MaterialTheme.typography.labelMedium,
-                color = MaterialTheme.colorScheme.secondary,
-                modifier = Modifier.padding(start = 8.dp)
-            )
+            Box(contentAlignment = Alignment.Center) {
+                Icon(
+                    imageVector = icon,
+                    contentDescription = null,
+                    tint = MaterialTheme.colorScheme.onSecondaryContainer,
+                    modifier = Modifier.size(24.dp)
+                )
+            }
         }
-        Spacer(modifier = Modifier.height(4.dp))
+        Spacer(modifier = Modifier.height(8.dp))
         Text(
-            text = announcement.content,
-            style = MaterialTheme.typography.bodyMedium,
-            color = MaterialTheme.colorScheme.secondary,
-            maxLines = 2,
+            text = title,
+            style = MaterialTheme.typography.labelSmall,
+            fontWeight = FontWeight.Medium,
+            color = MaterialTheme.colorScheme.onSurface,
+            maxLines = 1,
             overflow = TextOverflow.Ellipsis
         )
     }
 }
 
-private fun formatDate(dateStr: String): String {
-    // Assuming backend sends ISO format or similar, creating a safe display fallback
-    return try {
-        val parser = SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss", Locale.getDefault())
-        val date = parser.parse(dateStr)
-        val formatter = SimpleDateFormat("MMM d", Locale.getDefault())
-        if (date != null) formatter.format(date) else dateStr
-    } catch (e: Exception) {
-        // Fallback for simple date formats
-        if (dateStr.length >= 10) dateStr.substring(0, 10) else dateStr
+@Composable
+private fun AnnouncementDashboardItem(
+    announcement: Announcement,
+    onClick: () -> Unit
+) {
+    Card(
+        modifier = Modifier
+            .fillMaxWidth()
+            .clickable { onClick() },
+        colors = CardDefaults.cardColors(
+            containerColor = MaterialTheme.colorScheme.surface
+        ),
+        elevation = CardDefaults.cardElevation(defaultElevation = 1.dp)
+    ) {
+        Row(
+            modifier = Modifier.padding(16.dp),
+            verticalAlignment = Alignment.CenterVertically
+        ) {
+            Column(modifier = Modifier.weight(1f)) {
+                Text(
+                    text = announcement.title,
+                    style = MaterialTheme.typography.titleSmall,
+                    fontWeight = FontWeight.Bold,
+                    maxLines = 1,
+                    overflow = TextOverflow.Ellipsis
+                )
+                Text(
+                    text = announcement.content,
+                    style = MaterialTheme.typography.bodySmall,
+                    color = MaterialTheme.colorScheme.onSurfaceVariant,
+                    maxLines = 1,
+                    overflow = TextOverflow.Ellipsis
+                )
+            }
+            Icon(
+                imageVector = Icons.Default.ChevronRight,
+                contentDescription = null,
+                tint = MaterialTheme.colorScheme.onSurfaceVariant
+            )
+        }
+    }
+}
+
+@Composable
+private fun SummaryStatItem(
+    label: String,
+    value: String,
+    onClick: () -> Unit
+) {
+    Column(
+        modifier = Modifier
+            .clip(MaterialTheme.shapes.small)
+            .clickable { onClick() }
+            .padding(8.dp),
+        horizontalAlignment = Alignment.CenterHorizontally
+    ) {
+        Text(
+            text = value,
+            style = MaterialTheme.typography.titleLarge,
+            fontWeight = FontWeight.Bold,
+            color = MaterialTheme.colorScheme.primary
+        )
+        Text(
+            text = label,
+            style = MaterialTheme.typography.labelSmall,
+            color = MaterialTheme.colorScheme.onSurfaceVariant
+        )
+    }
+}
+
+@Composable
+private fun EmptyStateCard(message: String) {
+    Card(
+        modifier = Modifier.fillMaxWidth(),
+        colors = CardDefaults.cardColors(
+            containerColor = MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.3f)
+        )
+    ) {
+        Box(
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(24.dp),
+            contentAlignment = Alignment.Center
+        ) {
+            Text(
+                text = message,
+                style = MaterialTheme.typography.bodyMedium,
+                color = MaterialTheme.colorScheme.onSurfaceVariant
+            )
+        }
     }
 }

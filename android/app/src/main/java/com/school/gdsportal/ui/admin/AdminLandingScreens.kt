@@ -122,7 +122,7 @@ fun ProfileLandingScreen(onBack: () -> Unit, onNavigate: (String) -> Unit, onLog
         title = "Profile & Account",
         description = "Manage your administrator account",
         rows = listOf(
-            NavigationRowData("My Profile", "admin_my_profile", isImplemented = false),
+            NavigationRowData("My Profile", "admin_my_profile", isImplemented = true),
             NavigationRowData("Edit Profile Picture", "admin_edit_picture", isImplemented = false),
             NavigationRowData("Change Password", "admin_change_password", isImplemented = false),
             NavigationRowData("Logout", "admin_logout_action", isImplemented = true)

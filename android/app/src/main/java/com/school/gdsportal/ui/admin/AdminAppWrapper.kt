@@ -46,6 +46,8 @@ import com.school.gdsportal.ui.admin.dashboard.AdminDashboardViewModel
 import com.school.gdsportal.ui.admin.PeopleLandingScreen
 import com.school.gdsportal.ui.admin.administrators.*
 import com.school.gdsportal.ui.admin.principals.*
+import com.school.gdsportal.ui.admin.profile.ProfileScreen
+import com.school.gdsportal.ui.admin.profile.ProfileViewModel
 import kotlinx.coroutines.launch
 
 @Composable
@@ -1427,8 +1429,22 @@ fun AdminAppWrapper(
             composable("admin_profile_landing") {
                 ProfileLandingScreen(
                     onBack = { navController.navigateUp() },
-                    onNavigate = { /* TODO Phase 2 */ },
+                    onNavigate = { route ->
+                        when (route) {
+                            "admin_my_profile" -> navController.navigate("admin_my_profile")
+                        }
+                    },
                     onLogout = onLogout
+                )
+            }
+
+            composable("admin_my_profile") {
+                val profileViewModel: ProfileViewModel = viewModel(
+                    factory = ProfileViewModel.provideFactory(appContainer.apiService)
+                )
+                ProfileScreen(
+                    viewModel = profileViewModel,
+                    onBackClick = { navController.navigateUp() }
                 )
             }
 
