@@ -28,6 +28,9 @@ import com.school.gdsportal.data.remote.ApiResponse
 interface ApiService {
     @POST("api/auth/login")
     suspend fun login(@Body credentials: LoginRequest): Response<ApiResponse<LoginResponse>>
+
+    @POST("api/auth/change-password")
+    suspend fun changePassword(@Body request: com.school.gdsportal.data.remote.ChangePasswordRequest): Response<ApiResponse<Void>>
     
     @GET("api/users/me")
     suspend fun getCurrentUser(): Response<ApiResponse<User>>

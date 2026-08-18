@@ -46,6 +46,8 @@ import com.school.gdsportal.ui.admin.dashboard.AdminDashboardViewModel
 import com.school.gdsportal.ui.admin.PeopleLandingScreen
 import com.school.gdsportal.ui.admin.administrators.*
 import com.school.gdsportal.ui.admin.principals.*
+import com.school.gdsportal.ui.admin.profile.ChangePasswordScreen
+import com.school.gdsportal.ui.admin.profile.ChangePasswordViewModel
 import com.school.gdsportal.ui.admin.profile.ProfileScreen
 import com.school.gdsportal.ui.admin.profile.ProfileViewModel
 import kotlinx.coroutines.launch
@@ -1223,10 +1225,6 @@ fun AdminAppWrapper(
                 )
             }
 
-
-            
-
-
             composable("admin_assessment_landing") {
                 AssessmentLandingScreen(
                     onBack = { navController.navigateUp() },
@@ -1432,6 +1430,8 @@ fun AdminAppWrapper(
                     onNavigate = { route ->
                         when (route) {
                             "admin_my_profile" -> navController.navigate("admin_my_profile")
+                            "admin_change_password" -> navController.navigate("admin_change_password")
+                            "logout_action" -> onLogout()
                         }
                     },
                     onLogout = onLogout
@@ -1445,6 +1445,16 @@ fun AdminAppWrapper(
                 ProfileScreen(
                     viewModel = profileViewModel,
                     onBackClick = { navController.navigateUp() }
+                )
+            }
+
+            composable("admin_change_password") {
+                val changePasswordViewModel: ChangePasswordViewModel = viewModel(
+                    factory = ChangePasswordViewModel.provideFactory(appContainer.apiService)
+                )
+                ChangePasswordScreen(
+                    viewModel = changePasswordViewModel,
+                    onBackClick = { navController.navigateUp()}
                 )
             }
 
