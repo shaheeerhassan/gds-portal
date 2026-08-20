@@ -20,6 +20,8 @@ import com.school.gdsportal.ui.admin.AdminAppWrapper
 import com.school.gdsportal.ui.principal.PrincipalAppWrapper
 import com.school.gdsportal.ui.login.LoginScreen
 import com.school.gdsportal.ui.login.LoginViewModel
+import com.school.gdsportal.ui.theme.AccentAdministrator
+import com.school.gdsportal.ui.theme.AccentPrincipal
 import com.school.gdsportal.ui.theme.GDSPortalTheme
 import kotlinx.coroutines.launch
 
@@ -28,14 +30,22 @@ class MainActivity : ComponentActivity() {
         super.onCreate(savedInstanceState)
         enableEdgeToEdge()
         setContent {
-            GDSPortalTheme {
-                val appContainer = (application as GdsApplication).container
-                val coroutineScope = rememberCoroutineScope()
+            val appContainer = (application as GdsApplication).container
+            val coroutineScope = rememberCoroutineScope()
 
-                // Collect states directly from DataStore. Null means not logged in.
-                val role by appContainer.tokenManager.roleFlow.collectAsState(initial = "LOADING")
-                val token by appContainer.tokenManager.tokenFlow.collectAsState(initial = "LOADING")
+            // Collect states directly from DataStore. Null means not logged in.
+            val role by appContainer.tokenManager.roleFlow.collectAsState(initial = "LOADING")
+            val token by appContainer.tokenManager.tokenFlow.collectAsState(initial = "LOADING")
 
+            // Each role gets its own brand color: Principal has strictly less authority than
+            // Administrator, so the UI should look visibly different, not just behave
+            // differently. Falls back to the admin amber before the role is known (loading/login).
+            val themePrimaryColor = when (role?.uppercase()) {
+                "PRINCIPAL" -> AccentPrincipal
+                else -> AccentAdministrator
+            }
+
+            GDSPortalTheme(primaryColor = themePrimaryColor) {
                 val onLogout: () -> Unit = {
                     coroutineScope.launch { appContainer.tokenManager.clearSession() }
                 }

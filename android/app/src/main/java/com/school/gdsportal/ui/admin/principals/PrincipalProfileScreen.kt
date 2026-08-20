@@ -19,6 +19,7 @@ import androidx.compose.ui.unit.dp
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun PrincipalProfileScreen(
+    isReadOnly: Boolean = false,
     viewModel: PrincipalProfileViewModel,
     onBackClick: () -> Unit,
     onEditPrincipalClick: () -> Unit
@@ -43,28 +44,30 @@ fun PrincipalProfileScreen(
                     }
                 },
                 actions = {
-                    IconButton(onClick = { expandedMenu = true }) {
-                        Icon(Icons.Default.MoreVert, contentDescription = "More Options")
-                    }
-                    DropdownMenu(
-                        expanded = expandedMenu,
-                        onDismissRequest = { expandedMenu = false }
-                    ) {
-                        DropdownMenuItem(
-                            text = { Text("Edit Principal") },
-                            onClick = {
-                                expandedMenu = false
-                                onEditPrincipalClick()
-                            }
-                        )
-                        HorizontalDivider()
-                        DropdownMenuItem(
-                            text = { Text("Deactivate Principal", color = MaterialTheme.colorScheme.error) },
-                            onClick = {
-                                expandedMenu = false
-                                showDeactivateDialog = true
-                            }
-                        )
+                    if (!isReadOnly) {
+                        IconButton(onClick = { expandedMenu = true }) {
+                            Icon(Icons.Default.MoreVert, contentDescription = "More Options")
+                        }
+                        DropdownMenu(
+                            expanded = expandedMenu,
+                            onDismissRequest = { expandedMenu = false }
+                        ) {
+                            DropdownMenuItem(
+                                text = { Text("Edit Principal") },
+                                onClick = {
+                                    expandedMenu = false
+                                    onEditPrincipalClick()
+                                }
+                            )
+                            HorizontalDivider()
+                            DropdownMenuItem(
+                                text = { Text("Deactivate Principal", color = MaterialTheme.colorScheme.error) },
+                                onClick = {
+                                    expandedMenu = false
+                                    showDeactivateDialog = true
+                                }
+                            )
+                        }
                     }
                 }
             )

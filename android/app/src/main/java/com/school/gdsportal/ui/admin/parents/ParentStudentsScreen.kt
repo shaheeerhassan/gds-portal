@@ -15,6 +15,7 @@ import androidx.compose.ui.unit.dp
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun ParentStudentsScreen(
+    isReadOnly: Boolean = false,
     viewModel: ParentProfileViewModel,
     onBackClick: () -> Unit
 ) {

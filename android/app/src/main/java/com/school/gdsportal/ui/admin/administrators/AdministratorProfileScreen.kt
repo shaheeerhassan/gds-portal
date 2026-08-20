@@ -19,6 +19,7 @@ import androidx.compose.ui.unit.dp
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun AdministratorProfileScreen(
+    isReadOnly: Boolean = false,
     viewModel: AdministratorProfileViewModel,
     onBackClick: () -> Unit,
     onEditAdministratorClick: () -> Unit
@@ -40,7 +41,7 @@ fun AdministratorProfileScreen(
                     }
                 },
                 actions = {
-                    if (uiState.administrator != null) {
+                    if (!isReadOnly && uiState.administrator != null) {
                         IconButton(onClick = { showMenu = true }) {
                             Icon(Icons.Default.MoreVert, contentDescription = "Options")
                         }

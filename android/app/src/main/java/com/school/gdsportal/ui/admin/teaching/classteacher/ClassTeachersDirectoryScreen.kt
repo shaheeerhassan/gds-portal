@@ -19,6 +19,7 @@ import com.school.gdsportal.data.remote.AcademicYear
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun ClassTeachersDirectoryScreen(
+    isReadOnly: Boolean = false,
     viewModel: ClassTeachersDirectoryViewModel,
     onMenuClick: () -> Unit,
     onAddClick: () -> Unit,
@@ -58,8 +59,10 @@ fun ClassTeachersDirectoryScreen(
                     }
                 },
                 actions = {
-                    IconButton(onClick = onAddClick) {
-                        Icon(Icons.Default.Add, contentDescription = "Add Class Teacher")
+                    if (!isReadOnly) {
+                        IconButton(onClick = onAddClick) {
+                            Icon(Icons.Default.Add, contentDescription = "Add Class Teacher")
+                        }
                     }
                 }
             )

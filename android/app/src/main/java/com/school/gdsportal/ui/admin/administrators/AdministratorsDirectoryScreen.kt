@@ -40,7 +40,7 @@ fun AdministratorsDirectoryScreen(
                 title = { Text("Administrators") },
                 navigationIcon = {
                     IconButton(onClick = onBackClick) {
-                        Icon(Icons.Default.Menu, contentDescription = "Menu")
+                        Icon(Icons.Default.ArrowBack, contentDescription = "Menu")
                     }
                 },
                 actions = {

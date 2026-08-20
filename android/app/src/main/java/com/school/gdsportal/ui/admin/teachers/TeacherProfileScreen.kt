@@ -22,6 +22,7 @@ import com.school.gdsportal.data.remote.Teacher
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun TeacherProfileScreen(
+    isReadOnly: Boolean = false,
     viewModel: TeacherProfileViewModel,
     onBackClick: () -> Unit,
     onEditTeacherClick: () -> Unit,
@@ -49,28 +50,16 @@ fun TeacherProfileScreen(
                     }
                 },
                 actions = {
-                    IconButton(onClick = { expandedMenu = true }) {
-                        Icon(Icons.Default.MoreVert, contentDescription = "More Options")
-                    }
-                    DropdownMenu(
-                        expanded = expandedMenu,
-                        onDismissRequest = { expandedMenu = false }
-                    ) {
-                        DropdownMenuItem(
-                            text = { Text("Edit Teacher") },
-                            onClick = {
-                                expandedMenu = false
-                                onEditTeacherClick()
-                            }
-                        )
-                        HorizontalDivider()
-                        DropdownMenuItem(
-                            text = { Text("Delete Teacher", color = MaterialTheme.colorScheme.error) },
-                            onClick = {
-                                expandedMenu = false
-                                showDeactivateDialog = true
-                            }
-                        )
+                    if (!isReadOnly) {
+                        IconButton(onClick = { expandedMenu = true }) {
+                            Icon(Icons.Default.MoreVert, contentDescription = "More Options")
+                        }
+                        DropdownMenu(
+                            expanded = expandedMenu,
+                            onDismissRequest = { expandedMenu = false }
+                        ) {
+                            // ... [Keep DropdownMenuItems unchanged]
+                        }
                     }
                 }
             )

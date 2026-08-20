@@ -16,6 +16,7 @@ import androidx.compose.ui.unit.dp
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun TimetableDetailScreen(
+    isReadOnly: Boolean = false,
     viewModel: TimetableDetailViewModel,
     onBackClick: () -> Unit,
     onEditClick: (TimetableDisplay) -> Unit,
@@ -80,7 +81,7 @@ fun TimetableDetailScreen(
                     }
                 },
                 actions = {
-                    if (entry != null) {
+                    if (!isReadOnly && entry != null) {
                         IconButton(onClick = { expandedMenu = true }) {
                             Icon(Icons.Default.MoreVert, contentDescription = "More Options")
                         }

@@ -24,6 +24,7 @@ import com.school.gdsportal.data.remote.ParentDirectoryDTO
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun ParentsDirectoryScreen(
+    isReadOnly: Boolean = false,
     viewModel: ParentsDirectoryViewModel,
     onBackClick: () -> Unit,
     onParentClick: (Long) -> Unit

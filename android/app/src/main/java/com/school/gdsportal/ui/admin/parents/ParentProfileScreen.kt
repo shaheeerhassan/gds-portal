@@ -25,6 +25,7 @@ import com.school.gdsportal.data.remote.Student
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun ParentProfileScreen(
+    isReadOnly: Boolean = false,
     viewModel: ParentProfileViewModel,
     onBackClick: () -> Unit,
     onViewAllStudentsClick: () -> Unit,
@@ -45,28 +46,30 @@ fun ParentProfileScreen(
                     }
                 },
                 actions = {
-                    Box {
-                        IconButton(onClick = { showMenu = true }) {
-                            Icon(Icons.Default.MoreVert, contentDescription = "More options")
-                        }
-                        DropdownMenu(
-                            expanded = showMenu,
-                            onDismissRequest = { showMenu = false }
-                        ) {
-                            DropdownMenuItem(
-                                text = { Text("Edit Parent") },
-                                onClick = { 
-                                    showMenu = false
-                                    onEditParentClick()
-                                }
-                            )
-                            DropdownMenuItem(
-                                text = { Text("Delete Parent", color = MaterialTheme.colorScheme.error) },
-                                onClick = { 
-                                    showMenu = false
-                                    showDeleteDialog = true
-                                }
-                            )
+                    if (!isReadOnly) {
+                        Box {
+                            IconButton(onClick = { showMenu = true }) {
+                                Icon(Icons.Default.MoreVert, contentDescription = "More options")
+                            }
+                            DropdownMenu(
+                                expanded = showMenu,
+                                onDismissRequest = { showMenu = false }
+                            ) {
+                                DropdownMenuItem(
+                                    text = { Text("Edit Parent") },
+                                    onClick = {
+                                        showMenu = false
+                                        onEditParentClick()
+                                    }
+                                )
+                                DropdownMenuItem(
+                                    text = { Text("Delete Parent", color = MaterialTheme.colorScheme.error) },
+                                    onClick = {
+                                        showMenu = false
+                                        showDeleteDialog = true
+                                    }
+                                )
+                            }
                         }
                     }
                 }

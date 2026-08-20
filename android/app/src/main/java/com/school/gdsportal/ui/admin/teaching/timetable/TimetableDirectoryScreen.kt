@@ -20,6 +20,7 @@ import com.school.gdsportal.ui.admin.teaching.teacherclasses.FilterDropdown
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun TimetableDirectoryScreen(
+    isReadOnly: Boolean = false,
     viewModel: TimetableDirectoryViewModel,
     onMenuClick: () -> Unit,
     onAddClick: () -> Unit,
@@ -50,7 +51,7 @@ fun TimetableDirectoryScreen(
                     }
                 },
                 actions = {
-                    if (uiState.selectedSectionId != null) {
+                    if (!isReadOnly && uiState.selectedSectionId != null) {
                         IconButton(onClick = onAddClick) {
                             Icon(Icons.Default.Add, contentDescription = "Add Timetable Entry")
                         }
@@ -137,9 +138,11 @@ fun TimetableDirectoryScreen(
                             color = MaterialTheme.colorScheme.onSurfaceVariant,
                             style = MaterialTheme.typography.bodyMedium
                         )
-                        Spacer(modifier = Modifier.height(16.dp))
-                        Button(onClick = onAddClick) {
-                            Text("Add Timetable Entry")
+                        if (!isReadOnly) {
+                            Spacer(modifier = Modifier.height(16.dp))
+                            Button(onClick = onAddClick) {
+                                Text("Add Timetable Entry")
+                            }
                         }
                     }
                 } else {

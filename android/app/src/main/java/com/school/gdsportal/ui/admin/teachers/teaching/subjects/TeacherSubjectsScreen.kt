@@ -17,6 +17,7 @@ import com.school.gdsportal.data.remote.TeacherSubjectDTO
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun TeacherSubjectsScreen(
+    isReadOnly: Boolean = false,
     viewModel: TeacherSubjectsViewModel,
     onBackClick: () -> Unit,
     onAssignClick: () -> Unit
@@ -37,8 +38,10 @@ fun TeacherSubjectsScreen(
             )
         },
         floatingActionButton = {
-            FloatingActionButton(onClick = onAssignClick) {
-                Icon(Icons.Default.Add, contentDescription = "Assign Class & Subject")
+            if (!isReadOnly) {
+                FloatingActionButton(onClick = onAssignClick) {
+                    Icon(Icons.Default.Add, contentDescription = "Assign Class & Subject")
+                }
             }
         }
     ) { padding ->
@@ -74,6 +77,7 @@ fun TeacherSubjectsScreen(
                 ) {
                     items(uiState.assignments) { assignment ->
                         TeacherSubjectCard(
+                            isReadOnly = isReadOnly,
                             assignment = assignment,
                             onRemoveClick = { showDeleteDialog = assignment }
                         )
@@ -113,6 +117,7 @@ fun TeacherSubjectsScreen(
 
 @Composable
 private fun TeacherSubjectCard(
+    isReadOnly: Boolean,
     assignment: TeacherSubjectDTO,
     onRemoveClick: () -> Unit
 ) {
@@ -141,8 +146,10 @@ private fun TeacherSubjectCard(
                     color = MaterialTheme.colorScheme.onSurfaceVariant
                 )
             }
-            TextButton(onClick = onRemoveClick) {
-                Text("Remove", color = MaterialTheme.colorScheme.error)
+            if (!isReadOnly) {
+                TextButton(onClick = onRemoveClick) {
+                    Text("Remove", color = MaterialTheme.colorScheme.error)
+                }
             }
         }
     }

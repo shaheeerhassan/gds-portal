@@ -22,6 +22,7 @@ import com.school.gdsportal.data.remote.Parent
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun StudentParentsScreen(
+    isReadOnly: Boolean = false,
     viewModel: StudentParentsViewModel,
     onBackClick: () -> Unit,
     onAddParentClick: () -> Unit
@@ -70,6 +71,7 @@ fun StudentParentsScreen(
                 ) {
                     items(parents, key = { it.parentId }) { parent ->
                         ParentCard(
+                            isReadOnly = isReadOnly,
                             parent = parent,
                             onUnlinkClick = { viewModel.unlinkParent(parent.parentId) }
                         )
@@ -77,15 +79,17 @@ fun StudentParentsScreen(
                 }
             }
         }
-        Box(modifier = Modifier.fillMaxSize().padding(padding)) {
-            FloatingActionButton(
-                onClick = onAddParentClick,
-                modifier = Modifier
-                    .align(Alignment.BottomEnd)
-                    .padding(16.dp),
-                containerColor = MaterialTheme.colorScheme.primary
-            ) {
-                Icon(Icons.Default.Add, contentDescription = "Link Parent")
+        if (!isReadOnly) {
+            Box(modifier = Modifier.fillMaxSize().padding(padding)) {
+                FloatingActionButton(
+                    onClick = onAddParentClick,
+                    modifier = Modifier
+                        .align(Alignment.BottomEnd)
+                        .padding(16.dp),
+                    containerColor = MaterialTheme.colorScheme.primary
+                ) {
+                    Icon(Icons.Default.Add, contentDescription = "Link Parent")
+                }
             }
         }
     }
@@ -93,7 +97,7 @@ fun StudentParentsScreen(
 
 
 @Composable
-private fun ParentCard(parent: Parent, onUnlinkClick: () -> Unit) {
+private fun ParentCard(isReadOnly: Boolean, parent: Parent, onUnlinkClick: () -> Unit) {
     Card(
         modifier = Modifier.fillMaxWidth(),
         colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surfaceVariant)
@@ -121,9 +125,11 @@ private fun ParentCard(parent: Parent, onUnlinkClick: () -> Unit) {
                 }
                 
                 var showUnlinkConfirm by androidx.compose.runtime.remember { androidx.compose.runtime.mutableStateOf(false) }
-                
-                IconButton(onClick = { showUnlinkConfirm = true }) {
-                    Icon(Icons.Default.Delete, contentDescription = "Unlink", tint = MaterialTheme.colorScheme.error)
+
+                if (!isReadOnly) {
+                    IconButton(onClick = { showUnlinkConfirm = true }) {
+                        Icon(Icons.Default.Delete, contentDescription = "Unlink", tint = MaterialTheme.colorScheme.error)
+                    }
                 }
                 
                 if (showUnlinkConfirm) {

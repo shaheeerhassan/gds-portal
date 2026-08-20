@@ -12,8 +12,8 @@ import androidx.compose.ui.graphics.toArgb
 import androidx.compose.ui.platform.LocalView
 import androidx.core.view.WindowCompat
 
-private val LightColorScheme = lightColorScheme(
-    primary = AccentAdministrator, // Default to admin amber for unauthenticated state
+private val BaseColorScheme = lightColorScheme(
+    primary = AccentAdministrator, // Default to admin amber for unauthenticated state (login screen, loading)
     secondary = TextSecondary,
     background = BackgroundColor,
     surface = BackgroundColor,
@@ -26,9 +26,14 @@ private val LightColorScheme = lightColorScheme(
 
 @Composable
 fun GDSPortalTheme(
+    // Lets callers give each role its own brand color (e.g. AccentAdministrator vs
+    // AccentPrincipal) without duplicating the whole color scheme. Since MaterialTheme.colorScheme.primary
+    // is used throughout (buttons, active nav items, dashboard stat numbers, quick-action icons),
+    // switching this one value re-skins the whole app for that role.
+    primaryColor: Color = AccentAdministrator,
     content: @Composable () -> Unit
 ) {
-    val colorScheme = LightColorScheme // We force light theme per design system background
+    val colorScheme = BaseColorScheme.copy(primary = primaryColor) // We force light theme per design system background
     val view = LocalView.current
     if (!view.isInEditMode) {
         SideEffect {

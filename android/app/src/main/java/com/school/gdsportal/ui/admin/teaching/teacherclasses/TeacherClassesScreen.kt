@@ -19,6 +19,7 @@ import com.school.gdsportal.data.remote.AcademicYear
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun TeacherClassesScreen(
+    isReadOnly: Boolean = false,
     viewModel: TeacherClassesViewModel,
     onBackClick: () -> Unit,
     onTeacherClick: (Long) -> Unit
@@ -141,6 +142,7 @@ fun TeacherClassesScreen(
                     ) {
                         items(uiState.filteredAssignments) { row ->
                             TeacherClassRowItem(
+                                isReadOnly = isReadOnly,
                                 row = row,
                                 onClick = { onTeacherClick(row.teacher.teacherId) },
                                 onRemoveClick = { showDeleteDialogForId = row.dto.teacherClassId }
@@ -165,6 +167,7 @@ fun TeacherClassesScreen(
 
 @Composable
 fun TeacherClassRowItem(
+    isReadOnly: Boolean = false,
     row: TeacherClassRow,
     onClick: () -> Unit,
     onRemoveClick: () -> Unit
@@ -199,22 +202,24 @@ fun TeacherClassRowItem(
                 )
             }
         }
-        
-        Box {
-            IconButton(onClick = { expanded = true }) {
-                Icon(Icons.Default.MoreVert, contentDescription = "More Options")
-            }
-            DropdownMenu(
-                expanded = expanded,
-                onDismissRequest = { expanded = false }
-            ) {
-                DropdownMenuItem(
-                    text = { Text("Remove Assignment", color = MaterialTheme.colorScheme.error) },
-                    onClick = {
-                        expanded = false
-                        onRemoveClick()
-                    }
-                )
+
+        if (!isReadOnly) {
+            Box {
+                IconButton(onClick = { expanded = true }) {
+                    Icon(Icons.Default.MoreVert, contentDescription = "More Options")
+                }
+                DropdownMenu(
+                    expanded = expanded,
+                    onDismissRequest = { expanded = false }
+                ) {
+                    DropdownMenuItem(
+                        text = { Text("Remove Assignment", color = MaterialTheme.colorScheme.error) },
+                        onClick = {
+                            expanded = false
+                            onRemoveClick()
+                        }
+                    )
+                }
             }
         }
         

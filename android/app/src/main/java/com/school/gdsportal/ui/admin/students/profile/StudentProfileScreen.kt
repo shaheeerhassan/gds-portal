@@ -24,6 +24,7 @@ import com.school.gdsportal.data.remote.Student
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun StudentProfileScreen(
+    isReadOnly: Boolean = false,
     viewModel: StudentProfileViewModel,
     onBackClick: () -> Unit,
     onEditClick: () -> Unit,
@@ -49,62 +50,64 @@ fun StudentProfileScreen(
                     }
                 },
                 actions = {
-                    Box {
-                        IconButton(onClick = { showMenu = true }) {
-                            Icon(Icons.Default.MoreVert, contentDescription = "More options")
-                        }
-                        DropdownMenu(
-                            expanded = showMenu,
-                            onDismissRequest = { showMenu = false }
-                        ) {
-                            DropdownMenuItem(
-                                text = { Text("Edit Student") },
-                                onClick = {
-                                    showMenu = false
-                                    onEditClick()
+                    if (!isReadOnly) {
+                        Box {
+                            IconButton(onClick = { showMenu = true }) {
+                                Icon(Icons.Default.MoreVert, contentDescription = "More options")
+                            }
+                            DropdownMenu(
+                                expanded = showMenu,
+                                onDismissRequest = { showMenu = false }
+                            ) {
+                                DropdownMenuItem(
+                                    text = { Text("Edit Student") },
+                                    onClick = {
+                                        showMenu = false
+                                        onEditClick()
+                                    }
+                                )
+                                if (uiState.enrollment?.active == true) {
+                                    DropdownMenuItem(
+                                        text = { Text("Transfer Student") },
+                                        onClick = {
+                                            showMenu = false
+                                            onTransferClick()
+                                        }
+                                    )
+                                    DropdownMenuItem(
+                                        text = { Text("End Enrollment", color = MaterialTheme.colorScheme.error) },
+                                        onClick = {
+                                            showMenu = false
+                                            showEndEnrollmentDialog = true
+                                        }
+                                    )
                                 }
-                            )
-                            if (uiState.enrollment?.active == true) {
-                                DropdownMenuItem(
-                                    text = { Text("Transfer Student") },
-                                    onClick = {
-                                        showMenu = false
-                                        onTransferClick()
-                                    }
-                                )
-                                DropdownMenuItem(
-                                    text = { Text("End Enrollment", color = MaterialTheme.colorScheme.error) },
-                                    onClick = {
-                                        showMenu = false
-                                        showEndEnrollmentDialog = true
-                                    }
-                                )
-                            }
-                            
-                            if (uiState.student?.active == true) {
-                                DropdownMenuItem(
-                                    text = { Text("Delete Student", color = MaterialTheme.colorScheme.error) },
-                                    onClick = {
-                                        showMenu = false
-                                        showDeactivateDialog = true
-                                    }
-                                )
-                            }
-                            
-                            if (uiState.user != null) {
-                                val isUserActive = uiState.user!!.active
-                                DropdownMenuItem(
-                                    text = { 
-                                        Text(
-                                            if (isUserActive) "Disable Login Access" else "Enable Login Access", 
-                                            color = if (isUserActive) MaterialTheme.colorScheme.error else MaterialTheme.colorScheme.primary
-                                        ) 
-                                    },
-                                    onClick = {
-                                        showMenu = false
-                                        showLoginAccessDialog = true
-                                    }
-                                )
+
+                                if (uiState.student?.active == true) {
+                                    DropdownMenuItem(
+                                        text = { Text("Delete Student", color = MaterialTheme.colorScheme.error) },
+                                        onClick = {
+                                            showMenu = false
+                                            showDeactivateDialog = true
+                                        }
+                                    )
+                                }
+
+                                if (uiState.user != null) {
+                                    val isUserActive = uiState.user!!.active
+                                    DropdownMenuItem(
+                                        text = {
+                                            Text(
+                                                if (isUserActive) "Disable Login Access" else "Enable Login Access",
+                                                color = if (isUserActive) MaterialTheme.colorScheme.error else MaterialTheme.colorScheme.primary
+                                            )
+                                        },
+                                        onClick = {
+                                            showMenu = false
+                                            showLoginAccessDialog = true
+                                        }
+                                    )
+                                }
                             }
                         }
                     }
@@ -245,9 +248,11 @@ fun StudentProfileScreen(
                                 style = MaterialTheme.typography.bodyLarge,
                                 color = MaterialTheme.colorScheme.error
                             )
-                            Spacer(modifier = Modifier.height(8.dp))
-                            Button(onClick = onEnrollClick) {
-                                Text("Enroll Student")
+                            if (!isReadOnly) {
+                                Spacer(modifier = Modifier.height(8.dp))
+                                Button(onClick = onEnrollClick) {
+                                    Text("Enroll Student")
+                                }
                             }
                         }
                     }

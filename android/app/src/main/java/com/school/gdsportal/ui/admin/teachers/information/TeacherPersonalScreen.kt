@@ -17,6 +17,7 @@ import androidx.compose.ui.unit.dp
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun TeacherPersonalScreen(
+    isReadOnly: Boolean = false,
     viewModel: TeacherPersonalViewModel,
     onBackClick: () -> Unit,
     onEditClick: () -> Unit // Kept for signature compatibility but not used in UI

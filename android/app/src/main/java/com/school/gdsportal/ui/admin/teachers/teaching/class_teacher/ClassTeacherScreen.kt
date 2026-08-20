@@ -16,6 +16,7 @@ import androidx.compose.ui.unit.dp
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun ClassTeacherScreen(
+    isReadOnly: Boolean = false,
     viewModel: ClassTeacherViewModel,
     onBackClick: () -> Unit,
     onAssignClick: () -> Unit
@@ -35,8 +36,10 @@ fun ClassTeacherScreen(
             )
         },
         floatingActionButton = {
-            FloatingActionButton(onClick = onAssignClick) {
-                Icon(Icons.Default.Add, contentDescription = "Assign Class Teacher")
+            if (!isReadOnly) {
+                FloatingActionButton(onClick = onAssignClick) {
+                    Icon(Icons.Default.Add, contentDescription = "Assign Class Teacher")
+                }
             }
         }
     ) { paddingValues ->
@@ -104,6 +107,7 @@ fun ClassTeacherScreen(
                     } else {
                         items(uiState.activeAssignments) { assignment ->
                             ActiveAssignmentRow(
+                                isReadOnly = isReadOnly,
                                 assignment = assignment,
                                 onRemoveClick = { assignmentToRemove = assignment }
                             )
@@ -157,6 +161,7 @@ fun ClassTeacherScreen(
 
 @Composable
 fun ActiveAssignmentRow(
+    isReadOnly: Boolean,
     assignment: ClassTeacherAssignmentUiModel,
     onRemoveClick: () -> Unit
 ) {
@@ -180,11 +185,13 @@ fun ActiveAssignmentRow(
                 color = MaterialTheme.colorScheme.onSurfaceVariant
             )
         }
-        TextButton(
-            onClick = onRemoveClick,
-            colors = ButtonDefaults.textButtonColors(contentColor = MaterialTheme.colorScheme.error)
-        ) {
-            Text("Remove")
+        if (!isReadOnly) {
+            TextButton(
+                onClick = onRemoveClick,
+                colors = ButtonDefaults.textButtonColors(contentColor = MaterialTheme.colorScheme.error)
+            ) {
+                Text("Remove")
+            }
         }
     }
 }

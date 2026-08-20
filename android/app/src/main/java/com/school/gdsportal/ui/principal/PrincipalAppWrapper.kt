@@ -95,8 +95,12 @@ fun PrincipalAppWrapper(
                         appContainer.tokenManager
                     )
                 )
-                // Reusing the upgraded Admin Dashboard view
+                // Reusing the upgraded Admin Dashboard view, but the Principal has lesser
+                // authority than an Administrator: isReadOnly = true hides every creation
+                // action (Add Student, Add Teacher, Broadcast, Notify) since those routes
+                // aren't even registered below and would otherwise crash on tap.
                 AdminDashboardScreen(
+                    isReadOnly = true,
                     viewModel = dashboardViewModel,
                     onMenuClick = openDrawer,
                     onNavigate = { route -> navController.navigate(route) }
@@ -273,7 +277,7 @@ fun PrincipalAppWrapper(
                     factory = ClassTeachersDirectoryViewModel.Factory(appContainer.apiService)
                 )
                 ClassTeachersDirectoryScreen(
-//                    isReadOnly = true,
+                    isReadOnly = true,
                     viewModel = viewModel,
                     onMenuClick = { navController.navigateUp() },
                     onAddClick = { },
@@ -288,7 +292,7 @@ fun PrincipalAppWrapper(
                     factory = TeacherClassesViewModel.Factory(appContainer.apiService)
                 )
                 TeacherClassesScreen(
-//                    isReadOnly = true,
+                    isReadOnly = true,
                     viewModel = viewModel,
                     onBackClick = { navController.navigateUp() },
                     onTeacherClick = { teacherId ->
@@ -302,7 +306,7 @@ fun PrincipalAppWrapper(
                     factory = TeacherSubjectsViewModel.Factory(appContainer.apiService)
                 )
                 TeacherSubjectsScreen(
-//                    isReadOnly = true,
+                    isReadOnly = true,
                     viewModel = viewModel,
                     onBackClick = { navController.navigateUp() },
                     onTeacherClick = { teacherId ->
@@ -316,7 +320,7 @@ fun PrincipalAppWrapper(
                     factory = TimetableDirectoryViewModel.Factory(appContainer.apiService)
                 )
                 TimetableDirectoryScreen(
-//                    isReadOnly = true,
+                    isReadOnly = true,
                     viewModel = viewModel,
                     onMenuClick = { navController.navigateUp() },
                     onAddClick = { },
@@ -342,7 +346,7 @@ fun PrincipalAppWrapper(
                     }
                 }
                 TimetableDetailScreen(
-//                    isReadOnly = true,
+                    isReadOnly = true,
                     viewModel = viewModel,
                     onBackClick = { navController.navigateUp() },
                     onEditClick = { },
@@ -499,7 +503,7 @@ fun PrincipalAppWrapper(
                 val profileViewModel: com.school.gdsportal.ui.admin.students.profile.StudentProfileViewModel = viewModel(factory = factory)
 
                 com.school.gdsportal.ui.admin.students.profile.StudentProfileScreen(
-//                    isReadOnly = true,
+                    isReadOnly = true,
                     viewModel = profileViewModel,
                     onBackClick = { navController.navigateUp() },
                     onEditClick = { },
@@ -541,7 +545,7 @@ fun PrincipalAppWrapper(
                 val parentsViewModel: com.school.gdsportal.ui.admin.students.parents.StudentParentsViewModel = viewModel(factory = factory)
 
                 com.school.gdsportal.ui.admin.students.parents.StudentParentsScreen(
-//                    isReadOnly = true,
+                    isReadOnly = true,
                     viewModel = parentsViewModel,
                     onBackClick = { navController.navigateUp() },
                     onAddParentClick = { }
@@ -566,7 +570,7 @@ fun PrincipalAppWrapper(
                 val factory = com.school.gdsportal.ui.admin.principals.PrincipalProfileViewModel.Factory(principalId, appContainer.apiService)
                 val viewModel: com.school.gdsportal.ui.admin.principals.PrincipalProfileViewModel = viewModel(factory = factory)
                 com.school.gdsportal.ui.admin.principals.PrincipalProfileScreen(
-//                    isReadOnly = true,
+                    isReadOnly = true,
                     viewModel = viewModel,
                     onBackClick = { navController.navigateUp() },
                     onEditPrincipalClick = { }
@@ -591,7 +595,7 @@ fun PrincipalAppWrapper(
                 val factory = com.school.gdsportal.ui.admin.administrators.AdministratorProfileViewModel.Factory(adminId, appContainer.apiService)
                 val viewModel: com.school.gdsportal.ui.admin.administrators.AdministratorProfileViewModel = viewModel(factory = factory)
                 com.school.gdsportal.ui.admin.administrators.AdministratorProfileScreen(
-//                    isReadOnly = true,
+                    isReadOnly = true,
                     viewModel = viewModel,
                     onBackClick = { navController.navigateUp() },
                     onEditAdministratorClick = { }
@@ -602,7 +606,7 @@ fun PrincipalAppWrapper(
                 val factory = com.school.gdsportal.ui.admin.parents.ParentsDirectoryViewModelFactory(appContainer.apiService)
                 val parentsViewModel: com.school.gdsportal.ui.admin.parents.ParentsDirectoryViewModel = viewModel(factory = factory)
                 com.school.gdsportal.ui.admin.parents.ParentsDirectoryScreen(
-//                    isReadOnly = true,
+                    isReadOnly = true,
                     viewModel = parentsViewModel,
                     onBackClick = { navController.navigateUp() },
                     onParentClick = { parentId -> navController.navigate("parents/$parentId") }
@@ -615,7 +619,7 @@ fun PrincipalAppWrapper(
                 val factory = com.school.gdsportal.ui.admin.parents.ParentProfileViewModel.Companion.provideFactory(parentId, appContainer.apiService)
                 val viewModel: com.school.gdsportal.ui.admin.parents.ParentProfileViewModel = viewModel(factory = factory)
                 com.school.gdsportal.ui.admin.parents.ParentProfileScreen(
-//                    isReadOnly = true,
+                    isReadOnly = true,
                     viewModel = viewModel,
                     onBackClick = { navController.navigateUp() },
                     onViewAllStudentsClick = { navController.navigate("parents/$parentId/students") },
@@ -630,7 +634,7 @@ fun PrincipalAppWrapper(
                 val factory = com.school.gdsportal.ui.admin.parents.ParentProfileViewModel.Companion.provideFactory(parentId, appContainer.apiService)
                 val viewModel: com.school.gdsportal.ui.admin.parents.ParentProfileViewModel = viewModel(factory = factory)
                 com.school.gdsportal.ui.admin.parents.ParentInformationScreen(
-//                    isReadOnly = true,
+                    isReadOnly = true,
                     viewModel = viewModel,
                     onBackClick = { navController.navigateUp() }
                 )
@@ -642,7 +646,7 @@ fun PrincipalAppWrapper(
                 val factory = com.school.gdsportal.ui.admin.parents.ParentProfileViewModel.Companion.provideFactory(parentId, appContainer.apiService)
                 val viewModel: com.school.gdsportal.ui.admin.parents.ParentProfileViewModel = viewModel(factory = factory)
                 com.school.gdsportal.ui.admin.parents.ParentStudentsScreen(
-//                    isReadOnly = true,
+                    isReadOnly = true,
                     viewModel = viewModel,
                     onBackClick = { navController.navigateUp() }
                 )
@@ -666,7 +670,7 @@ fun PrincipalAppWrapper(
                 val factory = com.school.gdsportal.ui.admin.teachers.TeacherProfileViewModel.Factory(teacherId, appContainer.apiService)
                 val viewModel: com.school.gdsportal.ui.admin.teachers.TeacherProfileViewModel = androidx.lifecycle.viewmodel.compose.viewModel(factory = factory)
                 com.school.gdsportal.ui.admin.teachers.TeacherProfileScreen(
-//                    isReadOnly = true,
+                    isReadOnly = true,
                     viewModel = viewModel,
                     onBackClick = { navController.navigateUp() },
                     onEditTeacherClick = { },
@@ -682,7 +686,7 @@ fun PrincipalAppWrapper(
                 val factory = com.school.gdsportal.ui.admin.teachers.information.TeacherPersonalViewModel.Companion.provideFactory(teacherId, appContainer.apiService)
                 val viewModel: com.school.gdsportal.ui.admin.teachers.information.TeacherPersonalViewModel = androidx.lifecycle.viewmodel.compose.viewModel(factory = factory)
                 com.school.gdsportal.ui.admin.teachers.information.TeacherPersonalScreen(
-//                    isReadOnly = true,
+                    isReadOnly = true,
                     viewModel = viewModel,
                     onBackClick = { navController.navigateUp() },
                     onEditClick = { }
@@ -695,7 +699,7 @@ fun PrincipalAppWrapper(
                 val factory = com.school.gdsportal.ui.admin.teachers.teaching.subjects.TeacherSubjectsViewModel.Companion.provideFactory(teacherId, appContainer.apiService)
                 val viewModel: com.school.gdsportal.ui.admin.teachers.teaching.subjects.TeacherSubjectsViewModel = androidx.lifecycle.viewmodel.compose.viewModel(factory = factory)
                 com.school.gdsportal.ui.admin.teachers.teaching.subjects.TeacherSubjectsScreen(
-//                    isReadOnly = true,
+                    isReadOnly = true,
                     viewModel = viewModel,
                     onBackClick = { navController.navigateUp() },
                     onAssignClick = { }
@@ -708,7 +712,7 @@ fun PrincipalAppWrapper(
                 val factory = com.school.gdsportal.ui.admin.teachers.teaching.class_teacher.ClassTeacherViewModel.Companion.provideFactory(teacherId, appContainer.apiService)
                 val viewModel: com.school.gdsportal.ui.admin.teachers.teaching.class_teacher.ClassTeacherViewModel = androidx.lifecycle.viewmodel.compose.viewModel(factory = factory)
                 com.school.gdsportal.ui.admin.teachers.teaching.class_teacher.ClassTeacherScreen(
-//                    isReadOnly = true,
+                    isReadOnly = true,
                     viewModel = viewModel,
                     onBackClick = { navController.navigateUp() },
                     onAssignClick = { }
@@ -761,11 +765,24 @@ fun PrincipalAppWrapper(
                     factory = com.school.gdsportal.ui.admin.communication.announcements.AnnouncementDirectoryViewModel.Factory(appContainer.apiService)
                 )
                 com.school.gdsportal.ui.admin.communication.announcements.AnnouncementDirectoryScreen(
-//                    isReadOnly = true,
                     viewModel = viewModel,
                     onBackClick = { navController.navigateUp() },
-                    onCreateClick = { },
+                    onCreateClick = { navController.navigate("announcements/create") },
                     onAnnouncementClick = { id -> navController.navigate("announcements/$id") }
+                )
+            }
+
+            composable("announcements/create") {
+                val viewModel: com.school.gdsportal.ui.admin.communication.announcements.AnnouncementCreateEditViewModel = androidx.lifecycle.viewmodel.compose.viewModel(
+                    factory = com.school.gdsportal.ui.admin.communication.announcements.AnnouncementCreateEditViewModel.Factory(appContainer.apiService, null)
+                )
+                com.school.gdsportal.ui.admin.communication.announcements.AnnouncementCreateEditScreen(
+                    viewModel = viewModel,
+                    onBackClick = { navController.navigateUp() },
+                    onSuccess = { id ->
+                        navController.popBackStack()
+                        if (id != null) navController.navigate("announcements/$id")
+                    }
                 )
             }
 
@@ -778,10 +795,24 @@ fun PrincipalAppWrapper(
                     factory = com.school.gdsportal.ui.admin.communication.announcements.AnnouncementDetailViewModel.Factory(appContainer.apiService, id)
                 )
                 com.school.gdsportal.ui.admin.communication.announcements.AnnouncementDetailScreen(
-//                    isReadOnly = true,
                     viewModel = viewModel,
                     onBackClick = { navController.navigateUp() },
-                    onEditClick = { }
+                    onEditClick = { navController.navigate("announcements/$id/edit") }
+                )
+            }
+
+            composable(
+                route = "announcements/{announcementId}/edit",
+                arguments = listOf(navArgument("announcementId") { type = NavType.LongType })
+            ) { backStackEntry ->
+                val id = backStackEntry.arguments?.getLong("announcementId") ?: return@composable
+                val viewModel: com.school.gdsportal.ui.admin.communication.announcements.AnnouncementCreateEditViewModel = androidx.lifecycle.viewmodel.compose.viewModel(
+                    factory = com.school.gdsportal.ui.admin.communication.announcements.AnnouncementCreateEditViewModel.Factory(appContainer.apiService, id)
+                )
+                com.school.gdsportal.ui.admin.communication.announcements.AnnouncementCreateEditScreen(
+                    viewModel = viewModel,
+                    onBackClick = { navController.navigateUp() },
+                    onSuccess = { navController.navigateUp() }
                 )
             }
 
@@ -790,11 +821,21 @@ fun PrincipalAppWrapper(
                     factory = com.school.gdsportal.ui.admin.communication.notifications.NotificationsDirectoryViewModel.Factory(appContainer.apiService)
                 )
                 com.school.gdsportal.ui.admin.communication.notifications.NotificationsDirectoryScreen(
-//                    isReadOnly = true,
                     viewModel = viewModel,
                     onBackClick = { navController.navigateUp() },
-                    onCreateClick = { },
+                    onCreateClick = { navController.navigate("notifications/create") },
                     onNotificationClick = { id -> navController.navigate("notifications/$id") }
+                )
+            }
+
+            composable("notifications/create") {
+                val viewModel: com.school.gdsportal.ui.admin.communication.notifications.NotificationCreateViewModel = androidx.lifecycle.viewmodel.compose.viewModel(
+                    factory = com.school.gdsportal.ui.admin.communication.notifications.NotificationCreateViewModel.Factory(appContainer.apiService)
+                )
+                com.school.gdsportal.ui.admin.communication.notifications.NotificationCreateScreen(
+                    viewModel = viewModel,
+                    onBackClick = { navController.navigateUp() },
+                    onSuccess = { navController.navigateUp() }
                 )
             }
 
@@ -807,12 +848,10 @@ fun PrincipalAppWrapper(
                     factory = com.school.gdsportal.ui.admin.communication.notifications.NotificationDetailViewModel.Factory(appContainer.apiService, id)
                 )
                 com.school.gdsportal.ui.admin.communication.notifications.NotificationDetailScreen(
-//                    isReadOnly = true, // View model logic should also prevent edit/delete if role is principal based on RBAC logic, but UI layer hides it here.
                     viewModel = viewModel,
                     onBackClick = { navController.navigateUp() }
                 )
             }
-
 
             // -------------------------------------------------------------
             // REPORTS SECTION
