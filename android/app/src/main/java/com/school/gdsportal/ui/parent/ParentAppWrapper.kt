@@ -61,9 +61,18 @@ fun ParentAppWrapper(
             // DASHBOARD
             // -------------------------------------------------------------
             composable("parent_dashboard") {
-                PlaceholderScreen(
-                    title = "Parent Dashboard",
-                    onMenuClick = openDrawer
+                val viewModel: com.school.gdsportal.ui.parent.dashboard.ParentDashboardViewModel = androidx.lifecycle.viewmodel.compose.viewModel(
+                    factory = com.school.gdsportal.ui.parent.dashboard.ParentDashboardViewModel.provideFactory(
+                        appContainer.apiService, appContainer.tokenManager
+                    )
+                )
+                com.school.gdsportal.ui.parent.dashboard.ParentDashboardScreen(
+                    viewModel = viewModel,
+                    onMenuClick = openDrawer,
+                    onNavigateToChildren = { navController.navigate("my_children") },
+                    onNavigateToAnnouncements = { navController.navigate("announcements") },
+                    onNavigateToNotifications = { navController.navigate("notifications") },
+                    onAnnouncementClick = { id -> navController.navigate("announcements/$id") }
                 )
             }
 
@@ -239,11 +248,10 @@ fun ParentAppWrapper(
             }
 
             composable("parent_my_profile") {
-                val profileViewModel: ProfileViewModel = viewModel(
-                    factory = ProfileViewModel.provideFactory(appContainer.apiService)
+                val profileViewModel: com.school.gdsportal.ui.parent.profile.ParentProfileViewModel = androidx.lifecycle.viewmodel.compose.viewModel(
+                    factory = com.school.gdsportal.ui.parent.profile.ParentProfileViewModel.provideFactory(appContainer.apiService)
                 )
-                ProfileScreen(
-//                    isReadOnly = true, // Prevent parent from editing their core DB record for now
+                com.school.gdsportal.ui.parent.profile.ParentProfileScreen(
                     viewModel = profileViewModel,
                     onBackClick = { navController.navigateUp() }
                 )

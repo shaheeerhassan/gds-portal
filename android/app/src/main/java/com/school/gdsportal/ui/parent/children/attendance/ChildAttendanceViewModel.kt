@@ -35,17 +35,31 @@ class ChildAttendanceViewModel(
         _uiState.update { it.copy(isLoading = true, error = null) }
         viewModelScope.launch {
             try {
-                val response = apiService.getStudentAttendanceRecords(studentId)
+                // 1. Fetch the current academic year to get the exact session dates
+                val yearResponse = apiService.getCurrentAcademicYear()
+                val currentYear = yearResponse.body()?.data
+
+                if (currentYear == null) {
+                    _uiState.update { it.copy(isLoading = false, error = "Could not determine academic year dates.") }
+                    return@launch
+                }
+
+                val startDate = currentYear.startDate
+                val endDate = currentYear.endDate
+
+                // 2. Fetch the attendance using those exact dates
+                val response = apiService.getStudentAttendanceRecords(studentId, startDate, endDate)
+
                 if (response.isSuccessful) {
-                    val data = response.body()?.data ?: emptyList<StudentAttendance>()
-                    // Sort descending so newest is at the top
+                    val data = response.body()?.data ?: emptyList()
+                    // Sort descending so newest is at the top (using the property name from your model)
                     val sortedData = data.sortedByDescending { it.attendanceDate }
                     _uiState.update { it.copy(isLoading = false, records = sortedData) }
                 } else {
                     _uiState.update { it.copy(isLoading = false, error = "Failed to load attendance.") }
                 }
             } catch (e: Exception) {
-                _uiState.update { it.copy(isLoading = false, error = "Network error.") }
+                _uiState.update { it.copy(isLoading = false, error = "Network error while loading attendance.") }
             }
         }
     }

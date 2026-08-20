@@ -24,6 +24,8 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
+// Import the parent theme color
+import com.school.gdsportal.ui.theme.AccentParent
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -51,7 +53,10 @@ fun ChildOverviewScreen(
     ) { padding ->
         Box(modifier = Modifier.fillMaxSize().padding(padding)) {
             if (uiState.isLoading) {
-                CircularProgressIndicator(modifier = Modifier.align(Alignment.Center))
+                CircularProgressIndicator(
+                    modifier = Modifier.align(Alignment.Center),
+                    color = AccentParent // Themed Spinner
+                )
             } else if (uiState.error != null) {
                 Column(
                     modifier = Modifier.align(Alignment.Center),
@@ -59,7 +64,10 @@ fun ChildOverviewScreen(
                 ) {
                     Text(text = uiState.error!!, color = MaterialTheme.colorScheme.error)
                     Spacer(modifier = Modifier.height(16.dp))
-                    Button(onClick = { viewModel.loadStudentDetails() }) { Text("Retry") }
+                    Button(
+                        onClick = { viewModel.loadStudentDetails() },
+                        colors = ButtonDefaults.buttonColors(containerColor = AccentParent) // Themed Button
+                    ) { Text("Retry") }
                 }
             } else if (uiState.student != null) {
                 val student = uiState.student!!
@@ -73,7 +81,7 @@ fun ChildOverviewScreen(
                     // Header Card
                     Surface(
                         modifier = Modifier.fillMaxWidth(),
-                        color = MaterialTheme.colorScheme.primaryContainer,
+                        color = AccentParent.copy(alpha = 0.15f), // Themed Surface
                         shape = RoundedCornerShape(16.dp)
                     ) {
                         Row(
@@ -85,12 +93,12 @@ fun ChildOverviewScreen(
                                 modifier = Modifier
                                     .size(64.dp)
                                     .clip(CircleShape)
-                                    .background(MaterialTheme.colorScheme.onPrimaryContainer.copy(alpha = 0.2f)),
+                                    .background(AccentParent.copy(alpha = 0.2f)), // Themed Initials Box
                                 contentAlignment = Alignment.Center
                             ) {
                                 Text(
                                     text = initials,
-                                    color = MaterialTheme.colorScheme.onPrimaryContainer,
+                                    color = AccentParent, // Themed Initials Text
                                     style = MaterialTheme.typography.headlineSmall,
                                     fontWeight = FontWeight.Bold
                                 )
@@ -101,13 +109,13 @@ fun ChildOverviewScreen(
                                     text = "${student.firstName} ${student.lastName}",
                                     style = MaterialTheme.typography.titleLarge,
                                     fontWeight = FontWeight.Bold,
-                                    color = MaterialTheme.colorScheme.onPrimaryContainer
+                                    color = MaterialTheme.colorScheme.onSurface
                                 )
                                 Spacer(modifier = Modifier.height(4.dp))
                                 Text(
                                     text = "Reg: ${student.registrationNumber}",
                                     style = MaterialTheme.typography.bodyMedium,
-                                    color = MaterialTheme.colorScheme.onPrimaryContainer.copy(alpha = 0.8f)
+                                    color = MaterialTheme.colorScheme.onSurfaceVariant
                                 )
                             }
                         }
@@ -118,7 +126,7 @@ fun ChildOverviewScreen(
                         Text(
                             text = "ACADEMICS",
                             style = MaterialTheme.typography.labelMedium,
-                            color = MaterialTheme.colorScheme.primary,
+                            color = AccentParent, // Themed Section Header
                             modifier = Modifier.padding(horizontal = 4.dp)
                         )
                         OverviewNavCard(
@@ -137,7 +145,7 @@ fun ChildOverviewScreen(
                         Text(
                             text = "ATTENDANCE",
                             style = MaterialTheme.typography.labelMedium,
-                            color = MaterialTheme.colorScheme.primary,
+                            color = AccentParent, // Themed Section Header
                             modifier = Modifier.padding(horizontal = 4.dp)
                         )
                         OverviewNavCard(
@@ -151,7 +159,7 @@ fun ChildOverviewScreen(
                         Text(
                             text = "INFORMATION",
                             style = MaterialTheme.typography.labelMedium,
-                            color = MaterialTheme.colorScheme.primary,
+                            color = AccentParent, // Themed Section Header
                             modifier = Modifier.padding(horizontal = 4.dp)
                         )
                         OverviewNavCard(
@@ -186,7 +194,7 @@ private fun OverviewNavCard(
             Icon(
                 imageVector = icon,
                 contentDescription = null,
-                tint = MaterialTheme.colorScheme.primary
+                tint = AccentParent // Themed Card Icon
             )
             Spacer(modifier = Modifier.width(16.dp))
             Text(

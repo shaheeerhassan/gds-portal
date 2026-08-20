@@ -581,7 +581,9 @@ interface ApiService {
     // --- Added for Parent Portal (Child Attendance) ---
     @GET("api/attendance/students/student/{studentId}")
     suspend fun getStudentAttendanceRecords(
-        @Path("studentId") studentId: Long
+        @Path("studentId") studentId: Long,
+        @Query("startDate") startDate: String,
+        @Query("endDate") endDate: String
     ): Response<ApiResponse<List<com.school.gdsportal.data.remote.StudentAttendance>>>
 
     // --- Added for Parent Portal (Child Marks) ---
@@ -589,7 +591,7 @@ interface ApiService {
     suspend fun getMarksByStudentAndYear(
         @Path("studentId") studentId: Long,
         @Path("academicYearId") academicYearId: Int
-    ): Response<ApiResponse<List<com.school.gdsportal.data.remote.MarkDisplay>>>
+    ): Response<ApiResponse<List<com.school.gdsportal.data.remote.Mark>>>
 
     // --- Added for Parent Portal ---
     @GET("api/parents/me")

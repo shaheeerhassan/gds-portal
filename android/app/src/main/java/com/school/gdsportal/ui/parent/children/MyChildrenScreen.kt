@@ -8,7 +8,6 @@ import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.ArrowBack
 import androidx.compose.material.icons.filled.ChevronRight
 import androidx.compose.material.icons.filled.Menu
 import androidx.compose.material3.*
@@ -21,6 +20,8 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import com.school.gdsportal.data.remote.Student
+// Import the parent theme color
+import com.school.gdsportal.ui.theme.AccentParent
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -37,7 +38,7 @@ fun MyChildrenScreen(
                 title = { Text("My Children") },
                 navigationIcon = {
                     IconButton(onClick = onMenuClick) {
-                        Icon(Icons.Default.ArrowBack, contentDescription = "Menu")
+                        Icon(Icons.Default.Menu, contentDescription = "Menu")
                     }
                 }
             )
@@ -45,7 +46,10 @@ fun MyChildrenScreen(
     ) { padding ->
         Box(modifier = Modifier.fillMaxSize().padding(padding)) {
             if (uiState.isLoading) {
-                CircularProgressIndicator(modifier = Modifier.align(Alignment.Center))
+                CircularProgressIndicator(
+                    modifier = Modifier.align(Alignment.Center),
+                    color = AccentParent // Themed Spinner
+                )
             } else if (uiState.error != null) {
                 Column(
                     modifier = Modifier.align(Alignment.Center),
@@ -53,7 +57,10 @@ fun MyChildrenScreen(
                 ) {
                     Text(text = uiState.error!!, color = MaterialTheme.colorScheme.error)
                     Spacer(modifier = Modifier.height(16.dp))
-                    Button(onClick = { viewModel.loadChildren() }) { Text("Retry") }
+                    Button(
+                        onClick = { viewModel.loadChildren() },
+                        colors = ButtonDefaults.buttonColors(containerColor = AccentParent) // Themed Button
+                    ) { Text("Retry") }
                 }
             } else if (uiState.children.isEmpty()) {
                 Text(
@@ -95,12 +102,12 @@ private fun ChildCard(student: Student, onClick: () -> Unit) {
                 modifier = Modifier
                     .size(50.dp)
                     .clip(CircleShape)
-                    .background(MaterialTheme.colorScheme.primaryContainer),
+                    .background(AccentParent.copy(alpha = 0.2f)), // Themed Background
                 contentAlignment = Alignment.Center
             ) {
                 Text(
                     text = initials,
-                    color = MaterialTheme.colorScheme.onPrimaryContainer,
+                    color = AccentParent, // Themed Text
                     style = MaterialTheme.typography.titleMedium,
                     fontWeight = FontWeight.Bold
                 )

@@ -12,7 +12,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
-import com.school.gdsportal.data.remote.MarkDisplay
+import com.school.gdsportal.data.remote.Mark
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -69,10 +69,10 @@ fun ChildMarksScreen(
                             )
                         }
                     } else {
-                        // Group exactly by the property in MarkDisplay
-                        val groupedMarks: Map<String, List<MarkDisplay>> = uiState.marks.groupBy { it.examinationName }
+                        // Group by the safe examinationId that we know the backend sends
+                        val groupedMarks: Map<Long, List<Mark>> = uiState.marks.groupBy { it.examinationId }
 
-                        groupedMarks.forEach { (examName: String, marksList: List<MarkDisplay>) ->
+                        groupedMarks.forEach { (examId, marksList) ->
                             item {
                                 Card(
                                     modifier = Modifier.fillMaxWidth(),
@@ -80,7 +80,7 @@ fun ChildMarksScreen(
                                 ) {
                                     Column(modifier = Modifier.padding(16.dp)) {
                                         Text(
-                                            text = examName,
+                                            text = "Examination ID: $examId", // Since we don't have the name in this API
                                             style = MaterialTheme.typography.titleMedium,
                                             fontWeight = FontWeight.Bold,
                                             color = MaterialTheme.colorScheme.primary
@@ -93,11 +93,11 @@ fun ChildMarksScreen(
                                                 horizontalArrangement = Arrangement.SpaceBetween
                                             ) {
                                                 Text(
-                                                    text = "Grade: ${mark.grade}", // Using grade since subjectName isn't in MarkDisplay
+                                                    text = "Grade: ${mark.grade ?: "N/A"}",
                                                     style = MaterialTheme.typography.bodyMedium
                                                 )
                                                 Text(
-                                                    text = mark.marksObtained, // Already a string in MarkDisplay!
+                                                    text = "Marks: ${mark.marksObtained ?: "N/A"}",
                                                     style = MaterialTheme.typography.bodyMedium,
                                                     fontWeight = FontWeight.SemiBold
                                                 )

@@ -9,13 +9,13 @@ import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
-import com.school.gdsportal.data.remote.MarkDisplay
+import com.school.gdsportal.data.remote.Mark
 
 data class ChildMarksUiState(
     val isLoading: Boolean = true,
     val error: String? = null,
     val academicYearName: String = "",
-    val marks: List<MarkDisplay> = emptyList()
+    val marks: List<Mark> = emptyList()
 )
 
 class ChildMarksViewModel(
