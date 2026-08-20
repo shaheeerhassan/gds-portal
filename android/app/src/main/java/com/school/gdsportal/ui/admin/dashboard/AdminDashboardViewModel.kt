@@ -61,8 +61,10 @@ class AdminDashboardViewModel(
             try {
                 val todayString = SimpleDateFormat("yyyy-MM-dd", Locale.getDefault()).format(Date())
 
-                // Fetch everything concurrently
-                val userDef = async { apiService.getCurrentUser() }
+                // 1. Fetch user locally (Lightning fast)
+                val savedUser = tokenManager.getUserProfile()
+
+                // 2. Fetch everything else concurrently (removed apiService.getCurrentUser())
                 val academicYearDef = async { apiService.getCurrentAcademicYear() }
                 val totalStudentsDef = async { apiService.getTotalStudentCount() }
                 val presentStudentsDef = async { apiService.getPresentStudentCount() }
@@ -74,7 +76,6 @@ class AdminDashboardViewModel(
                 val sectionsDef = async { apiService.getSectionsCount() }
                 val subjectsDef = async { apiService.getSubjectsCount() }
 
-                val userRes = userDef.await()
                 val academicYearRes = academicYearDef.await()
                 val totalStudentsRes = totalStudentsDef.await()
                 val presentStudentsRes = presentStudentsDef.await()
@@ -94,7 +95,7 @@ class AdminDashboardViewModel(
                     it.copy(
                         isLoading = false,
                         isRefreshing = false,
-                        user = userRes.body()?.data,
+                        user = savedUser, // <-- 3. Pass the local user to the UI State
                         currentAcademicYear = academicYearRes.body()?.data,
                         totalStudents = totalStudentsRes.body()?.data ?: 0,
                         presentStudents = presentStudentsRes.body()?.data ?: 0,

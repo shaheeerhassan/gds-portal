@@ -30,7 +30,7 @@ class LoginViewModel(
 
     fun login(email: String, pass: String) {
         _uiState.update { it.copy(emailError = null, passwordError = null, error = null) }
-        
+
         if (email.isBlank()) {
             _uiState.update { it.copy(emailError = "Email is required") }
         }
@@ -48,11 +48,34 @@ class LoginViewModel(
                 if (response.isSuccessful && responseBody != null && responseBody.success) {
                     val token = responseBody.data?.token
                     val role = responseBody.data?.profile?.role?.roleName
-                    
+                    val profileWrapper = responseBody.data?.profile
+
                     if (token != null) {
                         tokenManager.saveToken(token)
                         if (role != null) tokenManager.saveRole(role)
-                        
+
+                        // Extract the nested profile data using Gson
+                        if (profileWrapper != null) {
+                            try {
+                                val gson = com.google.gson.Gson()
+
+                                // 1. Convert the outer ProfileWrapper to a generic JsonObject
+                                val wrapperJson = gson.toJson(profileWrapper)
+                                val jsonObject = gson.fromJson(wrapperJson, com.google.gson.JsonObject::class.java)
+
+                                // 2. Extract the nested "profile" object containing firstName/lastName
+                                val innerProfile = jsonObject.getAsJsonObject("profile")
+
+                                if (innerProfile != null) {
+                                    // 3. Map the inner object to your User data class
+                                    val user = gson.fromJson(innerProfile, com.school.gdsportal.data.remote.User::class.java)
+                                    tokenManager.saveUserProfile(user)
+                                }
+                            } catch (e: Exception) {
+                                e.printStackTrace() // Fallback if parsing fails, but login will still succeed
+                            }
+                        }
+
                         _uiState.update { it.copy(isLoading = false, isSuccess = true) }
                     } else {
                         _uiState.update { it.copy(isLoading = false, error = "Invalid response from server.") }
@@ -62,11 +85,11 @@ class LoginViewModel(
                     _uiState.update { it.copy(isLoading = false, error = errorMsg) }
                 }
             } catch (e: Exception) {
-                _uiState.update { 
+                _uiState.update {
                     it.copy(
-                        isLoading = false, 
+                        isLoading = false,
                         error = "Unable to connect to the server. Please try again later."
-                    ) 
+                    )
                 }
             }
         }
