@@ -20,6 +20,7 @@ import com.school.gdsportal.ui.admin.AdminAppWrapper
 import com.school.gdsportal.ui.principal.PrincipalAppWrapper
 import com.school.gdsportal.ui.login.LoginScreen
 import com.school.gdsportal.ui.login.LoginViewModel
+import com.school.gdsportal.ui.parent.ParentAppWrapper
 import com.school.gdsportal.ui.theme.AccentAdministrator
 import com.school.gdsportal.ui.theme.AccentPrincipal
 import com.school.gdsportal.ui.theme.GDSPortalTheme
@@ -81,6 +82,12 @@ class MainActivity : ComponentActivity() {
                         PrincipalAppWrapper(
                             appContainer = appContainer,
                             onLogout = onLogout
+                        )
+                    }
+                    role?.uppercase() == "PARENT" -> {
+                        ParentAppWrapper(
+                            appContainer = appContainer,
+                            onLogout  = onLogout
                         )
                     }
                     else -> {

@@ -21,6 +21,7 @@ import com.school.gdsportal.data.remote.Notification
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun NotificationsDirectoryScreen(
+    isReadOnly: Boolean = false,
     viewModel: NotificationsDirectoryViewModel,
     onBackClick: () -> Unit,
     onCreateClick: () -> Unit,
@@ -94,8 +95,10 @@ fun NotificationsDirectoryScreen(
                     }
                 },
                 actions = {
-                    IconButton(onClick = onCreateClick) {
-                        Icon(Icons.Default.Add, contentDescription = "Send Notification")
+                    if (!isReadOnly) {
+                        IconButton(onClick = onCreateClick) {
+                            Icon(Icons.Default.Add, contentDescription = "Send Notification")
+                        }
                     }
                     IconButton(onClick = { showMenu = true }) {
                         Icon(Icons.Default.MoreVert, contentDescription = "Options")

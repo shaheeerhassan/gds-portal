@@ -22,6 +22,7 @@ import com.school.gdsportal.data.remote.Announcement
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun AnnouncementDirectoryScreen(
+    isReadOnly: Boolean = false,
     viewModel: AnnouncementDirectoryViewModel,
     onBackClick: () -> Unit,
     onCreateClick: () -> Unit,
@@ -60,8 +61,10 @@ fun AnnouncementDirectoryScreen(
                     }
                 },
                 actions = {
-                    IconButton(onClick = onCreateClick) {
-                        Icon(Icons.Default.Add, contentDescription = "Create Announcement")
+                    if (!isReadOnly) {
+                        IconButton(onClick = onCreateClick) {
+                            Icon(Icons.Default.Add, contentDescription = "Create Announcement")
+                        }
                     }
                 }
             )

@@ -577,4 +577,21 @@ interface ApiService {
         @Path("studentId") studentId: Long,
         @Path("academicYearId") academicYearId: Int
     ): Response<ApiResponse<com.school.gdsportal.data.remote.dto.StudentAttendanceSummaryData>>
+
+    // --- Added for Parent Portal (Child Attendance) ---
+    @GET("api/attendance/students/student/{studentId}")
+    suspend fun getStudentAttendanceRecords(
+        @Path("studentId") studentId: Long
+    ): Response<ApiResponse<List<com.school.gdsportal.data.remote.StudentAttendance>>>
+
+    // --- Added for Parent Portal (Child Marks) ---
+    @GET("api/marks/student/{studentId}/year/{academicYearId}")
+    suspend fun getMarksByStudentAndYear(
+        @Path("studentId") studentId: Long,
+        @Path("academicYearId") academicYearId: Int
+    ): Response<ApiResponse<List<com.school.gdsportal.data.remote.MarkDisplay>>>
+
+    // --- Added for Parent Portal ---
+    @GET("api/parents/me")
+    suspend fun getCurrentParent(): Response<ApiResponse<com.school.gdsportal.data.remote.Parent>>
 }

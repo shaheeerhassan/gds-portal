@@ -16,6 +16,7 @@ import androidx.compose.ui.unit.dp
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun AnnouncementDetailScreen(
+    isReadOnly: Boolean = false,
     viewModel: AnnouncementDetailViewModel,
     onBackClick: () -> Unit,
     onEditClick: (Long) -> Unit
@@ -67,7 +68,7 @@ fun AnnouncementDetailScreen(
                     }
                 },
                 actions = {
-                    if (uiState.announcement != null) {
+                    if (!isReadOnly && uiState.announcement != null) {
                         IconButton(onClick = { showMenu = !showMenu }) {
                             Icon(Icons.Default.MoreVert, contentDescription = "Options")
                         }
