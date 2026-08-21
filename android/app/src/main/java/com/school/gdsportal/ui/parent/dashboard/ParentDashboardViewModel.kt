@@ -57,7 +57,7 @@ class ParentDashboardViewModel(
                 val parentId = parentMeRes.body()?.data?.parentId ?: 0L
 
                 // 3. Fetch Dashboard data concurrently
-                val announcementsDef = async { apiService.getGlobalAnnouncements() }
+                val announcementsDef = async { apiService.getAnnouncements() }
                 val notificationsDef = async { apiService.getUnreadNotificationCount() }
 
                 // 4. Fetch children count if we successfully got the parentId
@@ -72,6 +72,12 @@ class ParentDashboardViewModel(
                 val announcementsRes = announcementsDef.await()
                 val notificationsRes = notificationsDef.await()
 
+                val allAnnouncements = announcementsRes.body()?.data ?: emptyList()
+                val parentAnnouncements = allAnnouncements.filter { announcement ->
+                    announcement.targetRoleId== null ||
+                            announcement.targetRoleId == 5
+                }
+
                 _uiState.update {
                     it.copy(
                         isLoading = false,
@@ -79,7 +85,7 @@ class ParentDashboardViewModel(
                         parentFirstName = firstName,
                         childrenCount = childCount,
                         unreadNotifications = notificationsRes.body()?.data ?: 0,
-                        recentAnnouncements = announcementsRes.body()?.data?.take(3) ?: emptyList()
+                        recentAnnouncements = parentAnnouncements.sortedByDescending { a -> a.createdAt }.take(3)
                     )
                 }
             } catch (e: Exception) {

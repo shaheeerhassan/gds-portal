@@ -41,10 +41,17 @@ fun ParentAppWrapper(
                 currentRoute = currentRoute,
                 onNavigate = { route ->
                     coroutineScope.launch { drawerState.close() }
-                    navController.navigate(route) {
-                        popUpTo(navController.graph.startDestinationId) { saveState = true }
-                        launchSingleTop = true
-                        restoreState = true
+
+                    if (route == "parent_dashboard") {
+                        // Safely drop back to the start destination instead of pushing a new route
+                        navController.popBackStack(navController.graph.startDestinationId, inclusive = false)
+                    } else {
+                        // Standard navigation for all other screens
+                        navController.navigate(route) {
+                            popUpTo(navController.graph.startDestinationId) { saveState = true }
+                            launchSingleTop = true
+                            restoreState = true
+                        }
                     }
                 },
                 onLogout = onLogout

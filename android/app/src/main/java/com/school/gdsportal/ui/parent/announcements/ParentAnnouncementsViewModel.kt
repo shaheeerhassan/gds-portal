@@ -27,11 +27,25 @@ class ParentAnnouncementsViewModel(private val apiService: ApiService) : ViewMod
         _uiState.update { it.copy(isLoading = true, error = null) }
         viewModelScope.launch {
             try {
-                // FETCH ONLY GLOBAL ANNOUNCEMENTS
-                val response = apiService.getGlobalAnnouncements()
+                // 1. Fetch ALL active announcements using the base "/" endpoint
+                val response = apiService.getAnnouncements()
+
                 if (response.isSuccessful) {
-                    val data = response.body()?.data ?: emptyList()
-                    _uiState.update { it.copy(isLoading = false, announcements = data.sortedByDescending { a -> a.createdAt }) }
+                    val allAnnouncements = response.body()?.data ?: emptyList()
+
+                    // 2. Filter locally: Keep only Global (null/0) or Parent-specific announcements
+                    val parentAnnouncements = allAnnouncements.filter { announcement ->
+
+                        announcement.targetRoleId == null ||
+                                announcement.targetRoleId == 5
+                    }
+
+                    _uiState.update {
+                        it.copy(
+                            isLoading = false,
+                            announcements = parentAnnouncements.sortedByDescending { a -> a.createdAt }
+                        )
+                    }
                 } else {
                     _uiState.update { it.copy(isLoading = false, error = "Failed to load announcements.") }
                 }
