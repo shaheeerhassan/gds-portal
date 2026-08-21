@@ -596,4 +596,10 @@ interface ApiService {
     // --- Added for Parent Portal ---
     @GET("api/parents/me")
     suspend fun getCurrentParent(): Response<ApiResponse<com.school.gdsportal.data.remote.Parent>>
+
+    // Fetch all submissions for a specific student
+    @GET("api/submissions/student/{studentId}")
+    suspend fun getSubmissionsByStudent(
+        @Path("studentId") studentId: Long
+    ): Response<ApiResponse<List<com.school.gdsportal.data.remote.SubmissionDisplay>>>
 }

@@ -96,13 +96,6 @@ fun ParentDrawerContent(
                         currentRoute.startsWith("parent_change_password"),
                 onClick = { onNavigate("parent_profile_landing") }
             )
-            ParentDrawerItem(
-                label = "Logout",
-                icon = Icons.Outlined.Logout,
-                isSelected = false,
-                onClick = onLogout,
-                isDestructive = true
-            )
             Spacer(modifier = Modifier.height(16.dp))
         }
     }

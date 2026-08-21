@@ -24,16 +24,19 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
-// Import the parent theme color
 import com.school.gdsportal.ui.theme.AccentParent
+import androidx.compose.material.icons.filled.EventNote
+import androidx.compose.material.icons.filled.Task
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun ChildOverviewScreen(
     viewModel: ChildOverviewViewModel,
     onBackClick: () -> Unit,
-    onNavigateToExamsAndMarks: () -> Unit,
+    onNavigateToExaminations: () -> Unit,
+    onNavigateToMarks: () -> Unit,
     onNavigateToAssignments: () -> Unit,
+    onNavigateToSubmissions: () -> Unit,
     onNavigateToAttendance: () -> Unit,
     onNavigateToInfo: () -> Unit
 ) {
@@ -129,15 +132,29 @@ fun ChildOverviewScreen(
                             color = AccentParent, // Themed Section Header
                             modifier = Modifier.padding(horizontal = 4.dp)
                         )
+                        // 1. Examinations Schedule
                         OverviewNavCard(
-                            title = "Examinations & Marks",
-                            icon = Icons.Default.Assessment,
-                            onClick = onNavigateToExamsAndMarks
+                            title = "Examinations Schedule",
+                            icon = Icons.Default.EventNote, // Import Icons.Default.EventNote at the top!
+                            onClick = onNavigateToExaminations
                         )
+                        // 2. Results & Marks
                         OverviewNavCard(
-                            title = "Assignments & Submissions",
+                            title = "Results & Marks",
+                            icon = Icons.Default.Assessment,
+                            onClick = onNavigateToMarks
+                        )
+                        // 3. Pending Assignments
+                        OverviewNavCard(
+                            title = "Assignments",
                             icon = Icons.AutoMirrored.Filled.Assignment,
                             onClick = onNavigateToAssignments
+                        )
+                        // 4. Completed Submissions
+                        OverviewNavCard(
+                            title = "Submissions",
+                            icon = Icons.Default.Task, // Import Icons.Default.Task at the top!
+                            onClick = onNavigateToSubmissions
                         )
                     }
 

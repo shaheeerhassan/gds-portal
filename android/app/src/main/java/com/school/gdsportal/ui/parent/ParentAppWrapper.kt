@@ -111,11 +111,31 @@ fun ParentAppWrapper(
                     com.school.gdsportal.ui.parent.children.ChildOverviewScreen(
                         viewModel = viewModel,
                         onBackClick = { navController.navigateUp() },
-                        onNavigateToExamsAndMarks = { navController.navigate("children/$studentId/marks") },
+                        onNavigateToExaminations = { navController.navigate("children/$studentId/examinations") },
+                        onNavigateToMarks = { navController.navigate("children/$studentId/marks") },
                         onNavigateToAssignments = { navController.navigate("children/$studentId/assignments") },
+                        onNavigateToSubmissions = { navController.navigate("children/$studentId/submissions") },
                         onNavigateToAttendance = { navController.navigate("children/$studentId/attendance") },
                         onNavigateToInfo = { navController.navigate("children/$studentId/info") }
                     )
+                }
+
+                // Add this block for Examinations:
+                composable("children/{studentId}/examinations") { backStackEntry ->
+                    val studentId = backStackEntry.arguments?.getString("studentId")?.toLongOrNull() ?: 0L
+                    val viewModel: com.school.gdsportal.ui.parent.children.examinations.ChildExaminationsViewModel = androidx.lifecycle.viewmodel.compose.viewModel(
+                        factory = com.school.gdsportal.ui.parent.children.examinations.ChildExaminationsViewModel.provideFactory(studentId, appContainer.apiService)
+                    )
+                    com.school.gdsportal.ui.parent.children.examinations.ChildExaminationsScreen(viewModel = viewModel, onBackClick = { navController.navigateUp() })
+                }
+
+                // Add this block for Submissions:
+                composable("children/{studentId}/submissions") { backStackEntry ->
+                    val studentId = backStackEntry.arguments?.getString("studentId")?.toLongOrNull() ?: 0L
+                    val viewModel: com.school.gdsportal.ui.parent.children.submissions.ChildSubmissionsViewModel = androidx.lifecycle.viewmodel.compose.viewModel(
+                        factory = com.school.gdsportal.ui.parent.children.submissions.ChildSubmissionsViewModel.provideFactory(studentId, appContainer.apiService)
+                    )
+                    com.school.gdsportal.ui.parent.children.submissions.ChildSubmissionsScreen(viewModel = viewModel, onBackClick = { navController.navigateUp() })
                 }
 
                 composable("children/{studentId}/marks") { backStackEntry ->

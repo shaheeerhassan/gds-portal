@@ -12,7 +12,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
-import com.school.gdsportal.data.remote.Mark
+import com.school.gdsportal.ui.theme.AccentParent
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -36,7 +36,7 @@ fun ChildMarksScreen(
     ) { padding ->
         Box(modifier = Modifier.fillMaxSize().padding(padding)) {
             if (uiState.isLoading) {
-                CircularProgressIndicator(modifier = Modifier.align(Alignment.Center))
+                CircularProgressIndicator(modifier = Modifier.align(Alignment.Center), color = AccentParent)
             } else if (uiState.error != null) {
                 Column(
                     modifier = Modifier.align(Alignment.Center),
@@ -44,7 +44,7 @@ fun ChildMarksScreen(
                 ) {
                     Text(text = uiState.error!!, color = MaterialTheme.colorScheme.error)
                     Spacer(modifier = Modifier.height(16.dp))
-                    Button(onClick = { viewModel.loadMarks() }) { Text("Retry") }
+                    Button(onClick = { viewModel.loadMarks() }, colors = ButtonDefaults.buttonColors(containerColor = AccentParent)) { Text("Retry") }
                 }
             } else {
                 LazyColumn(
@@ -52,15 +52,7 @@ fun ChildMarksScreen(
                     contentPadding = PaddingValues(16.dp),
                     verticalArrangement = Arrangement.spacedBy(16.dp)
                 ) {
-                    item {
-                        Text(
-                            text = "Session: ${uiState.academicYearName}",
-                            style = MaterialTheme.typography.labelMedium,
-                            color = MaterialTheme.colorScheme.primary
-                        )
-                    }
-
-                    if (uiState.marks.isEmpty()) {
+                    if (uiState.groupedMarks.isEmpty()) {
                         item {
                             Text(
                                 text = "No examination marks published yet.",
@@ -69,10 +61,8 @@ fun ChildMarksScreen(
                             )
                         }
                     } else {
-                        // Group by the safe examinationId that we know the backend sends
-                        val groupedMarks: Map<Long, List<Mark>> = uiState.marks.groupBy { it.examinationId }
-
-                        groupedMarks.forEach { (examId, marksList) ->
+                        // Iterate through our new grouped map
+                        uiState.groupedMarks.forEach { (examName, marksList) ->
                             item {
                                 Card(
                                     modifier = Modifier.fillMaxWidth(),
@@ -80,10 +70,10 @@ fun ChildMarksScreen(
                                 ) {
                                     Column(modifier = Modifier.padding(16.dp)) {
                                         Text(
-                                            text = "Examination ID: $examId", // Since we don't have the name in this API
+                                            text = examName, // Shows the REAL name now!
                                             style = MaterialTheme.typography.titleMedium,
                                             fontWeight = FontWeight.Bold,
-                                            color = MaterialTheme.colorScheme.primary
+                                            color = AccentParent
                                         )
                                         Spacer(modifier = Modifier.height(12.dp))
 
