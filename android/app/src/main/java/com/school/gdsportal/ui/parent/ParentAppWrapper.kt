@@ -55,220 +55,222 @@ fun ParentAppWrapper(
             coroutineScope.launch { drawerState.open() }
         }
 
-        NavHost(navController = navController, startDestination = "parent_dashboard") {
+        val parentColorScheme = MaterialTheme.colorScheme.copy(
+            primary = com.school.gdsportal.ui.theme.AccentParent
+        )
 
-            // -------------------------------------------------------------
-            // DASHBOARD
-            // -------------------------------------------------------------
-            composable("parent_dashboard") {
-                val viewModel: com.school.gdsportal.ui.parent.dashboard.ParentDashboardViewModel = androidx.lifecycle.viewmodel.compose.viewModel(
-                    factory = com.school.gdsportal.ui.parent.dashboard.ParentDashboardViewModel.provideFactory(
-                        appContainer.apiService, appContainer.tokenManager
+        MaterialTheme(colorScheme = parentColorScheme) {
+            NavHost(navController = navController, startDestination = "parent_dashboard") {
+
+                // -------------------------------------------------------------
+                // DASHBOARD
+                // -------------------------------------------------------------
+                composable("parent_dashboard") {
+                    val viewModel: com.school.gdsportal.ui.parent.dashboard.ParentDashboardViewModel = androidx.lifecycle.viewmodel.compose.viewModel(
+                        factory = com.school.gdsportal.ui.parent.dashboard.ParentDashboardViewModel.provideFactory(
+                            appContainer.apiService, appContainer.tokenManager
+                        )
                     )
-                )
-                com.school.gdsportal.ui.parent.dashboard.ParentDashboardScreen(
-                    viewModel = viewModel,
-                    onMenuClick = openDrawer,
-                    onNavigateToChildren = { navController.navigate("my_children") },
-                    onNavigateToAnnouncements = { navController.navigate("announcements") },
-                    onNavigateToNotifications = { navController.navigate("notifications") },
-                    onAnnouncementClick = { id -> navController.navigate("announcements/$id") }
-                )
-            }
-
-            // -------------------------------------------------------------
-            // MY CHILDREN
-            // -------------------------------------------------------------
-            composable("my_children") {
-                val viewModel: com.school.gdsportal.ui.parent.children.MyChildrenViewModel = viewModel(
-                    factory = com.school.gdsportal.ui.parent.children.MyChildrenViewModel.provideFactory(
-                        appContainer.apiService,
-                        appContainer.tokenManager
+                    com.school.gdsportal.ui.parent.dashboard.ParentDashboardScreen(
+                        viewModel = viewModel,
+                        onMenuClick = openDrawer,
+                        onNavigateToChildren = { navController.navigate("my_children") },
+                        onNavigateToAnnouncements = { navController.navigate("announcements") },
+                        onNavigateToNotifications = { navController.navigate("notifications") },
+                        onAnnouncementClick = { id -> navController.navigate("announcements/$id") }
                     )
-                )
-                com.school.gdsportal.ui.parent.children.MyChildrenScreen(
-                    viewModel = viewModel,
-                    onMenuClick = openDrawer,
-                    onChildClick = { studentId ->
-                        navController.navigate("children/$studentId")
-                    }
-                )
-            }
+                }
 
-            composable("children/{studentId}") { backStackEntry ->
-                val studentId = backStackEntry.arguments?.getString("studentId")?.toLongOrNull() ?: 0L
-                val viewModel: com.school.gdsportal.ui.parent.children.ChildOverviewViewModel = viewModel(
-                    factory = com.school.gdsportal.ui.parent.children.ChildOverviewViewModel.provideFactory(
-                        studentId,
-                        appContainer.apiService
+                // -------------------------------------------------------------
+                // MY CHILDREN
+                // -------------------------------------------------------------
+                composable("my_children") {
+                    val viewModel: com.school.gdsportal.ui.parent.children.MyChildrenViewModel = viewModel(
+                        factory = com.school.gdsportal.ui.parent.children.MyChildrenViewModel.provideFactory(
+                            appContainer.apiService,
+                            appContainer.tokenManager
+                        )
                     )
-                )
-                com.school.gdsportal.ui.parent.children.ChildOverviewScreen(
-                    viewModel = viewModel,
-                    onBackClick = { navController.navigateUp() },
-                    onNavigateToExamsAndMarks = { navController.navigate("children/$studentId/marks") },
-                    onNavigateToAssignments = { navController.navigate("children/$studentId/assignments") },
-                    onNavigateToAttendance = { navController.navigate("children/$studentId/attendance") },
-                    onNavigateToInfo = { navController.navigate("children/$studentId/info") }
-                )
-            }
-
-            composable("children/{studentId}/marks") { backStackEntry ->
-                val studentId = backStackEntry.arguments?.getString("studentId")?.toLongOrNull() ?: 0L
-                val viewModel: com.school.gdsportal.ui.parent.children.marks.ChildMarksViewModel = viewModel(
-                    factory = com.school.gdsportal.ui.parent.children.marks.ChildMarksViewModel.provideFactory(
-                        studentId, appContainer.apiService
-                    )
-                )
-                com.school.gdsportal.ui.parent.children.marks.ChildMarksScreen(
-                    viewModel = viewModel,
-                    onBackClick = { navController.navigateUp() }
-                )
-            }
-
-            composable("children/{studentId}/assignments") { backStackEntry ->
-                val studentId = backStackEntry.arguments?.getString("studentId")?.toLongOrNull() ?: 0L
-                val viewModel: com.school.gdsportal.ui.parent.children.assignments.ChildAssignmentsViewModel = androidx.lifecycle.viewmodel.compose.viewModel(
-                    factory = com.school.gdsportal.ui.parent.children.assignments.ChildAssignmentsViewModel.provideFactory(
-                        studentId, appContainer.apiService
-                    )
-                )
-                com.school.gdsportal.ui.parent.children.assignments.ChildAssignmentsScreen(
-                    viewModel = viewModel,
-                    onBackClick = { navController.navigateUp() }
-                )
-            }
-
-            composable("children/{studentId}/info") { backStackEntry ->
-                val studentId = backStackEntry.arguments?.getString("studentId")?.toLongOrNull() ?: 0L
-                val viewModel: com.school.gdsportal.ui.parent.children.info.ChildInfoViewModel = androidx.lifecycle.viewmodel.compose.viewModel(
-                    factory = com.school.gdsportal.ui.parent.children.info.ChildInfoViewModel.provideFactory(
-                        studentId, appContainer.apiService
-                    )
-                )
-                com.school.gdsportal.ui.parent.children.info.ChildInfoScreen(
-                    viewModel = viewModel,
-                    onBackClick = { navController.navigateUp() }
-                )
-            }
-
-            composable("children/{studentId}/attendance") { backStackEntry ->
-                val studentId = backStackEntry.arguments?.getString("studentId")?.toLongOrNull() ?: 0L
-                val viewModel: com.school.gdsportal.ui.parent.children.attendance.ChildAttendanceViewModel = viewModel(
-                    factory = com.school.gdsportal.ui.parent.children.attendance.ChildAttendanceViewModel.provideFactory(
-                        studentId, appContainer.apiService
-                    )
-                )
-                com.school.gdsportal.ui.parent.children.attendance.ChildAttendanceScreen(
-                    viewModel = viewModel,
-                    onBackClick = { navController.navigateUp() }
-                )
-            }
-
-            // We will add child-specific routes here (attendance, results, etc.) in Phase 3!
-
-            // -------------------------------------------------------------
-            // ANNOUNCEMENTS
-            // -------------------------------------------------------------
-            composable("announcements") {
-                val viewModel: com.school.gdsportal.ui.admin.communication.announcements.AnnouncementDirectoryViewModel = androidx.lifecycle.viewmodel.compose.viewModel(
-                    factory = com.school.gdsportal.ui.admin.communication.announcements.AnnouncementDirectoryViewModel.Factory(appContainer.apiService)
-                )
-                com.school.gdsportal.ui.admin.communication.announcements.AnnouncementDirectoryScreen(
-                    isReadOnly = true, // Force read-only for Parent
-                    viewModel = viewModel,
-                    onBackClick = { openDrawer() },
-                    onCreateClick = { },
-                    onAnnouncementClick = { id -> navController.navigate("announcements/$id") }
-                )
-            }
-
-            composable(
-                route = "announcements/{announcementId}",
-                arguments = listOf(navArgument("announcementId") { type = NavType.LongType })
-            ) { backStackEntry ->
-                val id = backStackEntry.arguments?.getLong("announcementId") ?: return@composable
-                val viewModel: com.school.gdsportal.ui.admin.communication.announcements.AnnouncementDetailViewModel = androidx.lifecycle.viewmodel.compose.viewModel(
-                    factory = com.school.gdsportal.ui.admin.communication.announcements.AnnouncementDetailViewModel.Factory(appContainer.apiService, id)
-                )
-                com.school.gdsportal.ui.admin.communication.announcements.AnnouncementDetailScreen(
-                    isReadOnly = true, // Force read-only for Parent
-                    viewModel = viewModel,
-                    onBackClick = { navController.navigateUp() },
-                    onEditClick = { }
-                )
-            }
-
-            // -------------------------------------------------------------
-            // NOTIFICATIONS
-            // -------------------------------------------------------------
-            composable("notifications") {
-                val viewModel: com.school.gdsportal.ui.admin.communication.notifications.NotificationsDirectoryViewModel = androidx.lifecycle.viewmodel.compose.viewModel(
-                    factory = com.school.gdsportal.ui.admin.communication.notifications.NotificationsDirectoryViewModel.Factory(appContainer.apiService)
-                )
-                com.school.gdsportal.ui.admin.communication.notifications.NotificationsDirectoryScreen(
-                    isReadOnly = true, // Force read-only for Parent
-                    viewModel = viewModel,
-                    onBackClick = { openDrawer() },
-                    onCreateClick = { },
-                    onNotificationClick = { id -> navController.navigate("notifications/$id") }
-                )
-            }
-
-            composable(
-                route = "notifications/{notificationId}",
-                arguments = listOf(navArgument("notificationId") { type = NavType.LongType })
-            ) { backStackEntry ->
-                val id = backStackEntry.arguments?.getLong("notificationId") ?: return@composable
-                val viewModel: com.school.gdsportal.ui.admin.communication.notifications.NotificationDetailViewModel = androidx.lifecycle.viewmodel.compose.viewModel(
-                    factory = com.school.gdsportal.ui.admin.communication.notifications.NotificationDetailViewModel.Factory(appContainer.apiService, id)
-                )
-                com.school.gdsportal.ui.admin.communication.notifications.NotificationDetailScreen(
-                    isReadOnly = true, // Force read-only for Parent
-                    viewModel = viewModel,
-                    onBackClick = { navController.navigateUp() }
-                )
-            }
-
-            // -------------------------------------------------------------
-            // PROFILE & ACCOUNT
-            // -------------------------------------------------------------
-            composable("parent_profile_landing") {
-                ProfileLandingScreen(
-                    onBack = { openDrawer() },
-                    onNavigate = { route ->
-                        when (route) {
-                            "admin_my_profile" -> navController.navigate("parent_my_profile")
-                            "admin_change_password" -> navController.navigate("parent_change_password")
-                            "logout_action" -> onLogout()
+                    com.school.gdsportal.ui.parent.children.MyChildrenScreen(
+                        viewModel = viewModel,
+                        onMenuClick = openDrawer,
+                        onChildClick = { studentId ->
+                            navController.navigate("children/$studentId")
                         }
-                    },
-                    onLogout = onLogout
-                )
-            }
+                    )
+                }
 
-            composable("parent_my_profile") {
-                val profileViewModel: com.school.gdsportal.ui.parent.profile.ParentProfileViewModel = androidx.lifecycle.viewmodel.compose.viewModel(
-                    factory = com.school.gdsportal.ui.parent.profile.ParentProfileViewModel.provideFactory(appContainer.apiService)
-                )
-                com.school.gdsportal.ui.parent.profile.ParentProfileScreen(
-                    viewModel = profileViewModel,
-                    onBackClick = { navController.navigateUp() }
-                )
-            }
+                composable("children/{studentId}") { backStackEntry ->
+                    val studentId = backStackEntry.arguments?.getString("studentId")?.toLongOrNull() ?: 0L
+                    val viewModel: com.school.gdsportal.ui.parent.children.ChildOverviewViewModel = viewModel(
+                        factory = com.school.gdsportal.ui.parent.children.ChildOverviewViewModel.provideFactory(
+                            studentId,
+                            appContainer.apiService
+                        )
+                    )
+                    com.school.gdsportal.ui.parent.children.ChildOverviewScreen(
+                        viewModel = viewModel,
+                        onBackClick = { navController.navigateUp() },
+                        onNavigateToExamsAndMarks = { navController.navigate("children/$studentId/marks") },
+                        onNavigateToAssignments = { navController.navigate("children/$studentId/assignments") },
+                        onNavigateToAttendance = { navController.navigate("children/$studentId/attendance") },
+                        onNavigateToInfo = { navController.navigate("children/$studentId/info") }
+                    )
+                }
 
-            composable("parent_change_password") {
-                val changePasswordViewModel: ChangePasswordViewModel = viewModel(
-                    factory = ChangePasswordViewModel.provideFactory(appContainer.apiService)
-                )
-                ChangePasswordScreen(
-                    viewModel = changePasswordViewModel,
-                    onBackClick = { navController.navigateUp() }
-                )
-            }
-        }
-    }
-}
+                composable("children/{studentId}/marks") { backStackEntry ->
+                    val studentId = backStackEntry.arguments?.getString("studentId")?.toLongOrNull() ?: 0L
+                    val viewModel: com.school.gdsportal.ui.parent.children.marks.ChildMarksViewModel = viewModel(
+                        factory = com.school.gdsportal.ui.parent.children.marks.ChildMarksViewModel.provideFactory(
+                            studentId, appContainer.apiService
+                        )
+                    )
+                    com.school.gdsportal.ui.parent.children.marks.ChildMarksScreen(
+                        viewModel = viewModel,
+                        onBackClick = { navController.navigateUp() }
+                    )
+                }
+
+                composable("children/{studentId}/assignments") { backStackEntry ->
+                    val studentId = backStackEntry.arguments?.getString("studentId")?.toLongOrNull() ?: 0L
+                    val viewModel: com.school.gdsportal.ui.parent.children.assignments.ChildAssignmentsViewModel = androidx.lifecycle.viewmodel.compose.viewModel(
+                        factory = com.school.gdsportal.ui.parent.children.assignments.ChildAssignmentsViewModel.provideFactory(
+                            studentId, appContainer.apiService
+                        )
+                    )
+                    com.school.gdsportal.ui.parent.children.assignments.ChildAssignmentsScreen(
+                        viewModel = viewModel,
+                        onBackClick = { navController.navigateUp() }
+                    )
+                }
+
+                composable("children/{studentId}/info") { backStackEntry ->
+                    val studentId = backStackEntry.arguments?.getString("studentId")?.toLongOrNull() ?: 0L
+                    val viewModel: com.school.gdsportal.ui.parent.children.info.ChildInfoViewModel = androidx.lifecycle.viewmodel.compose.viewModel(
+                        factory = com.school.gdsportal.ui.parent.children.info.ChildInfoViewModel.provideFactory(
+                            studentId, appContainer.apiService
+                        )
+                    )
+                    com.school.gdsportal.ui.parent.children.info.ChildInfoScreen(
+                        viewModel = viewModel,
+                        onBackClick = { navController.navigateUp() }
+                    )
+                }
+
+                composable("children/{studentId}/attendance") { backStackEntry ->
+                    val studentId = backStackEntry.arguments?.getString("studentId")?.toLongOrNull() ?: 0L
+                    val viewModel: com.school.gdsportal.ui.parent.children.attendance.ChildAttendanceViewModel = viewModel(
+                        factory = com.school.gdsportal.ui.parent.children.attendance.ChildAttendanceViewModel.provideFactory(
+                            studentId, appContainer.apiService
+                        )
+                    )
+                    com.school.gdsportal.ui.parent.children.attendance.ChildAttendanceScreen(
+                        viewModel = viewModel,
+                        onBackClick = { navController.navigateUp() }
+                    )
+                }
+
+                // -------------------------------------------------------------
+                // ANNOUNCEMENTS
+                // -------------------------------------------------------------
+                composable("announcements") {
+                    val viewModel: com.school.gdsportal.ui.parent.announcements.ParentAnnouncementsViewModel = androidx.lifecycle.viewmodel.compose.viewModel(
+                        factory = com.school.gdsportal.ui.parent.announcements.ParentAnnouncementsViewModel.provideFactory(appContainer.apiService)
+                    )
+                    com.school.gdsportal.ui.parent.announcements.ParentAnnouncementsScreen(
+                        viewModel = viewModel,
+                        onMenuClick = openDrawer,
+                        onAnnouncementClick = { id -> navController.navigate("announcements/$id") }
+                    )
+                }
+
+                composable(
+                    route = "announcements/{announcementId}",
+                    arguments = listOf(navArgument("announcementId") { type = NavType.LongType })
+                ) { backStackEntry ->
+                    val id = backStackEntry.arguments?.getLong("announcementId") ?: return@composable
+                    val viewModel: com.school.gdsportal.ui.admin.communication.announcements.AnnouncementDetailViewModel = androidx.lifecycle.viewmodel.compose.viewModel(
+                        factory = com.school.gdsportal.ui.admin.communication.announcements.AnnouncementDetailViewModel.Factory(appContainer.apiService, id)
+                    )
+                    com.school.gdsportal.ui.admin.communication.announcements.AnnouncementDetailScreen(
+                        isReadOnly = true, // Force read-only for Parent
+                        viewModel = viewModel,
+                        onBackClick = { navController.navigateUp() },
+                        onEditClick = { }
+                    )
+                }
+
+                // -------------------------------------------------------------
+                // NOTIFICATIONS
+                // -------------------------------------------------------------
+                composable("notifications") {
+                    val viewModel: com.school.gdsportal.ui.admin.communication.notifications.NotificationsDirectoryViewModel = androidx.lifecycle.viewmodel.compose.viewModel(
+                        factory = com.school.gdsportal.ui.admin.communication.notifications.NotificationsDirectoryViewModel.Factory(appContainer.apiService)
+                    )
+                    com.school.gdsportal.ui.admin.communication.notifications.NotificationsDirectoryScreen(
+                        isReadOnly = true, // Force read-only for Parent
+                        viewModel = viewModel,
+                        onBackClick = { openDrawer() },
+                        onCreateClick = { },
+                        onNotificationClick = { id -> navController.navigate("notifications/$id") }
+                    )
+                }
+
+                composable(
+                    route = "notifications/{notificationId}",
+                    arguments = listOf(navArgument("notificationId") { type = NavType.LongType })
+                ) { backStackEntry ->
+                    val id = backStackEntry.arguments?.getLong("notificationId") ?: return@composable
+                    val viewModel: com.school.gdsportal.ui.admin.communication.notifications.NotificationDetailViewModel = androidx.lifecycle.viewmodel.compose.viewModel(
+                        factory = com.school.gdsportal.ui.admin.communication.notifications.NotificationDetailViewModel.Factory(appContainer.apiService, id)
+                    )
+                    com.school.gdsportal.ui.admin.communication.notifications.NotificationDetailScreen(
+                        isReadOnly = true, // Force read-only for Parent
+                        viewModel = viewModel,
+                        onBackClick = { navController.navigateUp() }
+                    )
+                }
+
+                // -------------------------------------------------------------
+                // PROFILE & ACCOUNT
+                // -------------------------------------------------------------
+                composable("parent_profile_landing") {
+                    ProfileLandingScreen(
+                        onBack = { openDrawer() },
+                        onNavigate = { route ->
+                            when (route) {
+                                "admin_my_profile" -> navController.navigate("parent_my_profile")
+                                "admin_change_password" -> navController.navigate("parent_change_password")
+                                "logout_action" -> onLogout()
+                            }
+                        },
+                        onLogout = onLogout
+                    )
+                }
+
+                composable("parent_my_profile") {
+                    val profileViewModel: com.school.gdsportal.ui.parent.profile.ParentProfileViewModel = androidx.lifecycle.viewmodel.compose.viewModel(
+                        factory = com.school.gdsportal.ui.parent.profile.ParentProfileViewModel.provideFactory(appContainer.apiService)
+                    )
+                    com.school.gdsportal.ui.parent.profile.ParentProfileScreen(
+                        viewModel = profileViewModel,
+                        onBackClick = { navController.navigateUp() }
+                    )
+                }
+
+                composable("parent_change_password") {
+                    val changePasswordViewModel: ChangePasswordViewModel = viewModel(
+                        factory = ChangePasswordViewModel.provideFactory(appContainer.apiService)
+                    )
+                    ChangePasswordScreen(
+                        viewModel = changePasswordViewModel,
+                        onBackClick = { navController.navigateUp() }
+                    )
+                }
+            } // Closes NavHost
+        } // Closes MaterialTheme
+    } // Closes ModalNavigationDrawer
+} // Closes ParentAppWrapper (Fixed missing brace)
 
 // Temporary placeholder for screens we haven't built yet
 @OptIn(ExperimentalMaterial3Api::class)
