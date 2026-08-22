@@ -3,9 +3,7 @@ package com.school.gdsportal.ui.teacher.components
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
-import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
-import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.outlined.*
 import androidx.compose.material3.*
@@ -42,7 +40,7 @@ fun TeacherDrawerContent(
                 color = TextPrimary
             )
             Text(
-                text = "Teacher Workspace",
+                text = "Teacher Portal",
                 style = MaterialTheme.typography.bodyLarge,
                 color = AccentTeacher
             )
@@ -51,24 +49,49 @@ fun TeacherDrawerContent(
             HorizontalDivider(color = MaterialTheme.colorScheme.onBackground.copy(alpha = 0.1f))
             Spacer(modifier = Modifier.height(16.dp))
 
-            // Uninterrupted, clean list matching the Admin vibe exactly
-            Column(
-                modifier = Modifier
-                    .weight(1f)
-                    .verticalScroll(rememberScrollState())
-            ) {
-                TeacherDrawerItem("Dashboard", Icons.Outlined.Home, currentRoute == "teacher_dashboard") { onNavigate("teacher_dashboard") }
-                TeacherDrawerItem("My Classes", Icons.Outlined.Class, currentRoute.startsWith("teacher_classes")) { onNavigate("teacher_classes") }
-                TeacherDrawerItem("My Subjects", Icons.Outlined.MenuBook, currentRoute.startsWith("teacher_subjects")) { onNavigate("teacher_subjects") }
-                TeacherDrawerItem("Class Teacher", Icons.Outlined.Stars, currentRoute.startsWith("teacher_class_teacher")) { onNavigate("teacher_class_teacher") }
-                TeacherDrawerItem("Timetable", Icons.Outlined.CalendarToday, currentRoute.startsWith("teacher_timetable")) { onNavigate("teacher_timetable") }
-                TeacherDrawerItem("Assignments", Icons.Outlined.Assignment, currentRoute.startsWith("teacher_assignments")) { onNavigate("teacher_assignments") }
-                TeacherDrawerItem("My Attendance", Icons.Outlined.Badge, currentRoute.startsWith("teacher_my_attendance")) { onNavigate("teacher_my_attendance") }
-                TeacherDrawerItem("Student Attendance", Icons.Outlined.FactCheck, currentRoute.startsWith("teacher_student_attendance")) { onNavigate("teacher_student_attendance") }
-                TeacherDrawerItem("Examinations", Icons.Outlined.EventNote, currentRoute.startsWith("teacher_examinations")) { onNavigate("teacher_examinations") }
-                TeacherDrawerItem("Marks & Grading", Icons.Outlined.Assessment, currentRoute.startsWith("teacher_marks")) { onNavigate("teacher_marks") }
-                TeacherDrawerItem("Announcements", Icons.Outlined.Campaign, currentRoute.startsWith("teacher_announcements")) { onNavigate("teacher_announcements") }
-                TeacherDrawerItem("Notifications", Icons.Outlined.Notifications, currentRoute.startsWith("teacher_notifications")) { onNavigate("teacher_notifications") }
+            // Categorized, compact list matching the Admin architecture perfectly
+            Column(modifier = Modifier.weight(1f)) {
+                TeacherDrawerItem(
+                    label = "Dashboard",
+                    icon = Icons.Outlined.Home,
+                    isSelected = currentRoute == "teacher_dashboard",
+                    onClick = { onNavigate("teacher_dashboard") }
+                )
+                TeacherDrawerItem(
+                    label = "Academics",
+                    icon = Icons.Outlined.MenuBook,
+                    isSelected = currentRoute.startsWith("teacher_academics_landing") ||
+                            currentRoute.startsWith("teacher_classes") ||
+                            currentRoute.startsWith("teacher_subjects") ||
+                            currentRoute.startsWith("teacher_class_teacher") ||
+                            currentRoute.startsWith("teacher_timetable"),
+                    onClick = { onNavigate("teacher_academics_landing") }
+                )
+                TeacherDrawerItem(
+                    label = "Assessment",
+                    icon = Icons.Outlined.Assessment,
+                    isSelected = currentRoute.startsWith("teacher_assessment_landing") ||
+                            currentRoute.startsWith("teacher_assignments") ||
+                            currentRoute.startsWith("teacher_examinations") ||
+                            currentRoute.startsWith("teacher_marks"),
+                    onClick = { onNavigate("teacher_assessment_landing") }
+                )
+                TeacherDrawerItem(
+                    label = "Attendance",
+                    icon = Icons.Outlined.Checklist,
+                    isSelected = currentRoute.startsWith("teacher_attendance_landing") ||
+                            currentRoute.startsWith("teacher_my_attendance") ||
+                            currentRoute.startsWith("teacher_student_attendance"),
+                    onClick = { onNavigate("teacher_attendance_landing") }
+                )
+                TeacherDrawerItem(
+                    label = "Communication",
+                    icon = Icons.Outlined.Campaign,
+                    isSelected = currentRoute.startsWith("teacher_communication_landing") ||
+                            currentRoute.startsWith("teacher_announcements") ||
+                            currentRoute.startsWith("teacher_notifications"),
+                    onClick = { onNavigate("teacher_communication_landing") }
+                )
             }
 
             Spacer(modifier = Modifier.height(16.dp))

@@ -5,7 +5,8 @@ import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.Menu
+import androidx.compose.material.icons.filled.ArrowBack
+import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material3.*
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
@@ -20,7 +21,7 @@ import com.school.gdsportal.ui.theme.AccentTeacher
 @Composable
 fun TeacherNotificationsScreen(
     viewModel: TeacherNotificationsViewModel,
-    onMenuClick: () -> Unit
+    onBackClick: () -> Unit
 ) {
     val uiState by viewModel.uiState.collectAsState()
 
@@ -29,7 +30,7 @@ fun TeacherNotificationsScreen(
             TopAppBar(
                 title = { Text("Notifications") },
                 navigationIcon = {
-                    IconButton(onClick = onMenuClick) { Icon(Icons.Default.Menu, contentDescription = "Menu") }
+                    IconButton(onClick = onBackClick) { Icon(Icons.Default.ArrowBack, contentDescription = "Back") }
                 },
                 actions = {
                     IconButton(onClick = { viewModel.markAllAsRead() }) {
@@ -71,3 +72,4 @@ fun TeacherNotificationsScreen(
         }
     }
 }
+

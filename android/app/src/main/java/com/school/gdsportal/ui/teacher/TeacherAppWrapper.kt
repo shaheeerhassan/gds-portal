@@ -76,6 +76,34 @@ fun TeacherAppWrapper(
                     )
                 }
 
+                composable("teacher_academics_landing") {
+                    TeacherAcademicsLandingScreen(
+                        onBack = { openDrawer() },
+                        onNavigate = { route -> navController.navigate(route) }
+                    )
+                }
+
+                composable("teacher_assessment_landing") {
+                    TeacherAssessmentLandingScreen(
+                        onBack = { openDrawer() },
+                        onNavigate = { route -> navController.navigate(route) }
+                    )
+                }
+
+                composable("teacher_attendance_landing") {
+                    TeacherAttendanceLandingScreen(
+                        onBack = { openDrawer() },
+                        onNavigate = { route -> navController.navigate(route) }
+                    )
+                }
+
+                composable("teacher_communication_landing") {
+                    TeacherCommunicationLandingScreen(
+                        onBack = { openDrawer() },
+                        onNavigate = { route -> navController.navigate(route) }
+                    )
+                }
+
                 composable("teacher_classes") {
                     val viewModel: com.school.gdsportal.ui.teacher.classes.TeacherClassesViewModel = androidx.lifecycle.viewmodel.compose.viewModel(
                         factory = com.school.gdsportal.ui.teacher.classes.TeacherClassesViewModel.provideFactory(
@@ -85,7 +113,7 @@ fun TeacherAppWrapper(
                     )
                     com.school.gdsportal.ui.teacher.classes.TeacherClassesScreen(
                         viewModel = viewModel,
-                        onMenuClick = openDrawer,
+                        onBackClick = { navController.navigateUp() },
                         onClassClick = { sectionId ->
                             navController.navigate("teacher_classes/$sectionId")
                         }
@@ -126,7 +154,7 @@ fun TeacherAppWrapper(
                     )
                     com.school.gdsportal.ui.teacher.subjects.TeacherSubjectsScreen(
                         viewModel = viewModel,
-                        onMenuClick = openDrawer
+                        onBackClick = { navController.navigateUp() }
                     )
                 }
 
@@ -139,7 +167,7 @@ fun TeacherAppWrapper(
                     )
                     com.school.gdsportal.ui.teacher.classteacher.TeacherClassTeacherScreen(
                         viewModel = viewModel,
-                        onMenuClick = openDrawer
+                        onBackClick = { navController.navigateUp() }
                     )
                 }
 
@@ -152,7 +180,7 @@ fun TeacherAppWrapper(
                     )
                     com.school.gdsportal.ui.teacher.timetable.TeacherTimetableScreen(
                         viewModel = viewModel,
-                        onMenuClick = openDrawer
+                        onBackClick = { navController.navigateUp() }
                     )
                 }
 
@@ -166,7 +194,7 @@ fun TeacherAppWrapper(
                     )
                     com.school.gdsportal.ui.teacher.assignments.TeacherAssignmentsScreen(
                         viewModel = viewModel,
-                        onMenuClick = openDrawer,
+                        onBackClick = { navController.navigateUp() },
                         onCreateClick = { navController.navigate("teacher_assignments/create") },
                         onAssignmentClick = { assignmentId ->
                             navController.navigate("teacher_assignments/$assignmentId")
@@ -210,7 +238,7 @@ fun TeacherAppWrapper(
                     )
                     com.school.gdsportal.ui.teacher.attendance.myattendance.TeacherMyAttendanceScreen(
                         viewModel = viewModel,
-                        onMenuClick = openDrawer
+                        onBackClick = { navController.navigateUp() }
                     )
                 }
 
@@ -223,7 +251,7 @@ fun TeacherAppWrapper(
                     )
                     com.school.gdsportal.ui.teacher.attendance.studentattendance.TeacherStudentAttendanceScreen(
                         viewModel = viewModel,
-                        onMenuClick = openDrawer
+                        onBackClick = { navController.navigateUp() }
                     )
                 }
 
@@ -236,7 +264,7 @@ fun TeacherAppWrapper(
                     )
                     com.school.gdsportal.ui.teacher.examinations.TeacherExaminationsScreen(
                         viewModel = viewModel,
-                        onMenuClick = openDrawer
+                        onBackClick = { navController.navigateUp() }
                     )
                 }
                 
@@ -249,7 +277,7 @@ fun TeacherAppWrapper(
                     )
                     com.school.gdsportal.ui.teacher.marks.TeacherMarksScreen(
                         viewModel = viewModel,
-                        onMenuClick = openDrawer
+                        onBackClick = { navController.navigateUp() }
                     )
                 }
                 
@@ -261,7 +289,7 @@ fun TeacherAppWrapper(
                     )
                     com.school.gdsportal.ui.teacher.announcements.TeacherAnnouncementsScreen(
                         viewModel = viewModel,
-                        onMenuClick = openDrawer
+                        onBackClick = { navController.navigateUp() }
                     )
                 }
                 
@@ -273,7 +301,7 @@ fun TeacherAppWrapper(
                     )
                     com.school.gdsportal.ui.teacher.notifications.TeacherNotificationsScreen(
                         viewModel = viewModel,
-                        onMenuClick = openDrawer
+                        onBackClick = { navController.navigateUp() }
                     )
                 }
 
@@ -334,3 +362,4 @@ private fun PlaceholderScreen(title: String, onMenuClick: () -> Unit) {
         }
     }
 }
+

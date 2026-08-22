@@ -11,6 +11,6 @@ val ErrorColor = Color(0xFFD32F2F)
 // Role Accents
 val AccentAdministrator = Color(0xFFC98A2C)
 val AccentPrincipal = Color(0xFF0F5C56)
-val AccentTeacher = Color(0xFF3A4CB0)
+val AccentTeacher = Color(0xFF9C27B0)
 val AccentStudent = Color(0xFFD9603B)
 val AccentParent = Color(0xFF5C7A5A)
