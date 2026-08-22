@@ -43,6 +43,8 @@ class MainActivity : ComponentActivity() {
             // differently. Falls back to the admin amber before the role is known (loading/login).
             val themePrimaryColor = when (role?.uppercase()) {
                 "PRINCIPAL" -> AccentPrincipal
+                "TEACHER" -> com.school.gdsportal.ui.theme.AccentTeacher
+                "PARENT" -> com.school.gdsportal.ui.theme.AccentParent
                 else -> AccentAdministrator
             }
 
@@ -86,6 +88,12 @@ class MainActivity : ComponentActivity() {
                     }
                     role?.uppercase() == "PARENT" -> {
                         ParentAppWrapper(
+                            appContainer = appContainer,
+                            onLogout  = onLogout
+                        )
+                    }
+                    role?.uppercase() == "TEACHER" -> {
+                        com.school.gdsportal.ui.teacher.TeacherAppWrapper(
                             appContainer = appContainer,
                             onLogout  = onLogout
                         )

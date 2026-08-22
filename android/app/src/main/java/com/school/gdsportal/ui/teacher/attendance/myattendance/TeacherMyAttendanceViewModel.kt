@@ -37,7 +37,7 @@ class TeacherMyAttendanceViewModel(
         viewModelScope.launch {
             try {
                 // 1. Identify the logged-in teacher
-                val teacherId = tokenManager.getUserProfile()?.userId ?: 0L
+                val teacherId = apiService.getTeacherMe().body()?.data?.teacherId ?: 0L
                 if (teacherId == 0L) {
                     _uiState.update { it.copy(isLoading = false, error = "Unable to identify teacher account.") }
                     return@launch
@@ -64,7 +64,7 @@ class TeacherMyAttendanceViewModel(
                     _uiState.update {
                         it.copy(
                             isLoading = false,
-                            attendanceRecords = records.sortedByDescending { r -> r.date },
+                            attendanceRecords = records.sortedByDescending { r -> r.attendanceDate },
                             currentMonthName = currentMonthName
                         )
                     }

@@ -35,7 +35,7 @@ class TeacherClassesViewModel(
         viewModelScope.launch {
             try {
                 // 1. Get Teacher ID from local token
-                val teacherId = tokenManager.getUserProfile()?.userId ?: 0L
+                val teacherId = apiService.getTeacherMe().body()?.data?.teacherId ?: 0L
                 if (teacherId == 0L) {
                     _uiState.update { it.copy(isLoading = false, error = "Unable to identify teacher account.") }
                     return@launch

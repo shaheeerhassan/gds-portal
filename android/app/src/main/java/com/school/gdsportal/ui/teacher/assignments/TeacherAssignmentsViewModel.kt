@@ -37,7 +37,7 @@ class TeacherAssignmentsViewModel(
         viewModelScope.launch {
             try {
                 // 1. Identify Teacher
-                val teacherId = tokenManager.getUserProfile()?.userId ?: 0L
+                val teacherId = apiService.getTeacherMe().body()?.data?.teacherId ?: 0L
                 if (teacherId == 0L) {
                     _uiState.update { it.copy(isLoading = false, error = "Unable to identify teacher account.") }
                     return@launch
@@ -73,7 +73,7 @@ class TeacherAssignmentsViewModel(
                 val allAssignments = responses
                     .filter { it.isSuccessful }
                     .flatMap { it.body()?.data ?: emptyList() }
-                    .sortedByDescending { it.dueDate ?: it.createdAt }
+                    .sortedByDescending { it.deadline ?: it.createdAt }
 
                 _uiState.update {
                     it.copy(

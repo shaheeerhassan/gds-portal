@@ -122,16 +122,16 @@ fun TeacherStudentProfileScreen(
 
                             if (enrollment != null) {
                                 Row(modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.SpaceBetween) {
-                                    Text("Class", color = MaterialTheme.colorScheme.onSurfaceVariant)
-                                    Text(enrollment.className, fontWeight = FontWeight.Bold)
+                                    Text("Class ID", color = MaterialTheme.colorScheme.onSurfaceVariant)
+                                    Text(enrollment.classId.toString(), fontWeight = FontWeight.Bold)
                                 }
                                 Row(modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.SpaceBetween) {
-                                    Text("Section", color = MaterialTheme.colorScheme.onSurfaceVariant)
-                                    Text(enrollment.sectionName, fontWeight = FontWeight.Bold)
+                                    Text("Section ID", color = MaterialTheme.colorScheme.onSurfaceVariant)
+                                    Text(enrollment.sectionId.toString(), fontWeight = FontWeight.Bold)
                                 }
                                 Row(modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.SpaceBetween) {
                                     Text("Status", color = MaterialTheme.colorScheme.onSurfaceVariant)
-                                    Text(enrollment.status.name, fontWeight = FontWeight.Bold)
+                                    Text(if (enrollment.active) "Active" else "Inactive", fontWeight = FontWeight.Bold)
                                 }
                             } else {
                                 Text("No active enrollment found.", color = MaterialTheme.colorScheme.onSurfaceVariant)
@@ -153,15 +153,11 @@ fun TeacherStudentProfileScreen(
 
                             Row(modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.SpaceBetween) {
                                 Text("Date of Birth", color = MaterialTheme.colorScheme.onSurfaceVariant)
-                                Text(student.dateOfBirth, fontWeight = FontWeight.Bold)
+                                Text(student.dateOfBirth ?: "N/A", fontWeight = FontWeight.Bold)
                             }
                             Row(modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.SpaceBetween) {
                                 Text("Gender", color = MaterialTheme.colorScheme.onSurfaceVariant)
-                                Text(student.gender.name, fontWeight = FontWeight.Bold)
-                            }
-                            Row(modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.SpaceBetween) {
-                                Text("Blood Group", color = MaterialTheme.colorScheme.onSurfaceVariant)
-                                Text(student.bloodGroup ?: "N/A", fontWeight = FontWeight.Bold)
+                                Text(student.gender ?: "N/A", fontWeight = FontWeight.Bold)
                             }
                         }
                     }

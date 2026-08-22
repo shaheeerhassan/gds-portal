@@ -168,7 +168,7 @@ private fun StudentAttendanceCard(
             // Wait, your StudentAttendance DTO might not contain the student's name directly.
             // If it doesn't, you may need to use Student ID or map it from the Directory API.
             Text(
-                text = "Student ID: ${record.studentId}",
+                text = "Student ID: ${record.studentClassId}",
                 style = MaterialTheme.typography.titleMedium,
                 fontWeight = FontWeight.Bold
             )

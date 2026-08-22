@@ -50,8 +50,7 @@ fun TeacherAppWrapper(
                             restoreState = true
                         }
                     }
-                },
-                onLogout = onLogout
+                }
             )
         }
     ) {
@@ -64,7 +63,17 @@ fun TeacherAppWrapper(
             NavHost(navController = navController, startDestination = "teacher_dashboard") {
 
                 composable("teacher_dashboard") {
-                    PlaceholderScreen("Dashboard", openDrawer)
+                    val viewModel: com.school.gdsportal.ui.teacher.dashboard.TeacherDashboardViewModel = androidx.lifecycle.viewmodel.compose.viewModel(
+                        factory = com.school.gdsportal.ui.teacher.dashboard.TeacherDashboardViewModel.provideFactory(
+                            appContainer.apiService,
+                            appContainer.tokenManager
+                        )
+                    )
+                    com.school.gdsportal.ui.teacher.dashboard.TeacherDashboardScreen(
+                        viewModel = viewModel,
+                        onMenuClick = openDrawer,
+                        onNavigate = { route -> navController.navigate(route) }
+                    )
                 }
 
                 composable("teacher_classes") {
@@ -165,13 +174,31 @@ fun TeacherAppWrapper(
                     )
                 }
 
-                // Temporary placeholders for the next steps
                 composable("teacher_assignments/create") {
-                    PlaceholderScreen("Create Assignment") { navController.navigateUp() }
+                    val viewModel: com.school.gdsportal.ui.teacher.assignments.create.TeacherAssignmentCreateViewModel = androidx.lifecycle.viewmodel.compose.viewModel(
+                        factory = com.school.gdsportal.ui.teacher.assignments.create.TeacherAssignmentCreateViewModel.provideFactory(
+                            appContainer.apiService,
+                            appContainer.tokenManager
+                        )
+                    )
+                    com.school.gdsportal.ui.teacher.assignments.create.TeacherAssignmentCreateScreen(
+                        viewModel = viewModel,
+                        onBackClick = { navController.navigateUp() }
+                    )
                 }
 
-                composable("teacher_assignments/{assignmentId}") {
-                    PlaceholderScreen("Assignment Details") { navController.navigateUp() }
+                composable("teacher_assignments/{assignmentId}") { backStackEntry ->
+                    val assignmentId = backStackEntry.arguments?.getString("assignmentId")?.toLongOrNull() ?: 0L
+                    val viewModel: com.school.gdsportal.ui.teacher.assignments.detail.TeacherAssignmentDetailViewModel = androidx.lifecycle.viewmodel.compose.viewModel(
+                        factory = com.school.gdsportal.ui.teacher.assignments.detail.TeacherAssignmentDetailViewModel.provideFactory(
+                            assignmentId,
+                            appContainer.apiService
+                        )
+                    )
+                    com.school.gdsportal.ui.teacher.assignments.detail.TeacherAssignmentDetailScreen(
+                        viewModel = viewModel,
+                        onBackClick = { navController.navigateUp() }
+                    )
                 }
 
                 composable("teacher_my_attendance") {
@@ -200,10 +227,55 @@ fun TeacherAppWrapper(
                     )
                 }
 
-                composable("teacher_examinations") { PlaceholderScreen("Examinations", openDrawer) }
-                composable("teacher_marks") { PlaceholderScreen("Marks & Grading", openDrawer) }
-                composable("teacher_announcements") { PlaceholderScreen("Announcements", openDrawer) }
-                composable("teacher_notifications") { PlaceholderScreen("Notifications", openDrawer) }
+                composable("teacher_examinations") {
+                    val viewModel: com.school.gdsportal.ui.teacher.examinations.TeacherExaminationsViewModel = androidx.lifecycle.viewmodel.compose.viewModel(
+                        factory = com.school.gdsportal.ui.teacher.examinations.TeacherExaminationsViewModel.provideFactory(
+                            appContainer.apiService,
+                            appContainer.tokenManager
+                        )
+                    )
+                    com.school.gdsportal.ui.teacher.examinations.TeacherExaminationsScreen(
+                        viewModel = viewModel,
+                        onMenuClick = openDrawer
+                    )
+                }
+                
+                composable("teacher_marks") {
+                    val viewModel: com.school.gdsportal.ui.teacher.marks.TeacherMarksViewModel = androidx.lifecycle.viewmodel.compose.viewModel(
+                        factory = com.school.gdsportal.ui.teacher.marks.TeacherMarksViewModel.provideFactory(
+                            appContainer.apiService,
+                            appContainer.tokenManager
+                        )
+                    )
+                    com.school.gdsportal.ui.teacher.marks.TeacherMarksScreen(
+                        viewModel = viewModel,
+                        onMenuClick = openDrawer
+                    )
+                }
+                
+                composable("teacher_announcements") {
+                    val viewModel: com.school.gdsportal.ui.teacher.announcements.TeacherAnnouncementsViewModel = androidx.lifecycle.viewmodel.compose.viewModel(
+                        factory = com.school.gdsportal.ui.teacher.announcements.TeacherAnnouncementsViewModel.provideFactory(
+                            appContainer.apiService
+                        )
+                    )
+                    com.school.gdsportal.ui.teacher.announcements.TeacherAnnouncementsScreen(
+                        viewModel = viewModel,
+                        onMenuClick = openDrawer
+                    )
+                }
+                
+                composable("teacher_notifications") {
+                    val viewModel: com.school.gdsportal.ui.teacher.notifications.TeacherNotificationsViewModel = androidx.lifecycle.viewmodel.compose.viewModel(
+                        factory = com.school.gdsportal.ui.teacher.notifications.TeacherNotificationsViewModel.provideFactory(
+                            appContainer.apiService
+                        )
+                    )
+                    com.school.gdsportal.ui.teacher.notifications.TeacherNotificationsScreen(
+                        viewModel = viewModel,
+                        onMenuClick = openDrawer
+                    )
+                }
 
                 // -------------------------------------------------------------
                 // PROFILE & ACCOUNT (Reusing existing components)

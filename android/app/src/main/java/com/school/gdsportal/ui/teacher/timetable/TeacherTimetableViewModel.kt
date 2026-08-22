@@ -36,7 +36,7 @@ class TeacherTimetableViewModel(
         viewModelScope.launch {
             try {
                 // 1. Identify the logged-in teacher
-                val teacherId = tokenManager.getUserProfile()?.userId ?: 0L
+                val teacherId = apiService.getTeacherMe().body()?.data?.teacherId ?: 0L
                 if (teacherId == 0L) {
                     _uiState.update { it.copy(isLoading = false, error = "Unable to identify teacher account.") }
                     return@launch
@@ -59,7 +59,7 @@ class TeacherTimetableViewModel(
                     val grouped = rawTimetable
                         .groupBy { it.dayOfWeek.uppercase() }
                         .mapValues { entry ->
-                            entry.value.sortedBy { it.startTime }
+                            entry.value.sortedBy { it.periodId }
                         }
                         // Sort the days logically (Monday to Sunday)
                         .toSortedMap(compareBy { dayOrder.indexOf(it) })

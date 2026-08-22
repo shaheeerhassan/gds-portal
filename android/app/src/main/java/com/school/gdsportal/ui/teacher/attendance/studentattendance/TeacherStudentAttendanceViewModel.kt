@@ -48,7 +48,7 @@ class TeacherStudentAttendanceViewModel(
         _uiState.update { it.copy(isLoading = true, error = null) }
         viewModelScope.launch {
             try {
-                val teacherId = tokenManager.getUserProfile()?.userId ?: 0L
+                val teacherId = apiService.getTeacherMe().body()?.data?.teacherId ?: 0L
                 val yearResponse = apiService.getCurrentAcademicYear()
                 val currentYear = yearResponse.body()?.data
 

@@ -17,15 +17,14 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
-import com.school.gdsportal.ui.theme.AccentTeacher // Ensure this exists in your Color.kt
+import com.school.gdsportal.ui.theme.AccentTeacher
 import com.school.gdsportal.ui.theme.BackgroundColor
 import com.school.gdsportal.ui.theme.TextPrimary
 
 @Composable
 fun TeacherDrawerContent(
     currentRoute: String,
-    onNavigate: (String) -> Unit,
-    onLogout: () -> Unit
+    onNavigate: (String) -> Unit
 ) {
     ModalDrawerSheet(
         drawerContainerColor = BackgroundColor,
@@ -52,38 +51,22 @@ fun TeacherDrawerContent(
             HorizontalDivider(color = MaterialTheme.colorScheme.onBackground.copy(alpha = 0.1f))
             Spacer(modifier = Modifier.height(16.dp))
 
+            // Uninterrupted, clean list matching the Admin vibe exactly
             Column(
                 modifier = Modifier
                     .weight(1f)
-                    .verticalScroll(rememberScrollState()),
-                verticalArrangement = Arrangement.spacedBy(4.dp)
+                    .verticalScroll(rememberScrollState())
             ) {
-                DrawerCategoryTitle("MAIN")
                 TeacherDrawerItem("Dashboard", Icons.Outlined.Home, currentRoute == "teacher_dashboard") { onNavigate("teacher_dashboard") }
-
-                Spacer(modifier = Modifier.height(8.dp))
-                DrawerCategoryTitle("MY TEACHING")
                 TeacherDrawerItem("My Classes", Icons.Outlined.Class, currentRoute.startsWith("teacher_classes")) { onNavigate("teacher_classes") }
                 TeacherDrawerItem("My Subjects", Icons.Outlined.MenuBook, currentRoute.startsWith("teacher_subjects")) { onNavigate("teacher_subjects") }
                 TeacherDrawerItem("Class Teacher", Icons.Outlined.Stars, currentRoute.startsWith("teacher_class_teacher")) { onNavigate("teacher_class_teacher") }
-
-                Spacer(modifier = Modifier.height(8.dp))
-                DrawerCategoryTitle("WORKFLOW")
                 TeacherDrawerItem("Timetable", Icons.Outlined.CalendarToday, currentRoute.startsWith("teacher_timetable")) { onNavigate("teacher_timetable") }
                 TeacherDrawerItem("Assignments", Icons.Outlined.Assignment, currentRoute.startsWith("teacher_assignments")) { onNavigate("teacher_assignments") }
-
-                Spacer(modifier = Modifier.height(8.dp))
-                DrawerCategoryTitle("ATTENDANCE")
                 TeacherDrawerItem("My Attendance", Icons.Outlined.Badge, currentRoute.startsWith("teacher_my_attendance")) { onNavigate("teacher_my_attendance") }
                 TeacherDrawerItem("Student Attendance", Icons.Outlined.FactCheck, currentRoute.startsWith("teacher_student_attendance")) { onNavigate("teacher_student_attendance") }
-
-                Spacer(modifier = Modifier.height(8.dp))
-                DrawerCategoryTitle("ASSESSMENT")
                 TeacherDrawerItem("Examinations", Icons.Outlined.EventNote, currentRoute.startsWith("teacher_examinations")) { onNavigate("teacher_examinations") }
                 TeacherDrawerItem("Marks & Grading", Icons.Outlined.Assessment, currentRoute.startsWith("teacher_marks")) { onNavigate("teacher_marks") }
-
-                Spacer(modifier = Modifier.height(8.dp))
-                DrawerCategoryTitle("COMMUNICATION")
                 TeacherDrawerItem("Announcements", Icons.Outlined.Campaign, currentRoute.startsWith("teacher_announcements")) { onNavigate("teacher_announcements") }
                 TeacherDrawerItem("Notifications", Icons.Outlined.Notifications, currentRoute.startsWith("teacher_notifications")) { onNavigate("teacher_notifications") }
             }
@@ -101,16 +84,6 @@ fun TeacherDrawerContent(
             Spacer(modifier = Modifier.height(16.dp))
         }
     }
-}
-
-@Composable
-private fun DrawerCategoryTitle(title: String) {
-    Text(
-        text = title,
-        style = MaterialTheme.typography.labelSmall,
-        color = MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.7f),
-        modifier = Modifier.padding(start = 12.dp, top = 8.dp, bottom = 4.dp)
-    )
 }
 
 @Composable
@@ -149,6 +122,15 @@ private fun TeacherDrawerItem(
             Icon(imageVector = icon, contentDescription = label, tint = contentColor, modifier = Modifier.size(24.dp))
             Spacer(modifier = Modifier.width(16.dp))
             Text(text = label, color = contentColor, style = MaterialTheme.typography.bodyLarge.copy(fontWeight = fontWeight))
+            Spacer(modifier = Modifier.weight(1f))
+            if (label != "Dashboard") {
+                Icon(
+                    imageVector = Icons.Outlined.ChevronRight,
+                    contentDescription = null,
+                    tint = contentColor.copy(alpha = 0.5f),
+                    modifier = Modifier.size(20.dp)
+                )
+            }
         }
     }
 }

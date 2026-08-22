@@ -87,7 +87,7 @@ fun TeacherMyAttendanceScreen(
 
 @Composable
 private fun AttendanceRecordCard(record: TeacherAttendance) {
-    val statusColor = when (record.status.name) {
+    val statusColor = when (record.status) {
         "PRESENT" -> Color(0xFF4CAF50)
         "ABSENT" -> MaterialTheme.colorScheme.error
         "LATE" -> Color(0xFFFF9800)
@@ -106,32 +106,32 @@ private fun AttendanceRecordCard(record: TeacherAttendance) {
         ) {
             Column(modifier = Modifier.weight(1f)) {
                 Text(
-                    text = record.date,
+                    text = record.attendanceDate,
                     style = MaterialTheme.typography.titleMedium,
                     fontWeight = FontWeight.Bold
                 )
                 Spacer(modifier = Modifier.height(8.dp))
 
-                Row(horizontalArrangement = Arrangement.spacedBy(16.dp)) {
-                    if (record.checkInTime != null) {
-                        Text(
-                            text = "In: ${record.checkInTime}",
-                            style = MaterialTheme.typography.bodyMedium,
-                            color = MaterialTheme.colorScheme.onSurfaceVariant
-                        )
-                    }
-                    if (record.checkOutTime != null) {
-                        Text(
-                            text = "Out: ${record.checkOutTime}",
-                            style = MaterialTheme.typography.bodyMedium,
-                            color = MaterialTheme.colorScheme.onSurfaceVariant
-                        )
-                    }
-                }
+//                Row(horizontalArrangement = Arrangement.spacedBy(16.dp)) {
+//                    if (record.checkInTime != null) {
+//                        Text(
+//                            text = "In: ${record.checkInTime}",
+//                            style = MaterialTheme.typography.bodyMedium,
+//                            color = MaterialTheme.colorScheme.onSurfaceVariant
+//                        )
+//                    }
+//                    if (record.checkOutTime != null) {
+//                        Text(
+//                            text = "Out: ${record.checkOutTime}",
+//                            style = MaterialTheme.typography.bodyMedium,
+//                            color = MaterialTheme.colorScheme.onSurfaceVariant
+//                        )
+//                    }
+//                }
             }
 
             Text(
-                text = record.status.name,
+                text = record.status,
                 color = statusColor,
                 fontWeight = FontWeight.ExtraBold,
                 style = MaterialTheme.typography.labelLarge

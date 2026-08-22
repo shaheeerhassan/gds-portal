@@ -108,7 +108,7 @@ private fun TimetablePeriodCard(period: Timetable) {
                 verticalArrangement = Arrangement.spacedBy(4.dp)
             ) {
                 Text(
-                    text = "${period.startTime} - ${period.endTime}",
+                    text = "Period ${period.periodId}",
                     style = MaterialTheme.typography.titleMedium,
                     fontWeight = FontWeight.Bold,
                     color = AccentTeacher

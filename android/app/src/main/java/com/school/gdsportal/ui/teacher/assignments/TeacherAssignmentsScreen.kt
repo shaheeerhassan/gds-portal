@@ -164,7 +164,7 @@ private fun TeacherAssignmentCard(
                     }
                     Spacer(modifier = Modifier.width(12.dp))
                     Text(
-                        text = "Due: ${assignment.dueDate ?: "No Date"}",
+                        text = "Due: ${assignment.deadline ?: "No Date"}",
                         style = MaterialTheme.typography.labelMedium,
                         color = MaterialTheme.colorScheme.primary
                     )

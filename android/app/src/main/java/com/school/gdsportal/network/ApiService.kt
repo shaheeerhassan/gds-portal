@@ -56,6 +56,9 @@ interface ApiService {
     @GET("api/teachers/")
     suspend fun getAllTeachers(): Response<ApiResponse<List<Teacher>>>
 
+    @GET("api/teachers/me")
+    suspend fun getTeacherMe(): Response<ApiResponse<Teacher>>
+
     @GET("api/teachers/{teacherId}")
     suspend fun getTeacherById(@Path("teacherId") teacherId: Long): Response<ApiResponse<Teacher>>
 
@@ -516,6 +519,25 @@ interface ApiService {
 
     @GET("api/assignments/id/{assignmentId}")
     suspend fun getAssignmentById(@Path("assignmentId") assignmentId: Long): Response<ApiResponse<com.school.gdsportal.data.remote.Assignment>>
+
+    @POST("api/assignments/")
+    suspend fun createAssignment(@Body assignment: com.school.gdsportal.data.remote.Assignment): Response<ApiResponse<com.school.gdsportal.data.remote.Assignment>>
+
+    @PUT("api/assignments/{assignmentId}")
+    suspend fun updateAssignment(
+        @Path("assignmentId") assignmentId: Long,
+        @Body assignment: com.school.gdsportal.data.remote.Assignment
+    ): Response<ApiResponse<Any>>
+
+    @PUT("api/assignments/publish/{assignmentId}")
+    suspend fun publishAssignment(
+        @Path("assignmentId") assignmentId: Long
+    ): Response<ApiResponse<Any>>
+
+    @DELETE("api/assignments/{assignmentId}")
+    suspend fun deleteAssignment(
+        @Path("assignmentId") assignmentId: Long
+    ): Response<ApiResponse<Any>>
 
     @GET("api/submissions/assignment/{assignmentId}")
     suspend fun getSubmissionsByAssignment(@Path("assignmentId") assignmentId: Long): Response<ApiResponse<List<com.school.gdsportal.data.remote.Submission>>>
