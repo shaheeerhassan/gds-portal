@@ -255,6 +255,8 @@ fun TeacherAppWrapper(
                     )
                 }
 
+                // Examinations Directory
+                // Examinations Directory
                 composable("teacher_examinations") {
                     val viewModel: com.school.gdsportal.ui.teacher.examinations.TeacherExaminationsViewModel = androidx.lifecycle.viewmodel.compose.viewModel(
                         factory = com.school.gdsportal.ui.teacher.examinations.TeacherExaminationsViewModel.provideFactory(
@@ -264,10 +266,82 @@ fun TeacherAppWrapper(
                     )
                     com.school.gdsportal.ui.teacher.examinations.TeacherExaminationsScreen(
                         viewModel = viewModel,
-                        onBackClick = { navController.navigateUp() }
+                        onBackClick = { navController.navigateUp() },
+                        onCreateClick = { sectionId ->
+                            if (sectionId != null) {
+                                navController.navigate("teacher_examinations/manage/$sectionId")
+                            }
+                        },
+                        onEditClick = { sectionId, examId ->
+                            navController.navigate("teacher_examinations/manage/$sectionId?examId=$examId")
+                        },
+                        onDetailClick = { examId ->
+                            navController.navigate("teacher_examinations/detail/$examId")
+                        }
                     )
                 }
-                
+
+                // Examination Details
+                composable("teacher_examinations/detail/{examinationId}") { backStackEntry ->
+                    val examId = backStackEntry.arguments?.getString("examinationId")?.toLongOrNull() ?: 0L
+                    val viewModel: com.school.gdsportal.ui.admin.assessment.examinations.ExaminationDetailViewModel = androidx.lifecycle.viewmodel.compose.viewModel(
+                        factory = com.school.gdsportal.ui.admin.assessment.examinations.ExaminationDetailViewModel.Factory(appContainer.apiService)
+                    )
+                    androidx.compose.runtime.LaunchedEffect(examId) {
+                        viewModel.loadExamination(examId)
+                    }
+                    // We need sectionId to navigate to edit from details page.
+                    // But Examination has sectionId inside it.
+                    val uiState by viewModel.uiState.collectAsState()
+                    val sectionId = uiState.examination?.sectionId
+                    
+                    com.school.gdsportal.ui.admin.assessment.examinations.ExaminationDetailScreen(
+                        isReadOnly = false,
+                        viewModel = viewModel,
+                        onBackClick = { navController.navigateUp() },
+                        onEditClick = { id ->
+                            if (sectionId != null) {
+                                navController.navigate("teacher_examinations/manage/$sectionId?examId=$id")
+                            }
+                        }
+                    )
+                }
+
+                // Examination Management (Create & Edit)
+                // Add optional ?examId={examId} to support updating!
+                composable(
+                    route = "teacher_examinations/manage/{sectionId}?examId={examId}",
+                    arguments = listOf(
+                        androidx.navigation.navArgument("sectionId") { type = androidx.navigation.NavType.StringType },
+                        androidx.navigation.navArgument("examId") { 
+                            type = androidx.navigation.NavType.StringType
+                            nullable = true 
+                            defaultValue = null 
+                        }
+                    )
+                ) { backStackEntry ->
+                    val sectionId = backStackEntry.arguments?.getString("sectionId")?.toIntOrNull() ?: 0
+                    val examId = backStackEntry.arguments?.getString("examId")?.toLongOrNull() // Nullable!
+
+                    val viewModel: com.school.gdsportal.ui.teacher.examinations.manage.TeacherExaminationManageViewModel = androidx.lifecycle.viewmodel.compose.viewModel(
+                        factory = com.school.gdsportal.ui.teacher.examinations.manage.TeacherExaminationManageViewModel.provideFactory(
+                            sectionId,
+                            examId,
+                            appContainer.apiService,
+                            appContainer.tokenManager
+                        )
+                    )
+
+                    com.school.gdsportal.ui.teacher.examinations.manage.TeacherExaminationManageScreen(
+                        viewModel = viewModel,
+                        onBackClick = { navController.navigateUp() },
+                        onSuccess = {
+                            navController.previousBackStackEntry?.savedStateHandle?.set("refresh", true)
+                            navController.navigateUp()
+                        }
+                    )
+                }
+
                 composable("teacher_marks") {
                     val viewModel: com.school.gdsportal.ui.teacher.marks.TeacherMarksViewModel = androidx.lifecycle.viewmodel.compose.viewModel(
                         factory = com.school.gdsportal.ui.teacher.marks.TeacherMarksViewModel.provideFactory(
@@ -315,20 +389,19 @@ fun TeacherAppWrapper(
                             when (route) {
                                 "admin_my_profile" -> navController.navigate("teacher_profile")
                                 "admin_change_password" -> navController.navigate("teacher_change_password")
-                                "logout_action" -> onLogout()
                             }
                         },
-                        onLogout = onLogout
+                        onLogout = { onLogout() }
                     )
                 }
 
                 composable("teacher_profile") {
-                    val profileViewModel: ProfileViewModel = viewModel(
-                        factory = ProfileViewModel.provideFactory(appContainer.apiService)
+                    val profileViewModel: com.school.gdsportal.ui.teacher.profile.TeacherProfileViewModel = viewModel(
+                        factory = com.school.gdsportal.ui.teacher.profile.TeacherProfileViewModel.provideFactory(appContainer.apiService)
                     )
-                    ProfileScreen(
+                    com.school.gdsportal.ui.teacher.profile.TeacherProfileScreen(
                         viewModel = profileViewModel,
-                        onBackClick = { navController.navigateUp() }
+                        onBackClick = { navController.popBackStack() }
                     )
                 }
 
@@ -362,4 +435,5 @@ private fun PlaceholderScreen(title: String, onMenuClick: () -> Unit) {
         }
     }
 }
+
 

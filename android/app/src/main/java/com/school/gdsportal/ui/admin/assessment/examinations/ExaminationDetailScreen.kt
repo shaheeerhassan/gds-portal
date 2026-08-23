@@ -156,7 +156,7 @@ fun ExaminationDetailScreen(
                             modifier = Modifier.padding(bottom = 8.dp)
                         )
                         HorizontalDivider(modifier = Modifier.padding(bottom = 16.dp))
-                        DetailRow("Exam Date", exam.examDate)
+                        DetailRow("Exam Date", exam.examDate.toString())
                         DetailRow("Time", "${exam.startTime} – ${exam.endTime}")
                     }
 

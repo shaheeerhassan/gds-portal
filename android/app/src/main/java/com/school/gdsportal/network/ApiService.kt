@@ -511,6 +511,9 @@ interface ApiService {
         @Body request: com.school.gdsportal.data.remote.StatusRequest
     ): Response<ApiResponse<Any>>
 
+    @DELETE("api/examinations/{examinationId}")
+    suspend fun deleteExamination(@Path("examinationId") examinationId: Long): Response<ApiResponse<Any>>
+
     @GET("api/assignments/section/{sectionId}/{academicYearId}")
     suspend fun getAssignmentsBySection(
         @Path("sectionId") sectionId: Int,

@@ -87,10 +87,7 @@ fun TeacherClassTeacherScreen(
                                 color = AccentTeacher,
                                 modifier = Modifier.padding(start = 4.dp, bottom = 4.dp)
                             )
-                            ClassTeacherCard(
-                                assignment = uiState.currentAssignment!!,
-                                isCurrent = true
-                            )
+                            ClassTeacherCard(assignment = uiState.currentAssignment!!, isCurrent = true, sectionName = uiState.sectionNames[uiState.currentAssignment!!.sectionId], yearName = uiState.yearNames[uiState.currentAssignment!!.academicYearId])
                         }
                     }
 
@@ -106,10 +103,7 @@ fun TeacherClassTeacherScreen(
                             )
                         }
                         items(uiState.pastAssignments) { pastAssignment ->
-                            ClassTeacherCard(
-                                assignment = pastAssignment,
-                                isCurrent = false
-                            )
+                            ClassTeacherCard(assignment = pastAssignment, isCurrent = false, sectionName = uiState.sectionNames[pastAssignment.sectionId], yearName = uiState.yearNames[pastAssignment.academicYearId])
                         }
                     }
                 }
@@ -119,7 +113,7 @@ fun TeacherClassTeacherScreen(
 }
 
 @Composable
-private fun ClassTeacherCard(assignment: ClassTeacherAssignment, isCurrent: Boolean) {
+private fun ClassTeacherCard(assignment: ClassTeacherAssignment, isCurrent: Boolean, sectionName: String?, yearName: String?) {
     // Note: Assuming your ClassTeacherAssignment model has class and section display names.
     // If it only has IDs, you may need to map them to strings.
     val cardColor = if (isCurrent) AccentTeacher.copy(alpha = 0.15f) else MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.5f)
@@ -152,13 +146,13 @@ private fun ClassTeacherCard(assignment: ClassTeacherAssignment, isCurrent: Bool
             Column(modifier = Modifier.weight(1f)) {
                 // If your DTO has className/sectionName, use them. Otherwise, fallback to IDs.
                 Text(
-                    text = "Section ID: ${assignment.sectionId}",
+                    text = sectionName ?: "Section ${assignment.sectionId}",
                     style = MaterialTheme.typography.titleMedium,
                     fontWeight = FontWeight.Bold
                 )
                 Spacer(modifier = Modifier.height(4.dp))
                 Text(
-                    text = "Academic Year ID: ${assignment.academicYearId}",
+                    text = yearName ?: "Year ${assignment.academicYearId}",
                     style = MaterialTheme.typography.bodyMedium,
                     color = MaterialTheme.colorScheme.onSurfaceVariant
                 )
@@ -166,3 +160,5 @@ private fun ClassTeacherCard(assignment: ClassTeacherAssignment, isCurrent: Bool
         }
     }
 }
+
+

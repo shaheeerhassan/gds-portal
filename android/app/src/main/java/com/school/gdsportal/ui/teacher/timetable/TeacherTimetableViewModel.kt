@@ -16,7 +16,10 @@ data class TeacherTimetableUiState(
     val isLoading: Boolean = true,
     val error: String? = null,
     // Grouping the timetable by Day (e.g., "MONDAY" -> List of Periods)
-    val weeklySchedule: Map<String, List<Timetable>> = emptyMap()
+    val weeklySchedule: Map<String, List<Timetable>> = emptyMap(),
+    val subjectNames: Map<Int, String> = emptyMap(),
+    val sectionNames: Map<Int, String> = emptyMap(),
+    val periodTimes: Map<Int, String> = emptyMap()
 )
 
 class TeacherTimetableViewModel(
@@ -54,6 +57,29 @@ class TeacherTimetableViewModel(
                 val timetableResponse = apiService.getTimetableByTeacher(teacherId, currentYear.academicYearId)
                 if (timetableResponse.isSuccessful) {
                     val rawTimetable = timetableResponse.body()?.data ?: emptyList()
+                    
+                    // Fetch lookups
+                    val subMap = mutableMapOf<Int, String>()
+                    val secMap = mutableMapOf<Int, String>()
+                    val pMap = mutableMapOf<Int, String>()
+                    
+                    try {
+                        val subjects = apiService.getSubjects().body()?.data ?: emptyList()
+                        subjects.forEach { subMap[it.subjectId] = it.subjectName }
+                        
+                        val periods = apiService.getAllPeriods().body()?.data ?: emptyList<com.school.gdsportal.data.remote.Period>()
+                        periods.forEach { pMap[it.periodId] = "Period ${it.periodNumber} (${it.startTime.take(5)}-${it.endTime.take(5)})" }
+                        
+                        val sectionIds = rawTimetable.map { it.sectionId }.distinct()
+                        sectionIds.forEach { sid ->
+                            val sec = apiService.getSectionById(sid).body()?.data
+                            if (sec != null) {
+                                val cId = sec.classId
+                                val cName = apiService.getClassById(cId).body()?.data?.className
+                                secMap[sid] = "${cName ?: "Class $cId"} - ${sec.sectionName}"
+                            }
+                        }
+                    } catch (e: Exception) {}
 
                     // 4. Group by day of the week and sort by start time
                     val grouped = rawTimetable
@@ -65,7 +91,13 @@ class TeacherTimetableViewModel(
                         .toSortedMap(compareBy { dayOrder.indexOf(it) })
 
                     _uiState.update {
-                        it.copy(isLoading = false, weeklySchedule = grouped)
+                        it.copy(
+                            isLoading = false,
+                            weeklySchedule = grouped,
+                            subjectNames = subMap,
+                            sectionNames = secMap,
+                            periodTimes = pMap
+                        )
                     }
                 } else {
                     _uiState.update { it.copy(isLoading = false, error = "Failed to load timetable.") }
@@ -86,3 +118,5 @@ class TeacherTimetableViewModel(
             }
     }
 }
+
+

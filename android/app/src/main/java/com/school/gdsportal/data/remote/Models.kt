@@ -1,6 +1,7 @@
 package com.school.gdsportal.data.remote
 
 import com.google.gson.annotations.SerializedName
+import java.util.Date
 
 data class User(
     val userId: Long,
@@ -338,8 +339,8 @@ data class Examination(
     val sectionId: Int,
     val academicYearId: Int,
     val examDate: String, // format YYYY-MM-DD
-    val startTime: String, // format HH:MM
-    val endTime: String,
+    val startTime: String?, // format HH:MM
+    val endTime: String?,
     val maxMarks: Double,
     val passingMarks: Double?,
     val status: ExaminationStatus,

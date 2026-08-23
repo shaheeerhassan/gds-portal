@@ -153,9 +153,9 @@ class ExaminationsDirectoryViewModel(private val apiService: ApiService) : ViewM
                             subjectName = subjectsMap[exam.subjectId]?.subjectName ?: "Unknown Subject",
                             sectionId = exam.sectionId,
                             academicYearId = exam.academicYearId,
-                            examDate = exam.examDate,
-                            startTime = exam.startTime,
-                            endTime = exam.endTime,
+                            examDate = exam.examDate.toString(),
+                            startTime = exam.startTime.toString(),
+                            endTime = exam.endTime.toString(),
                             maxMarks = exam.maxMarks,
                             passingMarks = exam.passingMarks,
                             status = exam.status

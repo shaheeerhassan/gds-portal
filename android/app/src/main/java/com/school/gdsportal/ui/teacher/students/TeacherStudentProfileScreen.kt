@@ -122,12 +122,12 @@ fun TeacherStudentProfileScreen(
 
                             if (enrollment != null) {
                                 Row(modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.SpaceBetween) {
-                                    Text("Class ID", color = MaterialTheme.colorScheme.onSurfaceVariant)
-                                    Text(enrollment.classId.toString(), fontWeight = FontWeight.Bold)
+                                    Text("Class", color = MaterialTheme.colorScheme.onSurfaceVariant)
+                                    Text(uiState.className ?: enrollment.classId.toString(), fontWeight = FontWeight.Bold)
                                 }
                                 Row(modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.SpaceBetween) {
-                                    Text("Section ID", color = MaterialTheme.colorScheme.onSurfaceVariant)
-                                    Text(enrollment.sectionId.toString(), fontWeight = FontWeight.Bold)
+                                    Text("Section", color = MaterialTheme.colorScheme.onSurfaceVariant)
+                                    Text(uiState.sectionName ?: enrollment.sectionId.toString(), fontWeight = FontWeight.Bold)
                                 }
                                 Row(modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.SpaceBetween) {
                                     Text("Status", color = MaterialTheme.colorScheme.onSurfaceVariant)

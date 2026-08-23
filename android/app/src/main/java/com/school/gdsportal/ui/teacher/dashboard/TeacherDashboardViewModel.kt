@@ -50,8 +50,10 @@ class TeacherDashboardViewModel(
         }
 
         viewModelScope.launch {
+            val savedUser = tokenManager.getUserProfile()
+            _uiState.update { it.copy(user = savedUser) }
+            
             try {
-                val savedUser = tokenManager.getUserProfile()
                 val teacherId = apiService.getTeacherMe().body()?.data?.teacherId ?: 0L
 
                 val academicYearDef = async { apiService.getCurrentAcademicYear() }

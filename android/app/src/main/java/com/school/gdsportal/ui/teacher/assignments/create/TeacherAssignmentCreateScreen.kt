@@ -1,5 +1,6 @@
 package com.school.gdsportal.ui.teacher.assignments.create
 
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.text.KeyboardOptions
@@ -22,6 +23,28 @@ fun TeacherAssignmentCreateScreen(
     onBackClick: () -> Unit
 ) {
     val uiState by viewModel.uiState.collectAsState()
+    var showDatePicker by remember { mutableStateOf(false) }
+    if (showDatePicker) {
+        val datePickerState = rememberDatePickerState()
+        DatePickerDialog(
+            onDismissRequest = { showDatePicker = false },
+            confirmButton = {
+                TextButton(onClick = {
+                    datePickerState.selectedDateMillis?.let { millis ->
+                        val date = java.util.Date(millis)
+                        val sdf = java.text.SimpleDateFormat("yyyy-MM-dd", java.util.Locale.getDefault())
+                        viewModel.onDeadlineChanged(sdf.format(date))
+                    }
+                    showDatePicker = false
+                }) { Text("OK") }
+            },
+            dismissButton = {
+                TextButton(onClick = { showDatePicker = false }) { Text("Cancel") }
+            }
+        ) {
+            DatePicker(state = datePickerState)
+        }
+    }
 
     LaunchedEffect(uiState.success) {
         if (uiState.success) {
@@ -150,14 +173,22 @@ fun TeacherAssignmentCreateScreen(
                             colors = OutlinedTextFieldDefaults.colors(focusedBorderColor = AccentTeacher, focusedLabelColor = AccentTeacher)
                         )
 
-                        OutlinedTextField(
-                            value = uiState.deadline,
-                            onValueChange = viewModel::onDeadlineChanged,
-                            label = { Text("Deadline (YYYY-MM-DD)") },
-                            modifier = Modifier.weight(1f),
-                            singleLine = true,
-                            colors = OutlinedTextFieldDefaults.colors(focusedBorderColor = AccentTeacher, focusedLabelColor = AccentTeacher)
-                        )
+                        androidx.compose.foundation.layout.Box(modifier = Modifier.weight(1f).clickable { showDatePicker = true }) {
+                            OutlinedTextField(
+                                value = uiState.deadline,
+                                onValueChange = {},
+                                readOnly = true,
+                                enabled = false,
+                                label = { Text("Deadline") },
+                                modifier = Modifier.fillMaxWidth(),
+                                singleLine = true,
+                                colors = OutlinedTextFieldDefaults.colors(
+                                    disabledTextColor = MaterialTheme.colorScheme.onSurface,
+                                    disabledBorderColor = MaterialTheme.colorScheme.outline,
+                                    disabledLabelColor = MaterialTheme.colorScheme.onSurfaceVariant
+                                )
+                            )
+                        }
                     }
 
                     Spacer(modifier = Modifier.height(16.dp))
@@ -195,3 +226,6 @@ fun TeacherAssignmentCreateScreen(
         }
     }
 }
+
+
+

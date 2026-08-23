@@ -17,7 +17,9 @@ data class TeacherClassTeacherUiState(
     val isLoading: Boolean = true,
     val error: String? = null,
     val currentAssignment: ClassTeacherAssignment? = null,
-    val pastAssignments: List<ClassTeacherAssignment> = emptyList()
+    val pastAssignments: List<ClassTeacherAssignment> = emptyList(),
+    val sectionNames: Map<Int, String> = emptyMap(),
+    val yearNames: Map<Int, String> = emptyMap()
 )
 
 class TeacherClassTeacherViewModel(
@@ -53,6 +55,25 @@ class TeacherClassTeacherViewModel(
                 if (historyRes.isSuccessful) {
                     val allAssignments = historyRes.body()?.data ?: emptyList()
 
+                    // Fetch lookups
+                    val sectionIds = allAssignments.map { it.sectionId }.distinct()
+                    val sNames = mutableMapOf<Int, String>()
+                    val yNames = mutableMapOf<Int, String>()
+                    
+                    try {
+                        val years = apiService.getAcademicYears().body()?.data ?: emptyList()
+                        years.forEach { yNames[it.academicYearId] = it.yearName }
+                        
+                        sectionIds.forEach { sid ->
+                            val sec = apiService.getSectionById(sid).body()?.data
+                            if (sec != null) {
+                                val cId = sec.classId
+                                val cName = apiService.getClassById(cId).body()?.data?.className
+                                sNames[sid] = "${cName ?: "Class $cId"} - ${sec.sectionName}"
+                            }
+                        }
+                    } catch (e: Exception) {}
+
                     // 3. Separate current year from past years
                     val current = allAssignments.find { it.academicYearId == currentYearId }
                     val past = allAssignments.filter { it.academicYearId != currentYearId }
@@ -62,7 +83,9 @@ class TeacherClassTeacherViewModel(
                         it.copy(
                             isLoading = false,
                             currentAssignment = current,
-                            pastAssignments = past
+                            pastAssignments = past,
+                            sectionNames = sNames,
+                            yearNames = yNames
                         )
                     }
                 } else {

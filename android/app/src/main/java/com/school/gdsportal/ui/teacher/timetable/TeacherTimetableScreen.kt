@@ -84,7 +84,7 @@ fun TeacherTimetableScreen(
                             )
                         }
                         items(periods) { period ->
-                            TimetablePeriodCard(period = period)
+                            TimetablePeriodCard(period = period, subjectName = uiState.subjectNames[period.subjectId], sectionName = uiState.sectionNames[period.sectionId], periodTime = uiState.periodTimes[period.periodId])
                         }
                     }
                 }
@@ -94,7 +94,7 @@ fun TeacherTimetableScreen(
 }
 
 @Composable
-private fun TimetablePeriodCard(period: Timetable) {
+private fun TimetablePeriodCard(period: Timetable, subjectName: String?, sectionName: String?, periodTime: String?) {
     Card(
         modifier = Modifier.fillMaxWidth().padding(bottom = 8.dp),
         colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.5f)),
@@ -109,19 +109,17 @@ private fun TimetablePeriodCard(period: Timetable) {
                 verticalArrangement = Arrangement.spacedBy(4.dp)
             ) {
                 Text(
-                    text = "Period ${period.periodId}",
+                    text = periodTime ?: "Period ${period.periodId}",
                     style = MaterialTheme.typography.titleMedium,
                     fontWeight = FontWeight.Bold,
                     color = AccentTeacher
                 )
-                // Note: If your Timetable DTO contains friendly names, use them here!
-                // e.g., period.subjectName or period.className. Using IDs as a safe fallback.
                 Text(
-                    text = "Subject ID: ${period.subjectId}",
+                    text = subjectName ?: "Subject ID: ${period.subjectId}",
                     style = MaterialTheme.typography.bodyMedium
                 )
                 Text(
-                    text = "Section ID: ${period.sectionId}",
+                    text = sectionName ?: "Section ID: ${period.sectionId}",
                     style = MaterialTheme.typography.bodySmall,
                     color = MaterialTheme.colorScheme.onSurfaceVariant
                 )
@@ -129,3 +127,5 @@ private fun TimetablePeriodCard(period: Timetable) {
         }
     }
 }
+
+

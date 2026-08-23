@@ -17,7 +17,10 @@ data class TeacherAssignmentDetailUiState(
     val isLoading: Boolean = true,
     val error: String? = null,
     val assignment: Assignment? = null,
-    val submissions: List<Submission> = emptyList()
+    val submissions: List<Submission> = emptyList(),
+    val subjectName: String? = null,
+    val sectionName: String? = null,
+    val isPublishing: Boolean = false
 )
 
 class TeacherAssignmentDetailViewModel(
@@ -37,17 +40,34 @@ class TeacherAssignmentDetailViewModel(
         viewModelScope.launch {
             try {
                 val assignmentDeferred = async { apiService.getAssignmentById(assignmentId) }
-                val submissionsDeferred = async { apiService.getSubmissionsByAssignment(assignmentId) }
 
                 val assignmentResponse = assignmentDeferred.await()
-                val submissionsResponse = submissionsDeferred.await()
 
                 if (assignmentResponse.isSuccessful) {
+                    val assignment = assignmentResponse.body()?.data
+                    var subName: String? = null
+                    var secName: String? = null
+                    if (assignment != null) {
+                        try {
+                            val subjects = apiService.getSubjects().body()?.data ?: emptyList()
+                            subName = subjects.find { it.subjectId == assignment.subjectId }?.subjectName
+                            
+                            val section = apiService.getSectionById(assignment.sectionId).body()?.data
+                            if (section != null) {
+                                val cName = apiService.getClassById(section.classId).body()?.data?.className
+                                secName = "${cName ?: "Class ${section.classId}"} - ${section.sectionName}"
+                            }
+                        } catch (e: Exception) {
+                            // ignore lookup errors
+                        }
+                    }
+
                     _uiState.update {
                         it.copy(
                             isLoading = false,
-                            assignment = assignmentResponse.body()?.data,
-                            submissions = if (submissionsResponse.isSuccessful) submissionsResponse.body()?.data ?: emptyList() else emptyList()
+                            assignment = assignment,
+                            subjectName = subName,
+                            sectionName = secName,
                         )
                     }
                 } else {
@@ -57,6 +77,28 @@ class TeacherAssignmentDetailViewModel(
                 _uiState.update { it.copy(isLoading = false, error = "Network error while fetching details.") }
             }
         }
+    }
+
+    fun publishAssignment() {
+        val currentAssignment = _uiState.value.assignment ?: return
+        _uiState.update { it.copy(isPublishing = true, error = null) }
+        viewModelScope.launch {
+            try {
+                val updated = currentAssignment.copy(status = com.school.gdsportal.data.remote.AssignmentStatus.PUBLISHED)
+                val response = apiService.updateAssignment(currentAssignment.assignmentId, updated)
+                if (response.isSuccessful) {
+                    _uiState.update { it.copy(isPublishing = false, assignment = updated) }
+                } else {
+                    _uiState.update { it.copy(isPublishing = false, error = "Failed to publish assignment.") }
+                }
+            } catch (e: Exception) {
+                _uiState.update { it.copy(isPublishing = false, error = "Network error while publishing.") }
+            }
+        }
+    }
+
+    fun clearError() {
+        _uiState.update { it.copy(error = null) }
     }
 
     companion object {
@@ -69,4 +111,5 @@ class TeacherAssignmentDetailViewModel(
             }
     }
 }
+
 

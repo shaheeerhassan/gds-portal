@@ -17,7 +17,9 @@ data class TeacherStudentProfileUiState(
     val isLoading: Boolean = true,
     val error: String? = null,
     val student: Student? = null,
-    val enrollment: Enrollment? = null
+    val enrollment: Enrollment? = null,
+    val className: String? = null,
+    val sectionName: String? = null
 )
 
 class TeacherStudentProfileViewModel(
@@ -41,11 +43,28 @@ class TeacherStudentProfileViewModel(
                 val enrollmentRes = enrollmentDef.await()
 
                 if (studentRes.isSuccessful) {
+                    val enrollmentData = if (enrollmentRes.isSuccessful) enrollmentRes.body()?.data else null
+                    var className: String? = null
+                    var sectionName: String? = null
+                    
+                    if (enrollmentData != null) {
+                        try {
+                            val classRes = apiService.getClassById(enrollmentData.classId)
+                            val sectionRes = apiService.getSectionById(enrollmentData.sectionId)
+                            className = classRes.body()?.data?.className
+                            sectionName = sectionRes.body()?.data?.sectionName
+                        } catch (e: Exception) {
+                            // Ignore if we can't fetch names
+                        }
+                    }
+
                     _uiState.update {
                         it.copy(
                             isLoading = false,
                             student = studentRes.body()?.data,
-                            enrollment = if (enrollmentRes.isSuccessful) enrollmentRes.body()?.data else null
+                            enrollment = enrollmentData,
+                            className = className ?: enrollmentData?.classId?.toString(),
+                            sectionName = sectionName ?: enrollmentData?.sectionId?.toString()
                         )
                     }
                 } else {

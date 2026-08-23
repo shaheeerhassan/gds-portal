@@ -5,12 +5,13 @@ import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
+import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.Add
-import androidx.compose.material.icons.filled.ArrowBack
-import androidx.compose.material.icons.filled.ChevronRight
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
+import androidx.compose.material.icons.filled.Add
+import androidx.compose.material.icons.filled.ChevronRight
+import androidx.compose.material.icons.outlined.Assignment
 import androidx.compose.material3.*
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
@@ -50,7 +51,7 @@ fun TeacherAssignmentsScreen(
                 },
                 navigationIcon = {
                     IconButton(onClick = onBackClick) {
-                        Icon(Icons.Default.ArrowBack, contentDescription = "Back")
+                        Icon(Icons.AutoMirrored.Filled.ArrowBack, contentDescription = "Back")
                     }
                 }
             )
@@ -91,9 +92,18 @@ fun TeacherAssignmentsScreen(
             } else {
                 LazyColumn(
                     modifier = Modifier.fillMaxSize(),
-                    contentPadding = PaddingValues(start = 16.dp, end = 16.dp, top = 16.dp, bottom = 80.dp),
+                    contentPadding = PaddingValues(start = 16.dp, end = 16.dp, top = 8.dp, bottom = 80.dp),
                     verticalArrangement = Arrangement.spacedBy(12.dp)
                 ) {
+                    item {
+                        Text(
+                            text = "ALL ASSIGNMENTS (${uiState.assignments.size})",
+                            style = MaterialTheme.typography.labelMedium,
+                            color = MaterialTheme.colorScheme.onSurfaceVariant,
+                            modifier = Modifier.padding(start = 4.dp, bottom = 4.dp)
+                        )
+                    }
+
                     items(uiState.assignments) { assignment ->
                         TeacherAssignmentCard(
                             assignment = assignment,
@@ -119,17 +129,34 @@ private fun TeacherAssignmentCard(
         else -> MaterialTheme.colorScheme.onSurfaceVariant
     }
 
-    Surface(
+    Card(
         modifier = Modifier
             .fillMaxWidth()
-            .clip(RoundedCornerShape(12.dp))
             .clickable(onClick = onClick),
-        color = MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.5f)
+        colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.4f)),
+        shape = RoundedCornerShape(16.dp)
     ) {
         Row(
             modifier = Modifier.padding(16.dp),
             verticalAlignment = Alignment.CenterVertically
         ) {
+            // Icon Block
+            Box(
+                modifier = Modifier
+                    .size(48.dp)
+                    .clip(CircleShape)
+                    .background(AccentTeacher.copy(alpha = 0.15f)),
+                contentAlignment = Alignment.Center
+            ) {
+                Icon(
+                    imageVector = Icons.Outlined.Assignment,
+                    contentDescription = "Assignment Icon",
+                    tint = AccentTeacher
+                )
+            }
+
+            Spacer(modifier = Modifier.width(16.dp))
+
             Column(modifier = Modifier.weight(1f)) {
                 Text(
                     text = assignment.title,
@@ -140,21 +167,22 @@ private fun TeacherAssignmentCard(
                 )
                 Spacer(modifier = Modifier.height(4.dp))
 
-                // Fallbacks used if DTO doesn't have resolved string names
                 Text(
-                    text = "Subject ID: ${assignment.subjectId} | Section ID: ${assignment.sectionId}",
+                    text = "Subject ID: ${assignment.subjectId} • Section ID: ${assignment.sectionId}",
                     style = MaterialTheme.typography.bodySmall,
                     color = MaterialTheme.colorScheme.onSurfaceVariant
                 )
 
-                Spacer(modifier = Modifier.height(8.dp))
+                Spacer(modifier = Modifier.height(12.dp))
+
+                val formattedDeadline = assignment.deadline?.replace("T23:59:59", "") ?: "No Deadline"
 
                 Row(verticalAlignment = Alignment.CenterVertically) {
                     Box(
                         modifier = Modifier
-                            .clip(RoundedCornerShape(4.dp))
+                            .clip(RoundedCornerShape(6.dp))
                             .background(statusColor.copy(alpha = 0.15f))
-                            .padding(horizontal = 6.dp, vertical = 2.dp)
+                            .padding(horizontal = 8.dp, vertical = 4.dp)
                     ) {
                         Text(
                             text = statusName,
@@ -165,9 +193,9 @@ private fun TeacherAssignmentCard(
                     }
                     Spacer(modifier = Modifier.width(12.dp))
                     Text(
-                        text = "Due: ${assignment.deadline ?: "No Date"}",
+                        text = "Due: $formattedDeadline",
                         style = MaterialTheme.typography.labelMedium,
-                        color = MaterialTheme.colorScheme.primary
+                        color = MaterialTheme.colorScheme.onSurfaceVariant
                     )
                 }
             }

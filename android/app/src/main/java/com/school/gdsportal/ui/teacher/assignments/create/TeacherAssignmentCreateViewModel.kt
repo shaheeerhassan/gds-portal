@@ -117,7 +117,7 @@ class TeacherAssignmentCreateViewModel(
                     title = state.title,
                     description = state.description.takeIf { it.isNotBlank() },
                     maxMarks = marks,
-                    deadline = state.deadline.takeIf { it.isNotBlank() },
+                    deadline = state.deadline.takeIf { it.isNotBlank() }?.let { "${it}T23:59:59" },
                     status = status
                 )
 
@@ -147,4 +147,5 @@ class TeacherAssignmentCreateViewModel(
             }
     }
 }
+
 
