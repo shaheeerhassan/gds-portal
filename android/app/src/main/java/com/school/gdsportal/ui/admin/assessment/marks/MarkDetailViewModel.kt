@@ -65,6 +65,7 @@ class MarkDetailViewModel(
 
                             val display = MarkDisplay(
                                 markId = mark.markId,
+                                studentId = mark.studentId,
                                 studentName = if (student != null) "${student.firstName} ${student.lastName}" else "Unknown Student",
                                 registrationNumber = student?.registrationNumber ?: "",
                                 examinationName = examination?.examName ?: "Examination #${mark.examinationId}",

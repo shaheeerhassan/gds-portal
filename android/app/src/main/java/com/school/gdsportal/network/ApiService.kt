@@ -548,11 +548,31 @@ interface ApiService {
     @GET("api/submissions/id/{submissionId}")
     suspend fun getSubmissionById(@Path("submissionId") submissionId: Long): Response<ApiResponse<com.school.gdsportal.data.remote.Submission>>
 
+    @PUT("api/submissions/grade/{submissionId}")
+    suspend fun gradeSubmission(
+        @Path("submissionId") submissionId: Long,
+        @Body request: com.school.gdsportal.data.remote.GradeRequest
+    ): Response<ApiResponse<String>>
+
     @GET("api/marks/examination/{examinationId}")
     suspend fun getMarksByExamination(@Path("examinationId") examinationId: Long): Response<ApiResponse<List<com.school.gdsportal.data.remote.Mark>>>
 
     @GET("api/marks/id/{markId}")
     suspend fun getMarkById(@Path("markId") markId: Long): Response<ApiResponse<com.school.gdsportal.data.remote.Mark>>
+
+    @POST("api/marks/")
+    suspend fun enterMarks(@Body request: com.school.gdsportal.data.remote.EnterMarksRequest): Response<ApiResponse<String>>
+
+    @PUT("api/marks/{markId}")
+    suspend fun updateMark(
+        @Path("markId") markId: Long, 
+        @Body mark: com.school.gdsportal.data.remote.Mark
+    ): Response<ApiResponse<String>>
+
+    @POST("api/attendance/students/")
+    suspend fun markStudentAttendance(
+        @Body request: com.school.gdsportal.data.remote.MarkStudentAttendanceRequest
+    ): Response<ApiResponse<String>>
 
     @GET("api/attendance/students/section/{sectionId}/date/{date}")
     suspend fun getStudentAttendanceBySectionAndDate(

@@ -16,8 +16,6 @@ import com.school.gdsportal.di.AppContainer
 import com.school.gdsportal.ui.admin.ProfileLandingScreen
 import com.school.gdsportal.ui.admin.profile.ChangePasswordScreen
 import com.school.gdsportal.ui.admin.profile.ChangePasswordViewModel
-import com.school.gdsportal.ui.admin.profile.ProfileScreen
-import com.school.gdsportal.ui.admin.profile.ProfileViewModel
 import com.school.gdsportal.ui.teacher.components.TeacherDrawerContent
 import com.school.gdsportal.ui.theme.AccentTeacher // Ensure this exists
 import kotlinx.coroutines.launch
@@ -203,13 +201,14 @@ fun TeacherAppWrapper(
                 }
 
                 composable("teacher_assignments/create") {
-                    val viewModel: com.school.gdsportal.ui.teacher.assignments.create.TeacherAssignmentCreateViewModel = androidx.lifecycle.viewmodel.compose.viewModel(
-                        factory = com.school.gdsportal.ui.teacher.assignments.create.TeacherAssignmentCreateViewModel.provideFactory(
+                    val viewModel: com.school.gdsportal.ui.teacher.assignments.manage.TeacherAssignmentManageViewModel = androidx.lifecycle.viewmodel.compose.viewModel(
+                        factory = com.school.gdsportal.ui.teacher.assignments.manage.TeacherAssignmentManageViewModel.provideFactory(
+                            null,
                             appContainer.apiService,
                             appContainer.tokenManager
                         )
                     )
-                    com.school.gdsportal.ui.teacher.assignments.create.TeacherAssignmentCreateScreen(
+                    com.school.gdsportal.ui.teacher.assignments.manage.TeacherAssignmentManageScreen(
                         viewModel = viewModel,
                         onBackClick = { navController.navigateUp() }
                     )

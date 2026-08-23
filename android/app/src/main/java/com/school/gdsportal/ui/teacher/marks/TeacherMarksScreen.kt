@@ -81,11 +81,69 @@ fun TeacherMarksScreen(
                         modifier = Modifier.align(Alignment.Center)
                     )
                 } else {
+                    var selectedMarkForGrading by remember { mutableStateOf<MarkDisplay?>(null) }
+                    
                     LazyColumn(modifier = Modifier.fillMaxSize()) {
                         items(uiState.marks) { mark ->
-                            TeacherMarkItem(mark = mark, onClick = { /* View Only for now in phase 1 */ })
+                            TeacherMarkItem(mark = mark, onClick = { selectedMarkForGrading = mark })
                             HorizontalDivider()
                         }
+                    }
+
+                    if (selectedMarkForGrading != null) {
+                        val markToGrade = selectedMarkForGrading!!
+                        var obtainedInput by remember { mutableStateOf(if (markToGrade.marksObtained != "—") markToGrade.marksObtained.substringBefore(" /").trim() else "") }
+                        var gradeInput by remember { mutableStateOf(markToGrade.grade) }
+                        var remarksInput by remember { mutableStateOf(markToGrade.remarks) }
+
+                        AlertDialog(
+                            onDismissRequest = { selectedMarkForGrading = null },
+                            title = { Text("Grade ${markToGrade.studentName}") },
+                            text = {
+                                Column(modifier = Modifier.fillMaxWidth(), verticalArrangement = Arrangement.spacedBy(8.dp)) {
+                                    OutlinedTextField(
+                                        value = obtainedInput,
+                                        onValueChange = { obtainedInput = it },
+                                        label = { Text("Marks Obtained") },
+                                        singleLine = true,
+                                        modifier = Modifier.fillMaxWidth()
+                                    )
+                                    OutlinedTextField(
+                                        value = gradeInput,
+                                        onValueChange = { gradeInput = it },
+                                        label = { Text("Grade (e.g. A, B, Pass)") },
+                                        singleLine = true,
+                                        modifier = Modifier.fillMaxWidth()
+                                    )
+                                    OutlinedTextField(
+                                        value = remarksInput,
+                                        onValueChange = { remarksInput = it },
+                                        label = { Text("Remarks") },
+                                        modifier = Modifier.fillMaxWidth()
+                                    )
+                                }
+                            },
+                            confirmButton = {
+                                TextButton(onClick = {
+                                    viewModel.updateMark(
+                                        markId = markToGrade.markId,
+                                        studentId = markToGrade.studentId,
+                                        examinationId = uiState.selectedExaminationId!!,
+                                        obtained = obtainedInput.toDoubleOrNull() ?: 0.0,
+                                        grade = gradeInput,
+                                        remarks = remarksInput
+                                    )
+                                    selectedMarkForGrading = null
+                                }) {
+                                    Text("Save", color = AccentTeacher, fontWeight = FontWeight.Bold)
+                                }
+                            },
+                            dismissButton = {
+                                TextButton(onClick = { selectedMarkForGrading = null }) {
+                                    Text("Cancel")
+                                }
+                            }
+                        )
                     }
                 }
             }

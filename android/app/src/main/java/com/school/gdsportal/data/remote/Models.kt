@@ -425,12 +425,23 @@ data class Mark(
 
 data class MarkDisplay(
     val markId: Long,
+    val studentId: Long,
     val studentName: String,
     val registrationNumber: String,
     val examinationName: String,
     val marksObtained: String,
     val grade: String,
     val remarks: String
+)
+
+data class GradeRequest(
+    val marksAwarded: Double,
+    val feedback: String,
+    val gradedBy: Long
+)
+
+data class EnterMarksRequest(
+    val marks: List<Mark>
 )
 
 enum class StudentAttendanceStatus {
@@ -456,4 +467,8 @@ data class StudentAttendanceDisplay(
     val registrationNumber: String,
     val status: StudentAttendanceStatus?,
     val remarks: String
+)
+
+data class MarkStudentAttendanceRequest(
+    val records: List<StudentAttendance>
 )

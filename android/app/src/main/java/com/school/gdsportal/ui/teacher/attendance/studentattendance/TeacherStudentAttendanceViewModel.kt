@@ -16,6 +16,11 @@ import java.text.SimpleDateFormat
 import java.util.Calendar
 import java.util.Locale
 
+import com.school.gdsportal.data.remote.StudentAttendanceDisplay
+import com.school.gdsportal.data.remote.StudentAttendanceStatus
+import com.school.gdsportal.data.remote.Enrollment
+import kotlinx.coroutines.async
+
 data class TeacherStudentAttendanceUiState(
     val isLoading: Boolean = true,
     val isSaving: Boolean = false,
@@ -24,7 +29,8 @@ data class TeacherStudentAttendanceUiState(
     val assignedClasses: List<TeacherClassDTO> = emptyList(),
     val selectedSection: TeacherClassDTO? = null,
     val selectedDate: String = "", // Format: yyyy-MM-dd
-    val attendanceRecords: List<StudentAttendance> = emptyList()
+    val displayRecords: List<StudentAttendanceDisplay> = emptyList(),
+    val enrollments: List<Enrollment> = emptyList()
 )
 
 class TeacherStudentAttendanceViewModel(
@@ -90,20 +96,49 @@ class TeacherStudentAttendanceViewModel(
         _uiState.value.selectedSection?.let { loadAttendanceRecords(it.sectionId, date) }
     }
 
+    private var currentTeacherId: Long = 0L
+
     private fun loadAttendanceRecords(sectionId: Int, date: String) {
         _uiState.update { it.copy(isLoading = true, error = null) }
         viewModelScope.launch {
             try {
-                val response = apiService.getStudentAttendanceBySectionAndDate(sectionId, date)
-                if (response.isSuccessful) {
+                currentTeacherId = apiService.getTeacherMe().body()?.data?.teacherId ?: 0L
+
+                val studentsDeferred = async { apiService.getStudentsDirectory(null, null, null, sectionId, true, 0, 1000) }
+                val enrollmentsDeferred = async { apiService.getEnrollmentsBySection(sectionId, currentAcademicYearId) }
+                val attendanceDeferred = async { apiService.getStudentAttendanceBySectionAndDate(sectionId, date) }
+
+                val studentsRes = studentsDeferred.await()
+                val enrollmentsRes = enrollmentsDeferred.await()
+                val attendanceRes = attendanceDeferred.await()
+
+                if (studentsRes.isSuccessful && enrollmentsRes.isSuccessful) {
+                    val students = studentsRes.body()?.data?.content ?: emptyList()
+                    val enrollments = enrollmentsRes.body()?.data ?: emptyList()
+                    val existingAttendance = attendanceRes.body()?.data ?: emptyList()
+
+                    val displayRecords = students.mapNotNull { student ->
+                        val enrollment = enrollments.find { it.studentId == student.studentId }
+                        if (enrollment != null) {
+                            val existing = existingAttendance.find { it.studentClassId == enrollment.studentClassId }
+                            StudentAttendanceDisplay(
+                                studentId = student.studentId,
+                                studentName = "${student.firstName} ${student.lastName}",
+                                registrationNumber = student.registrationNumber,
+                                status = existing?.status,
+                                remarks = existing?.remarks ?: ""
+                            )
+                        } else null
+                    }
                     _uiState.update {
                         it.copy(
                             isLoading = false,
-                            attendanceRecords = response.body()?.data ?: emptyList()
+                            displayRecords = displayRecords,
+                            enrollments = enrollments
                         )
                     }
                 } else {
-                    _uiState.update { it.copy(isLoading = false, error = "Failed to load attendance for this date.") }
+                    _uiState.update { it.copy(isLoading = false, error = "Failed to load students and enrollments.") }
                 }
             } catch (e: Exception) {
                 _uiState.update { it.copy(isLoading = false, error = "Network error while fetching attendance.") }
@@ -111,31 +146,53 @@ class TeacherStudentAttendanceViewModel(
         }
     }
 
-    // Update status locally before saving
-    fun updateLocalAttendanceStatus(attendanceId: Long, newStatusString: String) {
-        val currentRecords = _uiState.value.attendanceRecords.toMutableList()
-        val index = currentRecords.indexOfFirst { it.attendanceId == attendanceId }
+    fun updateLocalAttendanceStatus(studentId: Long, newStatusString: String) {
+        val currentRecords = _uiState.value.displayRecords.toMutableList()
+        val index = currentRecords.indexOfFirst { it.studentId == studentId }
         if (index != -1) {
             val record = currentRecords[index]
-            // Note: Adjust depending on how your StudentAttendance data class handles Enums vs Strings
-            // currentRecords[index] = record.copy(status = StatusEnum.valueOf(newStatusString))
-            _uiState.update { it.copy(attendanceRecords = currentRecords) }
+            currentRecords[index] = record.copy(status = StudentAttendanceStatus.valueOf(newStatusString))
+            _uiState.update { it.copy(displayRecords = currentRecords) }
         }
     }
 
     fun saveAttendance() {
+        val enrollments = _uiState.value.enrollments
+        val records = _uiState.value.displayRecords.mapNotNull { display ->
+            display.status?.let { status ->
+                val enrollment = enrollments.find { it.studentId == display.studentId }
+                if (enrollment != null) {
+                    StudentAttendance(
+                        studentClassId = enrollment.studentClassId,
+                        attendanceDate = _uiState.value.selectedDate,
+                        status = status,
+                        periodId = 0, // Period not implemented yet or default to 0
+                        markedBy = currentTeacherId,
+                        markedAt = null,
+                        isLocked = false,
+                        remarks = display.remarks
+                    )
+                } else null
+            }
+        }
+        
+        if (records.isEmpty()) {
+            _uiState.update { it.copy(error = "No attendance marked.") }
+            return
+        }
+
         _uiState.update { it.copy(isSaving = true, error = null, saveSuccessMessage = null) }
         viewModelScope.launch {
             try {
-                // TODO: Replace this with your actual Admin bulk save API endpoint
-                // val response = apiService.saveStudentAttendanceBulk(_uiState.value.attendanceRecords)
-
-                // Simulating a successful network request
-                kotlinx.coroutines.delay(1000)
-
-                _uiState.update { it.copy(isSaving = false, saveSuccessMessage = "Attendance saved successfully!") }
+                val request = com.school.gdsportal.data.remote.MarkStudentAttendanceRequest(records = records)
+                val response = apiService.markStudentAttendance(request)
+                if (response.isSuccessful) {
+                    _uiState.update { it.copy(isSaving = false, saveSuccessMessage = "Attendance saved successfully!") }
+                } else {
+                    _uiState.update { it.copy(isSaving = false, error = "Failed to save attendance.") }
+                }
             } catch (e: Exception) {
-                _uiState.update { it.copy(isSaving = false, error = "Failed to save attendance.") }
+                _uiState.update { it.copy(isSaving = false, error = "Network error while saving attendance.") }
             }
         }
     }

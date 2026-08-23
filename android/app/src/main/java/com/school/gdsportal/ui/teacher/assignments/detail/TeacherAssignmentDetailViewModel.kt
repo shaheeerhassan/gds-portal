@@ -13,11 +13,13 @@ import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 
+import com.school.gdsportal.data.remote.SubmissionDisplay
+
 data class TeacherAssignmentDetailUiState(
     val isLoading: Boolean = true,
     val error: String? = null,
     val assignment: Assignment? = null,
-    val submissions: List<Submission> = emptyList(),
+    val submissions: List<SubmissionDisplay> = emptyList(),
     val subjectName: String? = null,
     val sectionName: String? = null,
     val isPublishing: Boolean = false
@@ -40,22 +42,51 @@ class TeacherAssignmentDetailViewModel(
         viewModelScope.launch {
             try {
                 val assignmentDeferred = async { apiService.getAssignmentById(assignmentId) }
-
                 val assignmentResponse = assignmentDeferred.await()
 
                 if (assignmentResponse.isSuccessful) {
                     val assignment = assignmentResponse.body()?.data
                     var subName: String? = null
                     var secName: String? = null
+                    var submissionDisplays: List<SubmissionDisplay> = emptyList()
+
                     if (assignment != null) {
                         try {
-                            val subjects = apiService.getSubjects().body()?.data ?: emptyList()
+                            val subjectsDef = async { apiService.getSubjects() }
+                            val sectionDef = async { apiService.getSectionById(assignment.sectionId) }
+                            val submissionsDef = async { apiService.getSubmissionsByAssignment(assignmentId) }
+                            val studentsDef = async { apiService.getStudentsDirectory(null, null, null, assignment.sectionId, true, 0, 1000) }
+                            
+                            val subjectsRes = subjectsDef.await()
+                            val sectionRes = sectionDef.await()
+                            val submissionsRes = submissionsDef.await()
+                            val studentsRes = studentsDef.await()
+
+                            val subjects = subjectsRes.body()?.data ?: emptyList()
                             subName = subjects.find { it.subjectId == assignment.subjectId }?.subjectName
                             
-                            val section = apiService.getSectionById(assignment.sectionId).body()?.data
+                            val section = sectionRes.body()?.data
                             if (section != null) {
                                 val cName = apiService.getClassById(section.classId).body()?.data?.className
                                 secName = "${cName ?: "Class ${section.classId}"} - ${section.sectionName}"
+                            }
+
+                            val rawSubmissions = submissionsRes.body()?.data ?: emptyList()
+                            val students = studentsRes.body()?.data?.content ?: emptyList()
+
+                            submissionDisplays = rawSubmissions.map { sub ->
+                                val student = students.find { it.studentId == sub.studentId }
+                                SubmissionDisplay(
+                                    submissionId = sub.submissionId,
+                                    studentName = if (student != null) "${student.firstName} ${student.lastName}" else "Unknown",
+                                    registrationNumber = student?.registrationNumber ?: "",
+                                    assignmentTitle = assignment.title,
+                                    submittedAt = sub.submittedAt ?: "Not Submitted",
+                                    status = sub.status,
+                                    marksAwarded = sub.marksAwarded?.toString() ?: "—",
+                                    feedback = sub.feedback ?: "",
+                                    fileUrl = sub.fileUrl ?: ""
+                                )
                             }
                         } catch (e: Exception) {
                             // ignore lookup errors
@@ -66,6 +97,7 @@ class TeacherAssignmentDetailViewModel(
                         it.copy(
                             isLoading = false,
                             assignment = assignment,
+                            submissions = submissionDisplays,
                             subjectName = subName,
                             sectionName = secName,
                         )
@@ -99,6 +131,34 @@ class TeacherAssignmentDetailViewModel(
 
     fun clearError() {
         _uiState.update { it.copy(error = null) }
+    }
+
+    fun gradeSubmission(submissionId: Long, marks: Double, feedback: String) {
+        viewModelScope.launch {
+            try {
+                val currentTeacherRes = apiService.getTeacherMe()
+                if (currentTeacherRes.isSuccessful) {
+                    val teacherId = currentTeacherRes.body()?.data?.teacherId ?: return@launch
+                    val request = com.school.gdsportal.data.remote.GradeRequest(
+                        marksAwarded = marks,
+                        feedback = feedback,
+                        gradedBy = teacherId
+                    )
+                    
+                    val updateRes = apiService.gradeSubmission(submissionId, request)
+                    if (updateRes.isSuccessful) {
+                        loadDetails() // Reload to reflect changes
+                    } else {
+                        val errorBody = updateRes.errorBody()?.string() ?: "Failed to save grade."
+                        _uiState.update { it.copy(error = "Error: $errorBody") }
+                    }
+                } else {
+                    _uiState.update { it.copy(error = "Failed to fetch user.") }
+                }
+            } catch (e: Exception) {
+                _uiState.update { it.copy(error = "Network error while saving grade.") }
+            }
+        }
     }
 
     companion object {

@@ -23,6 +23,8 @@ import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import com.school.gdsportal.data.remote.Examination
 import com.school.gdsportal.ui.theme.AccentTeacher
+import java.text.SimpleDateFormat
+import java.util.*
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -140,7 +142,7 @@ fun TeacherExaminationsScreen(
                     }
 
                     items(uiState.examinations) { exam ->
-                        val subjectName = uiState.availableSubjects.find { it.subjectId == exam.subjectId }?.subjectName ?: "Subject: ${exam.subjectId}"
+                        val subjectName = uiState.availableSubjects.find { it.subjectId == exam.subjectId }?.subjectName ?: "Subject ${exam.subjectId}"
                         ExaminationCard(
                             exam = exam,
                             subjectName = subjectName,
@@ -180,7 +182,7 @@ fun ExaminationCard(exam: Examination, subjectName: String, onDetailClick: () ->
             modifier = Modifier.padding(16.dp),
             verticalAlignment = Alignment.Top
         ) {
-            // Icon Block
+            // Consistent 48dp Icon Block
             Box(
                 modifier = Modifier
                     .size(48.dp)
@@ -208,7 +210,7 @@ fun ExaminationCard(exam: Examination, subjectName: String, onDetailClick: () ->
                         modifier = Modifier.weight(1f)
                     )
 
-                    // Options Menu (Edit/Delete)
+                    // Options Menu (Edit/Delete) tightly aligned to the top right
                     Box(modifier = Modifier.offset(x = 12.dp, y = (-12).dp)) {
                         IconButton(onClick = { showMenu = true }) {
                             Icon(Icons.Default.MoreVert, contentDescription = "Options", tint = MaterialTheme.colorScheme.onSurfaceVariant)
@@ -226,9 +228,29 @@ fun ExaminationCard(exam: Examination, subjectName: String, onDetailClick: () ->
                     }
                 }
 
-                Text(subjectName, style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.onSurfaceVariant)
+                Spacer(modifier = Modifier.height(2.dp))
+
+                // Cleanly formatted subtitle row for subject and marks
+                Text(
+                    text = "$subjectName • Marks: ${exam.passingMarks ?: 0} / ${exam.maxMarks}",
+                    style = MaterialTheme.typography.bodyMedium,
+                    color = MaterialTheme.colorScheme.onSurfaceVariant
+                )
 
                 Spacer(modifier = Modifier.height(12.dp))
+
+                val dateStr = try {
+                    val inputFormat = java.text.SimpleDateFormat("yyyy-MM-dd", java.util.Locale.getDefault())
+                    val outputFormat = java.text.SimpleDateFormat("MMM dd, yyyy", java.util.Locale.getDefault())
+                    val parsed = inputFormat.parse(exam.examDate)
+                    if (parsed != null) outputFormat.format(parsed) else exam.examDate
+                } catch (e: Exception) {
+                    exam.examDate
+                }
+
+                // Trim trailing seconds off the backend time (e.g., "09:00:00" -> "09:00")
+                val startTimeStr = exam.startTime?.take(5) ?: "--:--"
+                val endTimeStr = exam.endTime?.take(5) ?: "--:--"
 
                 Row(verticalAlignment = Alignment.CenterVertically) {
                     Box(
@@ -237,15 +259,20 @@ fun ExaminationCard(exam: Examination, subjectName: String, onDetailClick: () ->
                             .background(statusColor.copy(alpha = 0.15f))
                             .padding(horizontal = 8.dp, vertical = 4.dp)
                     ) {
-                        Text(exam.status?.name ?: "UNKNOWN", color = statusColor, style = MaterialTheme.typography.labelSmall, fontWeight = FontWeight.Bold)
+                        Text(
+                            text = exam.status?.name ?: "UNKNOWN",
+                            color = statusColor,
+                            style = MaterialTheme.typography.labelSmall,
+                            fontWeight = FontWeight.Bold
+                        )
                     }
                     Spacer(modifier = Modifier.width(12.dp))
-                    Text("Marks: ${exam.passingMarks ?: 0.0} / ${exam.maxMarks}", style = MaterialTheme.typography.labelMedium, color = MaterialTheme.colorScheme.onSurfaceVariant)
+                    Text(
+                        text = "$dateStr, $startTimeStr - $endTimeStr",
+                        style = MaterialTheme.typography.labelMedium,
+                        color = MaterialTheme.colorScheme.onSurfaceVariant
+                    )
                 }
-
-                Spacer(modifier = Modifier.height(8.dp))
-                val dateStr = exam.examDate
-                Text("Date: $dateStr | Time: ${exam.startTime ?: "N/A"} - ${exam.endTime ?: "N/A"}", style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.onSurfaceVariant)
             }
         }
     }

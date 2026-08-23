@@ -44,7 +44,7 @@ fun TeacherStudentAttendanceScreen(
             )
         },
         bottomBar = {
-            if (uiState.attendanceRecords.isNotEmpty() && !uiState.isLoading) {
+            if (uiState.displayRecords.isNotEmpty() && !uiState.isLoading) {
                 Surface(
                     modifier = Modifier.fillMaxWidth(),
                     shadowElevation = 8.dp,
@@ -131,7 +131,7 @@ fun TeacherStudentAttendanceScreen(
                 Box(modifier = Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
                     Text(text = uiState.error!!, color = MaterialTheme.colorScheme.error)
                 }
-            } else if (uiState.attendanceRecords.isEmpty()) {
+            } else if (uiState.displayRecords.isEmpty()) {
                 Box(modifier = Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
                     Text("No students found for this class.")
                 }
@@ -142,11 +142,11 @@ fun TeacherStudentAttendanceScreen(
                     contentPadding = PaddingValues(start = 16.dp, end = 16.dp, bottom = 80.dp),
                     verticalArrangement = Arrangement.spacedBy(12.dp)
                 ) {
-                    items(uiState.attendanceRecords) { record ->
+                    items(uiState.displayRecords) { record ->
                         StudentAttendanceCard(
                             record = record,
                             onStatusSelected = { newStatus ->
-                                viewModel.updateLocalAttendanceStatus(record.attendanceId, newStatus)
+                                viewModel.updateLocalAttendanceStatus(record.studentId, newStatus)
                             }
                         )
                     }
@@ -158,7 +158,7 @@ fun TeacherStudentAttendanceScreen(
 
 @Composable
 private fun StudentAttendanceCard(
-    record: StudentAttendance,
+    record: com.school.gdsportal.data.remote.StudentAttendanceDisplay,
     onStatusSelected: (String) -> Unit
 ) {
     Card(
@@ -166,10 +166,8 @@ private fun StudentAttendanceCard(
         colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.5f))
     ) {
         Column(modifier = Modifier.padding(16.dp)) {
-            // Wait, your StudentAttendance DTO might not contain the student's name directly.
-            // If it doesn't, you may need to use Student ID or map it from the Directory API.
             Text(
-                text = "Student ID: ${record.studentClassId}",
+                text = "${record.studentName} (${record.registrationNumber})",
                 style = MaterialTheme.typography.titleMedium,
                 fontWeight = FontWeight.Bold
             )
@@ -179,7 +177,7 @@ private fun StudentAttendanceCard(
             Row(modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.SpaceBetween) {
                 val statuses = listOf("PRESENT", "ABSENT", "LATE", "LEAVE")
                 statuses.forEach { status ->
-                    val isSelected = record.status.name == status
+                    val isSelected = record.status?.name == status
                     val containerColor = if (isSelected) AccentTeacher else Color.Transparent
                     val contentColor = if (isSelected) Color.White else MaterialTheme.colorScheme.onSurfaceVariant
 

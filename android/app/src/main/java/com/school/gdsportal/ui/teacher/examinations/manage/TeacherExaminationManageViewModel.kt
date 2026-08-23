@@ -12,8 +12,6 @@ import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
-import java.text.SimpleDateFormat
-import java.util.Locale
 
 data class TeacherExaminationManageUiState(
     val isLoading: Boolean = false,
@@ -21,9 +19,8 @@ data class TeacherExaminationManageUiState(
     val error: String? = null,
     val success: Boolean = false,
     val availableSubjects: List<TeacherSubjectDTO> = emptyList(),
-    val isEditMode: Boolean = false, // Track if editing existing
+    val isEditMode: Boolean = false,
 
-    // DB Fields
     val examName: String = "",
     val subjectId: Int? = null,
     val examDate: String = "",
@@ -36,7 +33,7 @@ data class TeacherExaminationManageUiState(
 
 class TeacherExaminationManageViewModel(
     private val sectionId: Int,
-    private val examId: Long?, // Pass ID for editing
+    private val examId: Long?,
     private val apiService: ApiService,
     private val tokenManager: TokenManager
 ) : ViewModel() {
@@ -70,12 +67,12 @@ class TeacherExaminationManageViewModel(
                     }
                 }
 
-                // If editing, load the existing exam data
                 if (_uiState.value.isEditMode) {
                     val examRes = apiService.getExaminationById(examId!!)
                     if (examRes.isSuccessful) {
                         val exam = examRes.body()?.data
                         if (exam != null) {
+                            // FIX: Since examDate is a String, we just assign it directly!
                             _uiState.update {
                                 it.copy(
                                     examName = exam.examName,
@@ -128,14 +125,13 @@ class TeacherExaminationManageViewModel(
         _uiState.update { it.copy(isSaving = true, error = null) }
         viewModelScope.launch {
             try {
-                // examDate is already a string format yyyy-MM-dd
                 val exam = Examination(
                     examinationId = examId ?: 0L,
                     examName = state.examName,
                     subjectId = state.subjectId,
                     sectionId = sectionId,
                     academicYearId = currentAcademicYearId,
-                    examDate = state.examDate,
+                    examDate = state.examDate, // <--- Passing the String directly to match your data class!
                     startTime = state.startTime.takeIf { it.isNotBlank() },
                     endTime = state.endTime.takeIf { it.isNotBlank() },
                     maxMarks = state.maxMarks.toDoubleOrNull() ?: 100.0,

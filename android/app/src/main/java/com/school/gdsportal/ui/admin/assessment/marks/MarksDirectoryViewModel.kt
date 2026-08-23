@@ -193,6 +193,7 @@ class MarksDirectoryViewModel(private val apiService: ApiService) : ViewModel() 
 
         return MarkDisplay(
             markId = mark.markId,
+            studentId = mark.studentId,
             studentName = studentName,
             registrationNumber = regNo,
             examinationName = examName,
