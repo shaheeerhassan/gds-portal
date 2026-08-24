@@ -43,6 +43,7 @@ class TeacherStudentAttendanceViewModel(
     val uiState: StateFlow<TeacherStudentAttendanceUiState> = _uiState.asStateFlow()
 
     private var currentAcademicYearId: Int = 0
+    private var currentTeacherId: Long = 0L
 
     init {
         val today = SimpleDateFormat("yyyy-MM-dd", Locale.getDefault()).format(Calendar.getInstance().time)
@@ -59,6 +60,7 @@ class TeacherStudentAttendanceViewModel(
                 val currentYear = yearResponse.body()?.data
 
                 if (teacherId != 0L && currentYear != null) {
+                    currentTeacherId = teacherId
                     currentAcademicYearId = currentYear.academicYearId
 
                     // 1. Fetch official Class Teacher History
@@ -218,8 +220,8 @@ class TeacherStudentAttendanceViewModel(
                                 studentClassId = enrollment.studentClassId,
                                 attendanceDate = state.selectedDate,
                                 status = status,
-                                periodId = 0,
-                                markedBy = 0L, // Safely resolved by Java backend AuthContext
+                                periodId = 1,
+                                markedBy = currentTeacherId,
                                 markedAt = null,
                                 isLocked = false,
                                 remarks = display.remarks

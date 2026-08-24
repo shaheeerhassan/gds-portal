@@ -45,7 +45,7 @@ class TeacherClassTeacherViewModel(
 
                 // 2. Fetch the current Academic Year and the Teacher's Assignment History concurrently
                 val yearDef = async { apiService.getCurrentAcademicYear() }
-                val historyDef = async { apiService.getClassTeacherHistory(teacherId) } // Uses the history endpoint
+                val historyDef = async { apiService.getClassTeacherHistory(teacherId) }
 
                 val yearRes = yearDef.await()
                 val historyRes = historyDef.await()
@@ -59,11 +59,11 @@ class TeacherClassTeacherViewModel(
                     val sectionIds = allAssignments.map { it.sectionId }.distinct()
                     val sNames = mutableMapOf<Int, String>()
                     val yNames = mutableMapOf<Int, String>()
-                    
+
                     try {
                         val years = apiService.getAcademicYears().body()?.data ?: emptyList()
                         years.forEach { yNames[it.academicYearId] = it.yearName }
-                        
+
                         sectionIds.forEach { sid ->
                             val sec = apiService.getSectionById(sid).body()?.data
                             if (sec != null) {
@@ -74,10 +74,12 @@ class TeacherClassTeacherViewModel(
                         }
                     } catch (e: Exception) {}
 
-                    // 3. Separate current year from past years
-                    val current = allAssignments.find { it.academicYearId == currentYearId }
-                    val past = allAssignments.filter { it.academicYearId != currentYearId }
-                        .sortedByDescending { it.academicYearId } // Sort newest past assignments first
+                    // 3. Separate current ACTIVE assignment from past/inactive assignments
+                    val current = allAssignments.find { it.academicYearId == currentYearId && it.isActive }
+
+                    // Everything else (past years OR revoked this year) goes to past assignments
+                    val past = allAssignments.filter { it.assignmentId != current?.assignmentId }
+                        .sortedByDescending { it.academicYearId }
 
                     _uiState.update {
                         it.copy(

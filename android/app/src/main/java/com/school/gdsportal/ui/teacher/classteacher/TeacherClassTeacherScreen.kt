@@ -17,6 +17,7 @@ import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import com.school.gdsportal.data.remote.ClassTeacherAssignment
@@ -45,7 +46,7 @@ fun TeacherClassTeacherScreen(
                 },
                 navigationIcon = {
                     IconButton(onClick = onBackClick) {
-                        Icon(Icons.Default.ArrowBack, contentDescription = "Back")
+                        Icon(Icons.AutoMirrored.Filled.ArrowBack, contentDescription = "Back")
                     }
                 }
             )
@@ -70,6 +71,7 @@ fun TeacherClassTeacherScreen(
                 Text(
                     text = "You have no class teacher assignments.",
                     style = MaterialTheme.typography.bodyLarge,
+                    color = MaterialTheme.colorScheme.onSurfaceVariant,
                     modifier = Modifier.align(Alignment.Center)
                 )
             } else {
@@ -84,26 +86,38 @@ fun TeacherClassTeacherScreen(
                             Text(
                                 text = "CURRENT ASSIGNMENT",
                                 style = MaterialTheme.typography.labelMedium,
+                                fontWeight = FontWeight.Bold,
                                 color = AccentTeacher,
                                 modifier = Modifier.padding(start = 4.dp, bottom = 4.dp)
                             )
-                            ClassTeacherCard(assignment = uiState.currentAssignment!!, isCurrent = true, sectionName = uiState.sectionNames[uiState.currentAssignment!!.sectionId], yearName = uiState.yearNames[uiState.currentAssignment!!.academicYearId])
+                            ClassTeacherCard(
+                                assignment = uiState.currentAssignment!!,
+                                isCurrent = true,
+                                sectionName = uiState.sectionNames[uiState.currentAssignment!!.sectionId],
+                                yearName = uiState.yearNames[uiState.currentAssignment!!.academicYearId]
+                            )
                         }
                     }
 
-                    // Past Assignments Section
+                    // Past / Inactive Assignments Section
                     if (uiState.pastAssignments.isNotEmpty()) {
                         item {
                             Spacer(modifier = Modifier.height(8.dp))
                             Text(
-                                text = "PREVIOUS ASSIGNMENTS",
+                                text = "PAST & INACTIVE ASSIGNMENTS",
                                 style = MaterialTheme.typography.labelMedium,
+                                fontWeight = FontWeight.Bold,
                                 color = MaterialTheme.colorScheme.onSurfaceVariant,
                                 modifier = Modifier.padding(start = 4.dp, bottom = 4.dp)
                             )
                         }
                         items(uiState.pastAssignments) { pastAssignment ->
-                            ClassTeacherCard(assignment = pastAssignment, isCurrent = false, sectionName = uiState.sectionNames[pastAssignment.sectionId], yearName = uiState.yearNames[pastAssignment.academicYearId])
+                            ClassTeacherCard(
+                                assignment = pastAssignment,
+                                isCurrent = false,
+                                sectionName = uiState.sectionNames[pastAssignment.sectionId],
+                                yearName = uiState.yearNames[pastAssignment.academicYearId]
+                            )
                         }
                     }
                 }
@@ -114,14 +128,15 @@ fun TeacherClassTeacherScreen(
 
 @Composable
 private fun ClassTeacherCard(assignment: ClassTeacherAssignment, isCurrent: Boolean, sectionName: String?, yearName: String?) {
-    // Note: Assuming your ClassTeacherAssignment model has class and section display names.
-    // If it only has IDs, you may need to map them to strings.
-    val cardColor = if (isCurrent) AccentTeacher.copy(alpha = 0.15f) else MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.5f)
+    val cardColor = if (isCurrent) AccentTeacher.copy(alpha = 0.1f) else MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.4f)
     val iconColor = if (isCurrent) AccentTeacher else MaterialTheme.colorScheme.onSurfaceVariant
+    val statusColor = if (assignment.isActive) Color(0xFF4CAF50) else Color(0xFF9E9E9E)
+    val statusText = if (assignment.isActive) "ACTIVE" else "INACTIVE"
 
-    Surface(
-        modifier = Modifier.fillMaxWidth().clip(RoundedCornerShape(12.dp)),
-        color = cardColor
+    Card(
+        modifier = Modifier.fillMaxWidth(),
+        colors = CardDefaults.cardColors(containerColor = cardColor),
+        shape = RoundedCornerShape(16.dp)
     ) {
         Row(
             modifier = Modifier.padding(16.dp),
@@ -129,26 +144,27 @@ private fun ClassTeacherCard(assignment: ClassTeacherAssignment, isCurrent: Bool
         ) {
             Box(
                 modifier = Modifier
-                    .size(50.dp)
+                    .size(48.dp)
                     .clip(CircleShape)
-                    .background(if (isCurrent) AccentTeacher.copy(alpha = 0.2f) else MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.1f)),
+                    .background(if (isCurrent) AccentTeacher.copy(alpha = 0.15f) else MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.15f)),
                 contentAlignment = Alignment.Center
             ) {
                 Icon(
                     imageVector = Icons.Default.Stars,
                     contentDescription = "Class Teacher Icon",
-                    tint = iconColor
+                    tint = iconColor,
+                    modifier = Modifier.size(24.dp)
                 )
             }
 
             Spacer(modifier = Modifier.width(16.dp))
 
             Column(modifier = Modifier.weight(1f)) {
-                // If your DTO has className/sectionName, use them. Otherwise, fallback to IDs.
                 Text(
                     text = sectionName ?: "Section ${assignment.sectionId}",
                     style = MaterialTheme.typography.titleMedium,
-                    fontWeight = FontWeight.Bold
+                    fontWeight = FontWeight.Bold,
+                    color = if (isCurrent) MaterialTheme.colorScheme.onSurface else MaterialTheme.colorScheme.onSurfaceVariant
                 )
                 Spacer(modifier = Modifier.height(4.dp))
                 Text(
@@ -157,8 +173,20 @@ private fun ClassTeacherCard(assignment: ClassTeacherAssignment, isCurrent: Bool
                     color = MaterialTheme.colorScheme.onSurfaceVariant
                 )
             }
+
+            Box(
+                modifier = Modifier
+                    .clip(RoundedCornerShape(8.dp))
+                    .background(statusColor.copy(alpha = 0.15f))
+                    .padding(horizontal = 10.dp, vertical = 4.dp)
+            ) {
+                Text(
+                    text = statusText,
+                    color = statusColor,
+                    style = MaterialTheme.typography.labelSmall,
+                    fontWeight = FontWeight.Bold
+                )
+            }
         }
     }
 }
-
-
