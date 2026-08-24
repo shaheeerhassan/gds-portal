@@ -20,15 +20,16 @@ import com.school.gdsportal.data.remote.StudentAttendanceDisplay
 import com.school.gdsportal.data.remote.StudentAttendanceStatus
 import com.school.gdsportal.data.remote.Enrollment
 import kotlinx.coroutines.async
+import kotlinx.coroutines.awaitAll
 
 data class TeacherStudentAttendanceUiState(
     val isLoading: Boolean = true,
     val isSaving: Boolean = false,
     val error: String? = null,
     val saveSuccessMessage: String? = null,
-    val assignedClasses: List<TeacherClassDTO> = emptyList(),
+    val assignedClasses: List<TeacherClassDTO> = emptyList(), // Now only contains Class Teacher sections!
     val selectedSection: TeacherClassDTO? = null,
-    val selectedDate: String = "", // Format: yyyy-MM-dd
+    val selectedDate: String = "",
     val displayRecords: List<StudentAttendanceDisplay> = emptyList(),
     val enrollments: List<Enrollment> = emptyList()
 )
@@ -44,13 +45,12 @@ class TeacherStudentAttendanceViewModel(
     private var currentAcademicYearId: Int = 0
 
     init {
-        // Default to today's date
         val today = SimpleDateFormat("yyyy-MM-dd", Locale.getDefault()).format(Calendar.getInstance().time)
         _uiState.update { it.copy(selectedDate = today) }
-        loadAssignedClasses()
+        loadClassTeacherSections()
     }
 
-    private fun loadAssignedClasses() {
+    private fun loadClassTeacherSections() {
         _uiState.update { it.copy(isLoading = true, error = null) }
         viewModelScope.launch {
             try {
@@ -60,23 +60,60 @@ class TeacherStudentAttendanceViewModel(
 
                 if (teacherId != 0L && currentYear != null) {
                     currentAcademicYearId = currentYear.academicYearId
-                    val classesResponse = apiService.getTeacherClasses(teacherId, currentAcademicYearId)
 
-                    if (classesResponse.isSuccessful) {
-                        val classes = classesResponse.body()?.data ?: emptyList()
+                    // 1. Fetch official Class Teacher History
+                    val historyRes = apiService.getClassTeacherHistory(teacherId)
+                    val history = historyRes.body()?.data ?: emptyList()
+
+                    // 2. Filter for ACTIVE assignments in the current year
+                    val activeSectionIds = history
+                        .filter { it.isActive && it.academicYearId == currentAcademicYearId }
+                        .map { it.sectionId }
+
+                    if (activeSectionIds.isEmpty()) {
                         _uiState.update {
                             it.copy(
                                 isLoading = false,
-                                assignedClasses = classes,
-                                // Auto-select the first class if available
-                                selectedSection = classes.firstOrNull()
+                                assignedClasses = emptyList(),
+                                error = "You are not assigned as an active Class Teacher for any section."
                             )
                         }
-                        // Automatically load records for the first class
-                        classes.firstOrNull()?.let { loadAttendanceRecords(it.sectionId, _uiState.value.selectedDate) }
-                    } else {
-                        _uiState.update { it.copy(isLoading = false, error = "Failed to load your assigned classes.") }
+                        return@launch
                     }
+
+                    // 3. Fetch Classes & Sections to resolve names
+                    val classesRes = apiService.getClasses()
+                    val sectionsRes = apiService.getAllSections()
+
+                    val allClasses = classesRes.body()?.data ?: emptyList()
+                    val allSections = sectionsRes.body()?.data ?: emptyList()
+
+                    // 4. Map the IDs to beautiful display DTOs
+                    val classTeacherSections = activeSectionIds.mapNotNull { sectionId ->
+                        val section = allSections.find { it.sectionId == sectionId }
+                        val schoolClass = allClasses.find { it.classId == section?.classId }
+
+                        if (section != null && schoolClass != null) {
+                            TeacherClassDTO(
+                                teacherClassId = 0L,
+                                teacherId = teacherId,
+                                classId = schoolClass.classId,
+                                className = schoolClass.className,
+                                sectionId = section.sectionId,
+                                sectionName = section.sectionName,
+                                academicYearId = currentAcademicYearId
+                            )
+                        } else null
+                    }
+
+                    _uiState.update {
+                        it.copy(
+                            isLoading = false,
+                            assignedClasses = classTeacherSections,
+                            selectedSection = classTeacherSections.firstOrNull()
+                        )
+                    }
+                    classTeacherSections.firstOrNull()?.let { loadAttendanceRecords(it.sectionId, _uiState.value.selectedDate) }
                 } else {
                     _uiState.update { it.copy(isLoading = false, error = "Authentication or Academic Year error.") }
                 }
@@ -96,14 +133,10 @@ class TeacherStudentAttendanceViewModel(
         _uiState.value.selectedSection?.let { loadAttendanceRecords(it.sectionId, date) }
     }
 
-    private var currentTeacherId: Long = 0L
-
     private fun loadAttendanceRecords(sectionId: Int, date: String) {
         _uiState.update { it.copy(isLoading = true, error = null) }
         viewModelScope.launch {
             try {
-                currentTeacherId = apiService.getTeacherMe().body()?.data?.teacherId ?: 0L
-
                 val studentsDeferred = async { apiService.getStudentsDirectory(null, null, null, sectionId, true, 0, 1000) }
                 val enrollmentsDeferred = async { apiService.getEnrollmentsBySection(sectionId, currentAcademicYearId) }
                 val attendanceDeferred = async { apiService.getStudentAttendanceBySectionAndDate(sectionId, date) }
@@ -122,6 +155,7 @@ class TeacherStudentAttendanceViewModel(
                         if (enrollment != null) {
                             val existing = existingAttendance.find { it.studentClassId == enrollment.studentClassId }
                             StudentAttendanceDisplay(
+                                attendanceId = existing?.attendanceId,
                                 studentId = student.studentId,
                                 studentName = "${student.firstName} ${student.lastName}",
                                 registrationNumber = student.registrationNumber,
@@ -156,40 +190,74 @@ class TeacherStudentAttendanceViewModel(
         }
     }
 
+    fun markAllPresent() {
+        val updatedRecords = _uiState.value.displayRecords.map {
+            if (it.status == null) it.copy(status = StudentAttendanceStatus.PRESENT) else it
+        }
+        _uiState.update { it.copy(displayRecords = updatedRecords) }
+    }
+
     fun saveAttendance() {
-        val enrollments = _uiState.value.enrollments
-        val records = _uiState.value.displayRecords.mapNotNull { display ->
-            display.status?.let { status ->
-                val enrollment = enrollments.find { it.studentId == display.studentId }
-                if (enrollment != null) {
-                    StudentAttendance(
-                        studentClassId = enrollment.studentClassId,
-                        attendanceDate = _uiState.value.selectedDate,
-                        status = status,
-                        periodId = 0, // Period not implemented yet or default to 0
-                        markedBy = currentTeacherId,
-                        markedAt = null,
-                        isLocked = false,
-                        remarks = display.remarks
-                    )
-                } else null
-            }
-        }
-        
-        if (records.isEmpty()) {
-            _uiState.update { it.copy(error = "No attendance marked.") }
-            return
-        }
+        val state = _uiState.value
+        val enrollments = state.enrollments
 
         _uiState.update { it.copy(isSaving = true, error = null, saveSuccessMessage = null) }
         viewModelScope.launch {
             try {
-                val request = com.school.gdsportal.data.remote.MarkStudentAttendanceRequest(records = records)
-                val response = apiService.markStudentAttendance(request)
-                if (response.isSuccessful) {
-                    _uiState.update { it.copy(isSaving = false, saveSuccessMessage = "Attendance saved successfully!") }
+                val newRecords = mutableListOf<StudentAttendance>()
+                val updateCalls = mutableListOf<kotlinx.coroutines.Deferred<*>>()
+
+                state.displayRecords.forEach { display ->
+                    val status = display.status ?: return@forEach
+                    val enrollment = enrollments.find { it.studentId == display.studentId } ?: return@forEach
+
+                    if (display.attendanceId == null) {
+                        // Needs to be POSTed
+                        newRecords.add(
+                            StudentAttendance(
+                                studentClassId = enrollment.studentClassId,
+                                attendanceDate = state.selectedDate,
+                                status = status,
+                                periodId = 0,
+                                markedBy = 0L, // Safely resolved by Java backend AuthContext
+                                markedAt = null,
+                                isLocked = false,
+                                remarks = display.remarks
+                            )
+                        )
+                    } else {
+                        // Existing record, needs a PUT status update
+                        updateCalls.add(
+                            async {
+                                apiService.updateStudentAttendanceStatus(
+                                    display.attendanceId,
+                                    com.school.gdsportal.data.remote.StatusRequest(status.name)
+                                )
+                            }
+                        )
+                    }
+                }
+
+                var hasError = false
+
+                // Execute batch insert for new records
+                if (newRecords.isNotEmpty()) {
+                    val request = com.school.gdsportal.data.remote.MarkStudentAttendanceRequest(records = newRecords)
+                    val response = apiService.markStudentAttendance(request)
+                    if (!response.isSuccessful) hasError = true
+                }
+
+                // Execute parallel updates for existing records
+                if (updateCalls.isNotEmpty()) {
+                    updateCalls.awaitAll()
+                }
+
+                if (hasError) {
+                    _uiState.update { it.copy(isSaving = false, error = "Some records failed to save. Ensure no duplicate dates.") }
                 } else {
-                    _uiState.update { it.copy(isSaving = false, error = "Failed to save attendance.") }
+                    _uiState.update { it.copy(isSaving = false, saveSuccessMessage = "Attendance saved successfully!") }
+                    // Reload to bind the new database IDs to the UI models
+                    state.selectedSection?.let { loadAttendanceRecords(it.sectionId, state.selectedDate) }
                 }
             } catch (e: Exception) {
                 _uiState.update { it.copy(isSaving = false, error = "Network error while saving attendance.") }

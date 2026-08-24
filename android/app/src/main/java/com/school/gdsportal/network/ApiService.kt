@@ -577,6 +577,12 @@ interface ApiService {
         @Body request: com.school.gdsportal.data.remote.MarkStudentAttendanceRequest
     ): Response<ApiResponse<String>>
 
+    @PUT("api/attendance/students/status/{attendanceId}")
+    suspend fun updateStudentAttendanceStatus(
+        @Path("attendanceId") attendanceId: Long,
+        @Body request: com.school.gdsportal.data.remote.StatusRequest
+    ): Response<com.school.gdsportal.data.remote.ApiResponse<Any>>
+
     @GET("api/attendance/students/section/{sectionId}/date/{date}")
     suspend fun getStudentAttendanceBySectionAndDate(
         @Path("sectionId") sectionId: Int,

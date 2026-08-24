@@ -462,6 +462,7 @@ data class StudentAttendance(
 )
 
 data class StudentAttendanceDisplay(
+    val attendanceId: Long? = null,
     val studentId: Long,
     val studentName: String,
     val registrationNumber: String,
