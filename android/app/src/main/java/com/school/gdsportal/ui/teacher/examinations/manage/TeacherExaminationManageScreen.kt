@@ -34,6 +34,17 @@ fun TeacherExaminationManageScreen(
         }
     }
 
+    if (uiState.error != null) {
+        AlertDialog(
+            onDismissRequest = { viewModel.updateField() },
+            title = { Text("Error", color = MaterialTheme.colorScheme.error) },
+            text = { Text(uiState.error!!) },
+            confirmButton = {
+                TextButton(onClick = { viewModel.updateField() }) { Text("OK", color = AccentTeacher) }
+            }
+        )
+    }
+
     Scaffold(
         topBar = {
             TopAppBar(
@@ -51,17 +62,29 @@ fun TeacherExaminationManageScreen(
                 shadowElevation = 8.dp,
                 color = MaterialTheme.colorScheme.surface
             ) {
-                Button(
-                    onClick = { viewModel.saveExamination() },
-                    modifier = Modifier.fillMaxWidth().padding(16.dp).height(50.dp),
-                    colors = ButtonDefaults.buttonColors(containerColor = AccentTeacher),
-                    shape = RoundedCornerShape(12.dp),
-                    enabled = !uiState.isSaving
+                Row(
+                    modifier = Modifier.fillMaxWidth().padding(16.dp),
+                    horizontalArrangement = Arrangement.spacedBy(12.dp)
                 ) {
-                    if (uiState.isSaving) {
-                        CircularProgressIndicator(modifier = Modifier.size(24.dp), color = Color.White, strokeWidth = 2.dp)
-                    } else {
-                        Text(if (uiState.isEditMode) "Update Examination" else "Save Examination", fontWeight = FontWeight.Bold)
+                    OutlinedButton(
+                        onClick = onBackClick,
+                        modifier = Modifier.weight(1f).height(50.dp),
+                        shape = RoundedCornerShape(12.dp)
+                    ) {
+                        Text("Cancel", color = MaterialTheme.colorScheme.onSurfaceVariant, fontWeight = FontWeight.Bold)
+                    }
+                    Button(
+                        onClick = { viewModel.saveExamination() },
+                        modifier = Modifier.weight(1f).height(50.dp),
+                        colors = ButtonDefaults.buttonColors(containerColor = AccentTeacher),
+                        shape = RoundedCornerShape(12.dp),
+                        enabled = !uiState.isSaving
+                    ) {
+                        if (uiState.isSaving) {
+                            CircularProgressIndicator(modifier = Modifier.size(24.dp), color = Color.White, strokeWidth = 2.dp)
+                        } else {
+                            Text(if (uiState.isEditMode) "Save Changes" else "Create Exam", fontWeight = FontWeight.Bold)
+                        }
                     }
                 }
             }
@@ -77,12 +100,6 @@ fun TeacherExaminationManageScreen(
                 contentPadding = PaddingValues(16.dp),
                 verticalArrangement = Arrangement.spacedBy(16.dp)
             ) {
-                if (uiState.error != null) {
-                    item {
-                        Text(text = uiState.error!!, color = MaterialTheme.colorScheme.error, style = MaterialTheme.typography.bodyMedium)
-                    }
-                }
-
                 item {
                     FormSectionCard(title = "Examination Details") {
                         OutlinedTextField(
@@ -276,6 +293,10 @@ fun TeacherExaminationManageScreen(
                             )
                         }
                     }
+                }
+
+                item {
+                    Spacer(modifier = Modifier.height(40.dp)) // Padding for bottom bar
                 }
             }
         }

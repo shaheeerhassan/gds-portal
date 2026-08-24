@@ -10,7 +10,9 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material.icons.filled.Add
-import androidx.compose.material.icons.filled.MoreVert
+import androidx.compose.material.icons.outlined.AccessTime
+import androidx.compose.material.icons.outlined.CalendarToday
+import androidx.compose.material.icons.outlined.Edit
 import androidx.compose.material.icons.outlined.EventNote
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
@@ -77,8 +79,8 @@ fun TeacherExaminationsScreen(
                 shape = RoundedCornerShape(16.dp)
             ) {
                 Column(modifier = Modifier.padding(16.dp)) {
-                    Text("Filter by Class", style = MaterialTheme.typography.labelMedium, color = AccentTeacher)
-                    Spacer(modifier = Modifier.height(8.dp))
+                    Text("Filter by Class", style = MaterialTheme.typography.titleMedium, fontWeight = FontWeight.Bold, color = AccentTeacher)
+                    Spacer(modifier = Modifier.height(12.dp))
 
                     ExposedDropdownMenuBox(
                         expanded = expanded,
@@ -129,13 +131,14 @@ fun TeacherExaminationsScreen(
             } else {
                 LazyColumn(
                     contentPadding = PaddingValues(horizontal = 16.dp, vertical = 8.dp),
-                    verticalArrangement = Arrangement.spacedBy(12.dp),
+                    verticalArrangement = Arrangement.spacedBy(16.dp),
                     modifier = Modifier.weight(1f)
                 ) {
                     item {
                         Text(
                             text = "ALL EXAMINATIONS (${uiState.examinations.size})",
-                            style = MaterialTheme.typography.labelMedium,
+                            style = MaterialTheme.typography.labelLarge,
+                            fontWeight = FontWeight.Bold,
                             color = MaterialTheme.colorScheme.onSurfaceVariant,
                             modifier = Modifier.padding(start = 4.dp, bottom = 4.dp)
                         )
@@ -147,12 +150,11 @@ fun TeacherExaminationsScreen(
                             exam = exam,
                             subjectName = subjectName,
                             onDetailClick = { onDetailClick(exam.examinationId) },
-                            onEdit = {
+                            onEditClick = {
                                 uiState.selectedSection?.sectionId?.let { secId ->
                                     onEditClick(secId, exam.examinationId)
                                 }
-                            },
-                            onDelete = { viewModel.deleteExamination(exam.examinationId) }
+                            }
                         )
                     }
                 }
@@ -162,7 +164,7 @@ fun TeacherExaminationsScreen(
 }
 
 @Composable
-fun ExaminationCard(exam: Examination, subjectName: String, onDetailClick: () -> Unit, onEdit: () -> Unit, onDelete: () -> Unit) {
+fun ExaminationCard(exam: Examination, subjectName: String, onDetailClick: () -> Unit, onEditClick: () -> Unit) {
     val statusColor = when (exam.status?.name) {
         "PUBLISHED" -> Color(0xFF4CAF50)
         "SCHEDULED" -> Color(0xFF2196F3)
@@ -171,21 +173,19 @@ fun ExaminationCard(exam: Examination, subjectName: String, onDetailClick: () ->
         else -> MaterialTheme.colorScheme.primary
     }
 
-    var showMenu by remember { mutableStateOf(false) }
-
     Card(
         modifier = Modifier.fillMaxWidth().clickable(onClick = onDetailClick),
         colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.4f)),
-        shape = RoundedCornerShape(16.dp)
+        shape = RoundedCornerShape(20.dp) // Premium corner shape
     ) {
         Row(
             modifier = Modifier.padding(16.dp),
             verticalAlignment = Alignment.Top
         ) {
-            // Consistent 48dp Icon Block
+            // Enlarged 56dp Icon Block to match Assignments
             Box(
                 modifier = Modifier
-                    .size(48.dp)
+                    .size(56.dp)
                     .clip(CircleShape)
                     .background(AccentTeacher.copy(alpha = 0.15f)),
                 contentAlignment = Alignment.Center
@@ -193,7 +193,8 @@ fun ExaminationCard(exam: Examination, subjectName: String, onDetailClick: () ->
                 Icon(
                     imageVector = Icons.Outlined.EventNote,
                     contentDescription = "Exam Icon",
-                    tint = AccentTeacher
+                    tint = AccentTeacher,
+                    modifier = Modifier.size(28.dp)
                 )
             }
 
@@ -201,77 +202,77 @@ fun ExaminationCard(exam: Examination, subjectName: String, onDetailClick: () ->
 
             Column(modifier = Modifier.weight(1f)) {
                 Row(modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.SpaceBetween, verticalAlignment = Alignment.Top) {
-                    Text(
-                        text = exam.examName,
-                        style = MaterialTheme.typography.titleMedium,
-                        fontWeight = FontWeight.Bold,
-                        maxLines = 1,
-                        overflow = TextOverflow.Ellipsis,
-                        modifier = Modifier.weight(1f)
-                    )
+                    Column(modifier = Modifier.weight(1f)) {
+                        Text(
+                            text = exam.examName,
+                            style = MaterialTheme.typography.titleMedium,
+                            fontWeight = FontWeight.Bold,
+                            maxLines = 1,
+                            overflow = TextOverflow.Ellipsis
+                        )
+                        Spacer(modifier = Modifier.height(2.dp))
+                        Text(
+                            text = subjectName,
+                            style = MaterialTheme.typography.bodyLarge,
+                            color = MaterialTheme.colorScheme.onSurfaceVariant,
+                            fontWeight = FontWeight.Medium
+                        )
+                    }
 
-                    // Options Menu (Edit/Delete) tightly aligned to the top right
+                    // Direct Edit Button (Replaced the Dropdown Menu)
                     Box(modifier = Modifier.offset(x = 12.dp, y = (-12).dp)) {
-                        IconButton(onClick = { showMenu = true }) {
-                            Icon(Icons.Default.MoreVert, contentDescription = "Options", tint = MaterialTheme.colorScheme.onSurfaceVariant)
-                        }
-                        DropdownMenu(expanded = showMenu, onDismissRequest = { showMenu = false }) {
-                            DropdownMenuItem(
-                                text = { Text("Edit Examination") },
-                                onClick = { showMenu = false; onEdit() }
-                            )
-                            DropdownMenuItem(
-                                text = { Text("Delete", color = MaterialTheme.colorScheme.error) },
-                                onClick = { showMenu = false; onDelete() }
-                            )
+                        IconButton(onClick = onEditClick) {
+                            Icon(Icons.Outlined.Edit, contentDescription = "Edit Examination", tint = MaterialTheme.colorScheme.onSurfaceVariant)
                         }
                     }
                 }
 
-                Spacer(modifier = Modifier.height(2.dp))
+                Spacer(modifier = Modifier.height(16.dp))
 
-                // Cleanly formatted subtitle row for subject and marks
-                Text(
-                    text = "$subjectName • Marks: ${exam.passingMarks ?: 0} / ${exam.maxMarks}",
-                    style = MaterialTheme.typography.bodyMedium,
-                    color = MaterialTheme.colorScheme.onSurfaceVariant
-                )
+                Row(verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.SpaceBetween, modifier = Modifier.fillMaxWidth()) {
+                    Box(
+                        modifier = Modifier
+                            .clip(RoundedCornerShape(8.dp))
+                            .background(statusColor.copy(alpha = 0.15f))
+                            .padding(horizontal = 12.dp, vertical = 6.dp)
+                    ) {
+                        Text(exam.status?.name ?: "UNKNOWN", color = statusColor, style = MaterialTheme.typography.labelMedium, fontWeight = FontWeight.Bold)
+                    }
 
+                    Text(
+                        text = "Marks: ${exam.passingMarks ?: 0.0} / ${exam.maxMarks}",
+                        style = MaterialTheme.typography.titleSmall,
+                        fontWeight = FontWeight.Bold,
+                        color = MaterialTheme.colorScheme.primary
+                    )
+                }
+
+                Spacer(modifier = Modifier.height(16.dp))
+                HorizontalDivider(color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.1f))
                 Spacer(modifier = Modifier.height(12.dp))
 
                 val dateStr = try {
-                    val inputFormat = java.text.SimpleDateFormat("yyyy-MM-dd", java.util.Locale.getDefault())
-                    val outputFormat = java.text.SimpleDateFormat("MMM dd, yyyy", java.util.Locale.getDefault())
+                    val inputFormat = SimpleDateFormat("yyyy-MM-dd", Locale.getDefault())
+                    val outputFormat = SimpleDateFormat("MMM dd, yyyy", Locale.getDefault())
                     val parsed = inputFormat.parse(exam.examDate)
                     if (parsed != null) outputFormat.format(parsed) else exam.examDate
                 } catch (e: Exception) {
                     exam.examDate
                 }
 
-                // Trim trailing seconds off the backend time (e.g., "09:00:00" -> "09:00")
                 val startTimeStr = exam.startTime?.take(5) ?: "--:--"
                 val endTimeStr = exam.endTime?.take(5) ?: "--:--"
 
                 Row(verticalAlignment = Alignment.CenterVertically) {
-                    Box(
-                        modifier = Modifier
-                            .clip(RoundedCornerShape(6.dp))
-                            .background(statusColor.copy(alpha = 0.15f))
-                            .padding(horizontal = 8.dp, vertical = 4.dp)
-                    ) {
-                        Text(
-                            text = exam.status?.name ?: "UNKNOWN",
-                            color = statusColor,
-                            style = MaterialTheme.typography.labelSmall,
-                            fontWeight = FontWeight.Bold
-                        )
-                    }
-                    Spacer(modifier = Modifier.width(12.dp))
-                    Text(
-                        text = "$dateStr, $startTimeStr - $endTimeStr",
-                        style = MaterialTheme.typography.labelMedium,
-                        color = MaterialTheme.colorScheme.onSurfaceVariant
-                    )
+                    Icon(Icons.Outlined.CalendarToday, contentDescription = "Date", modifier = Modifier.size(16.dp), tint = MaterialTheme.colorScheme.onSurfaceVariant)
+                    Spacer(modifier = Modifier.width(6.dp))
+                    Text(text = dateStr, style = MaterialTheme.typography.bodyMedium, color = MaterialTheme.colorScheme.onSurfaceVariant)
+
+                    Spacer(modifier = Modifier.width(16.dp))
+
+                    Icon(Icons.Outlined.AccessTime, contentDescription = "Time", modifier = Modifier.size(16.dp), tint = MaterialTheme.colorScheme.onSurfaceVariant)
+                    Spacer(modifier = Modifier.width(6.dp))
+                    Text(text = "$startTimeStr - $endTimeStr", style = MaterialTheme.typography.bodyMedium, color = MaterialTheme.colorScheme.onSurfaceVariant)
                 }
             }
         }
