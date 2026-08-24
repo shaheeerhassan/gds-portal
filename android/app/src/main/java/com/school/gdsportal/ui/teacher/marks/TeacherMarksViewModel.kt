@@ -7,10 +7,10 @@ import com.school.gdsportal.data.local.TokenManager
 import com.school.gdsportal.data.remote.*
 import com.school.gdsportal.network.ApiService
 import kotlinx.coroutines.async
-import kotlinx.coroutines.coroutineScope
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
+import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 
 data class TeacherMarksUiState(
@@ -19,6 +19,7 @@ data class TeacherMarksUiState(
 
     val currentYearId: Int? = null,
     val teacherClasses: List<TeacherClassDTO> = emptyList(),
+    val teacherSubjects: List<TeacherSubjectDTO> = emptyList(), // Added subjects list
     val examinations: List<Examination> = emptyList(),
 
     val selectedSectionId: Int? = null,
@@ -36,7 +37,6 @@ class TeacherMarksViewModel(
     val uiState: StateFlow<TeacherMarksUiState> = _uiState.asStateFlow()
 
     private var currentUserId: Long = 0L
-    private val studentCache = mutableMapOf<Long, Student>()
 
     init {
         loadInitialData()
@@ -44,47 +44,68 @@ class TeacherMarksViewModel(
 
     private fun loadInitialData() {
         viewModelScope.launch {
-            _uiState.value = _uiState.value.copy(isLoading = true, error = null)
+            _uiState.update { it.copy(isLoading = true, error = null) }
             try {
-                val teacherId = apiService.getTeacherMe().body()?.data?.teacherId ?: 0L
-                val currentYear = apiService.getCurrentAcademicYear().body()?.data
+                // Fetch all necessary context concurrently or sequentially
                 val teacherRes = apiService.getTeacherMe()
-                if (teacherRes.isSuccessful && teacherRes.body()?.data != null) {
-                    val teacher = teacherRes.body()!!.data!!
-                    currentUserId = teacher.teacherId
-                    val classesRes = apiService.getTeacherClasses(teacherId, currentYear!!.academicYearId)
-                    val classes = classesRes.body()?.data ?: emptyList()
-                    _uiState.value = _uiState.value.copy(
-                        currentYearId = currentYear.academicYearId,
-                        teacherClasses = classes,
-                        isLoading = false
-                    )
+                val userRes = apiService.getCurrentUser()
+                val currentYearRes = apiService.getCurrentAcademicYear()
+
+                if (teacherRes.isSuccessful && userRes.isSuccessful && currentYearRes.isSuccessful) {
+                    val teacher = teacherRes.body()?.data
+                    val user = userRes.body()?.data
+                    val currentYear = currentYearRes.body()?.data
+
+                    if (teacher != null && user != null && currentYear != null) {
+                        currentUserId = user.userId // FIX 1: Safely use true System userId!
+
+                        val classesRes = apiService.getTeacherClasses(teacher.teacherId, currentYear.academicYearId)
+                        val subjectsRes = apiService.getTeacherSubjects(teacher.teacherId, currentYear.academicYearId)
+
+                        val classes = classesRes.body()?.data ?: emptyList()
+                        val subjects = subjectsRes.body()?.data ?: emptyList()
+
+                        _uiState.update {
+                            it.copy(
+                                currentYearId = currentYear.academicYearId,
+                                teacherClasses = classes,
+                                teacherSubjects = subjects, // Save subjects to state
+                                isLoading = false
+                            )
+                        }
+                    } else {
+                        _uiState.update { it.copy(isLoading = false, error = "Failed to load user or teacher context.") }
+                    }
                 } else {
-                    _uiState.value = _uiState.value.copy(isLoading = false, error = "Failed to load teacher context.")
+                    _uiState.update { it.copy(isLoading = false, error = "Failed to load initial data.") }
                 }
             } catch (e: Exception) {
-                _uiState.value = _uiState.value.copy(isLoading = false, error = "Network error: ${e.message}")
+                _uiState.update { it.copy(isLoading = false, error = "Network error: ${e.message}") }
             }
         }
     }
 
     fun selectSection(sectionId: Int) {
         if (_uiState.value.selectedSectionId == sectionId) return
-        _uiState.value = _uiState.value.copy(
-            selectedSectionId = sectionId,
-            selectedExaminationId = null,
-            examinations = emptyList(),
-            marks = emptyList()
-        )
+        _uiState.update {
+            it.copy(
+                selectedSectionId = sectionId,
+                selectedExaminationId = null,
+                examinations = emptyList(),
+                marks = emptyList()
+            )
+        }
         loadExaminations()
     }
 
     fun selectExamination(examinationId: Long) {
         if (_uiState.value.selectedExaminationId == examinationId) return
-        _uiState.value = _uiState.value.copy(
-            selectedExaminationId = examinationId,
-            marks = emptyList()
-        )
+        _uiState.update {
+            it.copy(
+                selectedExaminationId = examinationId,
+                marks = emptyList()
+            )
+        }
         loadMarks()
     }
 
@@ -94,18 +115,27 @@ class TeacherMarksViewModel(
         if (sectionId == null || yearId == null) return
 
         viewModelScope.launch {
-            _uiState.value = _uiState.value.copy(isLoading = true, error = null)
+            _uiState.update { it.copy(isLoading = true, error = null) }
             try {
                 val res = apiService.getExaminationsBySection(sectionId, yearId)
                 if (res.isSuccessful) {
                     val rawExams = res.body()?.data ?: emptyList()
-                    val filteredExams = rawExams.filter { it.createdBy == currentUserId }
-                    _uiState.value = _uiState.value.copy(examinations = filteredExams, isLoading = false)
+
+                    // FIX 2: Filter by createdBy == userId OR subject taught by teacher in this section
+                    val teacherSubjectsForSection = _uiState.value.teacherSubjects
+                        .filter { it.sectionId == sectionId }
+                        .map { it.subjectId }
+
+                    val filteredExams = rawExams.filter { exam ->
+                        exam.createdBy == currentUserId || teacherSubjectsForSection.contains(exam.subjectId)
+                    }
+
+                    _uiState.update { it.copy(examinations = filteredExams, isLoading = false) }
                 } else {
-                    _uiState.value = _uiState.value.copy(isLoading = false, error = "Failed to load examinations")
+                    _uiState.update { it.copy(isLoading = false, error = "Failed to load examinations") }
                 }
             } catch (e: Exception) {
-                _uiState.value = _uiState.value.copy(isLoading = false, error = "Network error.")
+                _uiState.update { it.copy(isLoading = false, error = "Network error.") }
             }
         }
     }
@@ -115,9 +145,8 @@ class TeacherMarksViewModel(
         val sectionId = _uiState.value.selectedSectionId ?: return
 
         viewModelScope.launch {
-            _uiState.value = _uiState.value.copy(isLoading = true, error = null)
+            _uiState.update { it.copy(isLoading = true, error = null) }
             try {
-                // Fetch students in section and existing marks in parallel
                 val studentsDeferred = async { apiService.getStudentsDirectory(null, null, null, sectionId, true, 0, 1000) }
                 val marksDeferred = async { apiService.getMarksByExamination(examinationId) }
 
@@ -133,12 +162,12 @@ class TeacherMarksViewModel(
                         mapStudentAndMarkToDisplay(student, mark, examinationId)
                     }
 
-                    _uiState.value = _uiState.value.copy(marks = displays, isLoading = false)
+                    _uiState.update { it.copy(marks = displays, isLoading = false) }
                 } else {
-                    _uiState.value = _uiState.value.copy(isLoading = false, error = "Failed to load marks or students")
+                    _uiState.update { it.copy(isLoading = false, error = "Failed to load marks or students") }
                 }
             } catch (e: Exception) {
-                _uiState.value = _uiState.value.copy(isLoading = false, error = "Network error: ${e.message}")
+                _uiState.update { it.copy(isLoading = false, error = "Network error: ${e.message}") }
             }
         }
     }
@@ -169,10 +198,7 @@ class TeacherMarksViewModel(
         )
     }
 
-    // A separate class to hold the raw mark data so we can update it
-    data class StudentMarkData(val student: Student, val mark: Mark?)
-
-    fun updateMark(markId: Long, studentId: Long, examinationId: Long, obtained: Double, grade: String, remarks: String) {
+    fun updateMark(markId: Long, studentId: Long, examinationId: Long, obtained: Double?, grade: String, remarks: String) {
         viewModelScope.launch {
             try {
                 val mark = Mark(
@@ -180,9 +206,9 @@ class TeacherMarksViewModel(
                     studentId = studentId,
                     examinationId = examinationId,
                     marksObtained = obtained,
-                    grade = grade,
-                    remarks = remarks,
-                    enteredBy = currentUserId,
+                    grade = grade.takeIf { it.isNotBlank() },
+                    remarks = remarks.takeIf { it.isNotBlank() },
+                    enteredBy = 0L,
                     enteredAt = null
                 )
                 val res = if (markId == 0L) {
@@ -190,22 +216,21 @@ class TeacherMarksViewModel(
                 } else {
                     apiService.updateMark(markId, mark)
                 }
-                
+
                 if (res.isSuccessful) {
-                    // Reload marks to refresh UI
                     loadMarks()
                 } else {
                     val errorBody = res.errorBody()?.string() ?: "Failed to save mark"
-                    _uiState.value = _uiState.value.copy(error = "Error: $errorBody")
+                    _uiState.update { it.copy(error = "Error: $errorBody") }
                 }
             } catch (e: Exception) {
-                _uiState.value = _uiState.value.copy(error = "Network error while saving mark")
+                _uiState.update { it.copy(error = "Network error while saving mark") }
             }
         }
     }
 
     fun dismissError() {
-        _uiState.value = _uiState.value.copy(error = null)
+        _uiState.update { it.copy(error = null) }
     }
 
     companion object {
