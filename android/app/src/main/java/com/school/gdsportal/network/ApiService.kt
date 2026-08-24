@@ -561,7 +561,10 @@ interface ApiService {
     suspend fun getMarkById(@Path("markId") markId: Long): Response<ApiResponse<com.school.gdsportal.data.remote.Mark>>
 
     @POST("api/marks/")
-    suspend fun enterMarks(@Body request: com.school.gdsportal.data.remote.EnterMarksRequest): Response<ApiResponse<String>>
+    suspend fun createMark(@Body mark: com.school.gdsportal.data.remote.Mark): Response<ApiResponse<String>>
+
+    @POST("api/marks/batch")
+    suspend fun enterMarksBulk(@Body request: com.school.gdsportal.data.remote.EnterMarksRequest): Response<ApiResponse<String>>
 
     @PUT("api/marks/{markId}")
     suspend fun updateMark(

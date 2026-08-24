@@ -19,7 +19,7 @@ data class TeacherMarksUiState(
 
     val currentYearId: Int? = null,
     val teacherClasses: List<TeacherClassDTO> = emptyList(),
-    val teacherSubjects: List<TeacherSubjectDTO> = emptyList(), // Added subjects list
+    val teacherSubjects: List<TeacherSubjectDTO> = emptyList(),
     val examinations: List<Examination> = emptyList(),
 
     val selectedSectionId: Int? = null,
@@ -36,6 +36,7 @@ class TeacherMarksViewModel(
     private val _uiState = MutableStateFlow(TeacherMarksUiState())
     val uiState: StateFlow<TeacherMarksUiState> = _uiState.asStateFlow()
 
+    private var currentTeacherId: Long = 0L
     private var currentUserId: Long = 0L
 
     init {
@@ -46,18 +47,24 @@ class TeacherMarksViewModel(
         viewModelScope.launch {
             _uiState.update { it.copy(isLoading = true, error = null) }
             try {
-                // Fetch all necessary context concurrently or sequentially
-                val teacherRes = apiService.getTeacherMe()
-                val userRes = apiService.getCurrentUser()
-                val currentYearRes = apiService.getCurrentAcademicYear()
+                // We run these calls in parallel for speed
+                val teacherDef = async { apiService.getTeacherMe() }
+                val userDef = async { apiService.getCurrentUser() }
+                val currentYearDef = async { apiService.getAcademicYears() }
+                
+                val teacherRes = teacherDef.await()
+                val userRes = userDef.await()
+                val currentYearRes = currentYearDef.await()
 
                 if (teacherRes.isSuccessful && userRes.isSuccessful && currentYearRes.isSuccessful) {
                     val teacher = teacherRes.body()?.data
                     val user = userRes.body()?.data
-                    val currentYear = currentYearRes.body()?.data
+                    val currentYear = currentYearRes.body()?.data?.firstOrNull { it.isCurrent }
+                        ?: currentYearRes.body()?.data?.lastOrNull() // Fallback if no current year
 
                     if (teacher != null && user != null && currentYear != null) {
-                        currentUserId = user.userId // FIX 1: Safely use true System userId!
+                        currentTeacherId = teacher.teacherId
+                        currentUserId = user.userId
 
                         val classesRes = apiService.getTeacherClasses(teacher.teacherId, currentYear.academicYearId)
                         val subjectsRes = apiService.getTeacherSubjects(teacher.teacherId, currentYear.academicYearId)
@@ -69,7 +76,7 @@ class TeacherMarksViewModel(
                             it.copy(
                                 currentYearId = currentYear.academicYearId,
                                 teacherClasses = classes,
-                                teacherSubjects = subjects, // Save subjects to state
+                                teacherSubjects = subjects,
                                 isLoading = false
                             )
                         }
@@ -121,7 +128,6 @@ class TeacherMarksViewModel(
                 if (res.isSuccessful) {
                     val rawExams = res.body()?.data ?: emptyList()
 
-                    // FIX 2: Filter by createdBy == userId OR subject taught by teacher in this section
                     val teacherSubjectsForSection = _uiState.value.teacherSubjects
                         .filter { it.sectionId == sectionId }
                         .map { it.subjectId }
@@ -208,11 +214,13 @@ class TeacherMarksViewModel(
                     marksObtained = obtained,
                     grade = grade.takeIf { it.isNotBlank() },
                     remarks = remarks.takeIf { it.isNotBlank() },
-                    enteredBy = 0L,
+                    enteredBy = currentTeacherId,
                     enteredAt = null
                 )
+
+                // FIX: Now uses the clean single-insert API endpoint!
                 val res = if (markId == 0L) {
-                    apiService.enterMarks(com.school.gdsportal.data.remote.EnterMarksRequest(listOf(mark)))
+                    apiService.createMark(mark)
                 } else {
                     apiService.updateMark(markId, mark)
                 }
