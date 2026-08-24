@@ -2,6 +2,7 @@ package com.school.web.controller;
 
 import com.school.exceptions.ValidationException;
 import com.school.model.Submission;
+import com.school.service.impl.ParentServiceImpl;
 import com.school.service.impl.StudentServiceImpl;
 import com.school.service.impl.SubmissionServiceImpl;
 import com.school.service.interfaces.StudentService;
@@ -23,6 +24,7 @@ public class SubmissionController extends BaseServlet {
     private static final String ROLE_PRINCIPAL = "PRINCIPAL";
     private static final String ROLE_TEACHER = "TEACHER";
     private static final String ROLE_STUDENT = "STUDENT";
+    private static final String ROLE_PARENT = "PARENT";
 
     private final SubmissionService submissionService;
     private final StudentService studentService;
@@ -157,6 +159,13 @@ public class SubmissionController extends BaseServlet {
             OwnershipGuard.requireOwnStudent(req, studentService, studentId);
             return;
         }
+
+        if (AuthContext.hasRole(req, ROLE_PARENT)) {
+            // uses to verify a parent is linked to a specific student ID.
+            OwnershipGuard.requireLinkedParent(req, new ParentServiceImpl(), studentId);
+            return;
+        }
+
         RoleGuard.requireRole(req, ROLE_ADMIN, ROLE_PRINCIPAL, ROLE_TEACHER);
     }
 

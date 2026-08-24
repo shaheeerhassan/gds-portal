@@ -2,6 +2,7 @@ package com.school.web.controller;
 
 import com.school.exceptions.ValidationException;
 import com.school.model.Examination;
+import com.school.model.Parent;
 import com.school.service.impl.ExaminationServiceImpl;
 import com.school.service.interfaces.ExaminationService;
 import com.school.web.auth.AuthContext;
@@ -19,6 +20,7 @@ public class ExaminationController extends BaseServlet {
     private static final String ROLE_ADMIN = "ADMINISTRATOR";
     private static final String ROLE_PRINCIPAL = "PRINCIPAL";
     private static final String ROLE_TEACHER = "TEACHER";
+    private static final String ROLE_PARENT = "PARENT";
 
     private final ExaminationService examinationService;
 
@@ -31,12 +33,12 @@ public class ExaminationController extends BaseServlet {
         String path = pathInfo(req);
 
         if (path.startsWith("/id/")) {
-            RoleGuard.requireRole(req, ROLE_ADMIN, ROLE_PRINCIPAL, ROLE_TEACHER);
+            RoleGuard.requireRole(req, ROLE_ADMIN, ROLE_PRINCIPAL, ROLE_TEACHER, ROLE_PARENT);
             writeJson(resp, examinationService.getExaminationById(parseLong(path.substring("/id/".length()))));
             return;
         }
         if (path.startsWith("/section/")) {
-            RoleGuard.requireRole(req, ROLE_ADMIN, ROLE_PRINCIPAL, ROLE_TEACHER);
+            RoleGuard.requireRole(req, ROLE_ADMIN, ROLE_PRINCIPAL, ROLE_TEACHER, ROLE_PARENT);
             String[] parts = path.substring("/section/".length()).split("/");
             if (parts.length == 3 && "year".equals(parts[1])) {
                 writeJson(resp, examinationService.getExaminationsBySection(parseInt(parts[0]), parseInt(parts[2])));

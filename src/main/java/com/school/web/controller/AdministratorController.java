@@ -18,6 +18,7 @@ public class AdministratorController extends BaseServlet {
 
     private static final String ROLE_ADMIN = "ADMINISTRATOR";
     private static final String ROLE_PRINCIPAL = "PRINCIPAL";
+    private static final String ROLE_TEACHER = "TEACHER";
 
     private final AdministratorService administratorService;
 
@@ -27,7 +28,7 @@ public class AdministratorController extends BaseServlet {
 
     @Override
     protected void doGet(HttpServletRequest req, HttpServletResponse resp) throws IOException {
-        RoleGuard.requireRole(req, ROLE_ADMIN, ROLE_PRINCIPAL);
+        RoleGuard.requireRole(req, ROLE_ADMIN, ROLE_PRINCIPAL, ROLE_TEACHER);
         String path = pathInfo(req);
 
         switch (path) {

@@ -61,7 +61,7 @@ public class ClassTeacherAssignmentController extends BaseServlet {
                 return;
             }
             if (parts.length == 2 && "history".equals(parts[1])) {
-                RoleGuard.requireRole(req, ROLE_ADMIN, ROLE_PRINCIPAL);
+                RoleGuard.requireRole(req, ROLE_ADMIN, ROLE_PRINCIPAL, ROLE_TEACHER);
                 writeJson(resp, classTeacherAssignmentService.getAssignmentHistoryForTeacher(parseLong(parts[0])));
                 return;
             }

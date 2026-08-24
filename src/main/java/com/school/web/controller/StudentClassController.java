@@ -2,8 +2,11 @@ package com.school.web.controller;
 
 import com.school.exceptions.ValidationException;
 import com.school.model.StudentClass;
+import com.school.service.impl.ParentServiceImpl;
 import com.school.service.impl.StudentClassServiceImpl;
 import com.school.service.interfaces.StudentClassService;
+import com.school.web.auth.AuthContext;
+import com.school.web.auth.OwnershipGuard;
 import com.school.web.auth.RoleGuard;
 import com.school.web.dto.request.EnrollStudentRequest;
 import com.school.web.dto.request.TransferStudentRequest;
@@ -21,6 +24,7 @@ public class StudentClassController extends BaseServlet {
     private static final String ROLE_ADMIN = "ADMINISTRATOR";
     private static final String ROLE_PRINCIPAL = "PRINCIPAL";
     private static final String ROLE_TEACHER = "TEACHER";
+    private static final String ROLE_PARENT = "PARENT";
 
     private final StudentClassService studentClassService;
 
@@ -33,14 +37,20 @@ public class StudentClassController extends BaseServlet {
         String path = pathInfo(req);
 
         if (path.startsWith("/student/")) {
-            RoleGuard.requireRole(req, ROLE_ADMIN, ROLE_PRINCIPAL, ROLE_TEACHER);
+            RoleGuard.requireRole(req, ROLE_ADMIN, ROLE_PRINCIPAL, ROLE_TEACHER, ROLE_PARENT);
             long studentId = parseLong(path.substring("/student/".length()));
+            if (AuthContext.getRole(req).equals(ROLE_PARENT)) {
+                OwnershipGuard.requireLinkedParent(req, new ParentServiceImpl(), studentId);
+            }
             writeJson(resp, studentClassService.getEnrollmentHistory(studentId));
             return;
         }
         if (path.startsWith("/current/")) {
-            RoleGuard.requireRole(req, ROLE_ADMIN, ROLE_PRINCIPAL, ROLE_TEACHER);
+            RoleGuard.requireRole(req, ROLE_ADMIN, ROLE_PRINCIPAL, ROLE_TEACHER, ROLE_PARENT);
             long studentId = parseLong(path.substring("/current/".length()));
+            if (AuthContext.getRole(req).equals(ROLE_PARENT)) {
+                OwnershipGuard.requireLinkedParent(req, new ParentServiceImpl(), studentId);
+            }
             writeJson(resp, studentClassService.getCurrentEnrollment(studentId));
             return;
         }
