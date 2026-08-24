@@ -14,7 +14,9 @@ import kotlinx.coroutines.launch
 data class TeacherAnnouncementsUiState(
     val isLoading: Boolean = true,
     val error: String? = null,
-    val announcements: List<Announcement> = emptyList()
+    val announcements: List<Announcement> = emptyList(),
+    val searchQuery: String = "",
+    val filteredAnnouncements: List<Announcement> = emptyList()
 )
 
 class TeacherAnnouncementsViewModel(private val apiService: ApiService) : ViewModel() {
@@ -27,18 +29,18 @@ class TeacherAnnouncementsViewModel(private val apiService: ApiService) : ViewMo
         _uiState.update { it.copy(isLoading = true, error = null) }
         viewModelScope.launch {
             try {
-                // Fetch ALL active announcements
                 val response = apiService.getAnnouncements()
                 if (response.isSuccessful) {
                     val allAnnouncements = response.body()?.data ?: emptyList()
-                    // Filter locally: Keep only Global (null/0) or Teacher-specific announcements (4)
                     val teacherAnnouncements = allAnnouncements.filter { announcement ->
-                        announcement.targetRoleId == null || announcement.targetRoleId == 0 || announcement.targetRoleId == 4
-                    }
+                        announcement.targetRoleId == null || announcement.targetRoleId == 0 || announcement.targetRoleId == 4 || announcement.targetRoleId == 3
+                    }.sortedByDescending { a -> a.createdAt }
+
                     _uiState.update {
                         it.copy(
                             isLoading = false,
-                            announcements = teacherAnnouncements.sortedByDescending { a -> a.createdAt }
+                            announcements = teacherAnnouncements,
+                            filteredAnnouncements = filterList(teacherAnnouncements, it.searchQuery)
                         )
                     }
                 } else {
@@ -48,6 +50,28 @@ class TeacherAnnouncementsViewModel(private val apiService: ApiService) : ViewMo
                 _uiState.update { it.copy(isLoading = false, error = "Network error.") }
             }
         }
+    }
+
+    fun updateSearchQuery(query: String) {
+        _uiState.update {
+            it.copy(
+                searchQuery = query,
+                filteredAnnouncements = filterList(it.announcements, query)
+            )
+        }
+    }
+
+    private fun filterList(list: List<Announcement>, query: String): List<Announcement> {
+        if (query.isBlank()) return list
+        val lowerQuery = query.lowercase()
+        return list.filter {
+            it.title.lowercase().contains(lowerQuery) ||
+                    it.content.lowercase().contains(lowerQuery)
+        }
+    }
+
+    fun dismissError() {
+        _uiState.update { it.copy(error = null) }
     }
 
     companion object {

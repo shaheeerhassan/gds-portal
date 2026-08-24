@@ -353,7 +353,7 @@ fun TeacherAppWrapper(
                         onBackClick = { navController.navigateUp() }
                     )
                 }
-                
+
                 composable("teacher_announcements") {
                     val viewModel: com.school.gdsportal.ui.teacher.announcements.TeacherAnnouncementsViewModel = androidx.lifecycle.viewmodel.compose.viewModel(
                         factory = com.school.gdsportal.ui.teacher.announcements.TeacherAnnouncementsViewModel.provideFactory(
@@ -362,7 +362,54 @@ fun TeacherAppWrapper(
                     )
                     com.school.gdsportal.ui.teacher.announcements.TeacherAnnouncementsScreen(
                         viewModel = viewModel,
-                        onBackClick = { navController.navigateUp() }
+                        onBackClick = { navController.navigateUp() },
+                        onCreateClick = { navController.navigate("teacher_announcements/create") },
+                        onAnnouncementClick = { id -> navController.navigate("teacher_announcements/detail/$id") }
+                    )
+                }
+
+                composable("teacher_announcements/create") {
+                    val viewModel: com.school.gdsportal.ui.admin.communication.announcements.AnnouncementCreateEditViewModel = androidx.lifecycle.viewmodel.compose.viewModel(
+                        factory = com.school.gdsportal.ui.admin.communication.announcements.AnnouncementCreateEditViewModel.Factory(
+                            appContainer.apiService, null
+                        )
+                    )
+                    com.school.gdsportal.ui.admin.communication.announcements.AnnouncementCreateEditScreen(
+                        viewModel = viewModel,
+                        onBackClick = { navController.navigateUp() },
+                        onSuccess = { navController.navigateUp() }
+                    )
+                }
+
+                composable("teacher_announcements/edit/{announcementId}") { backStackEntry ->
+                    val id = backStackEntry.arguments?.getString("announcementId")?.toLongOrNull()
+                    val viewModel: com.school.gdsportal.ui.admin.communication.announcements.AnnouncementCreateEditViewModel = androidx.lifecycle.viewmodel.compose.viewModel(
+                        factory = com.school.gdsportal.ui.admin.communication.announcements.AnnouncementCreateEditViewModel.Factory(
+                            appContainer.apiService, id
+                        )
+                    )
+                    com.school.gdsportal.ui.admin.communication.announcements.AnnouncementCreateEditScreen(
+                        viewModel = viewModel,
+                        onBackClick = { navController.navigateUp() },
+                        onSuccess = { navController.navigateUp() }
+                    )
+                }
+
+                composable("teacher_announcements/detail/{announcementId}") { backStackEntry ->
+                    val id = backStackEntry.arguments?.getString("announcementId")?.toLongOrNull() ?: 0L
+                    val viewModel: com.school.gdsportal.ui.admin.communication.announcements.AnnouncementDetailViewModel = androidx.lifecycle.viewmodel.compose.viewModel(
+                        factory = com.school.gdsportal.ui.admin.communication.announcements.AnnouncementDetailViewModel.Factory(
+                            appContainer.apiService, id
+                        )
+                    )
+                    com.school.gdsportal.ui.admin.communication.announcements.AnnouncementDetailScreen(
+                        isReadOnly = false,
+                        viewModel = viewModel,
+                        onBackClick = {
+                            navController.previousBackStackEntry?.savedStateHandle?.set("refresh", true)
+                            navController.navigateUp()
+                        },
+                        onEditClick = { navController.navigate("teacher_announcements/edit/$it") }
                     )
                 }
                 
