@@ -57,6 +57,7 @@ class NotificationsDirectoryViewModel(
                     val list = listRes.body()?.data ?: emptyList()
                     _uiState.value = _uiState.value.copy(
                         isLoading = false,
+                        isActionLoading = false, // FIX: Catch-all to ensure loading state never gets stuck
                         notifications = list,
                         unreadCount = count
                     )
@@ -64,6 +65,7 @@ class NotificationsDirectoryViewModel(
                 } else {
                     _uiState.value = _uiState.value.copy(
                         isLoading = false,
+                        isActionLoading = false,
                         unreadCount = count,
                         error = "Failed to load notifications."
                     )
@@ -71,6 +73,7 @@ class NotificationsDirectoryViewModel(
             } catch (e: Exception) {
                 _uiState.value = _uiState.value.copy(
                     isLoading = false,
+                    isActionLoading = false,
                     error = "Network error: ${e.localizedMessage ?: "Unable to connect."}"
                 )
             }
@@ -96,8 +99,8 @@ class NotificationsDirectoryViewModel(
         } else {
             baseList.filter {
                 it.title.lowercase().contains(query) ||
-                it.message.lowercase().contains(query) ||
-                it.notificationType.lowercase().contains(query)
+                        it.message.lowercase().contains(query) ||
+                        it.notificationType.lowercase().contains(query)
             }
         }
         _uiState.value = _uiState.value.copy(filteredNotifications = result)
@@ -109,6 +112,8 @@ class NotificationsDirectoryViewModel(
             try {
                 val res = apiService.markAllNotificationsAsRead()
                 if (res.isSuccessful) {
+                    // FIX: Explicitly clear the action loading state before reloading data
+                    _uiState.value = _uiState.value.copy(isActionLoading = false)
                     loadData()
                 } else {
                     _uiState.value = _uiState.value.copy(

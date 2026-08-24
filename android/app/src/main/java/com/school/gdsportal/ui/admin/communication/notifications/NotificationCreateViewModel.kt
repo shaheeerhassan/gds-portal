@@ -499,6 +499,8 @@ class NotificationCreateViewModel(
     fun dismissError() { _uiState.value = _uiState.value.copy(error = null) }
     fun resetSuccess() { _uiState.value = _uiState.value.copy(isSuccess = false) }
 
+
+
     class Factory(private val apiService: ApiService) : ViewModelProvider.Factory {
         @Suppress("UNCHECKED_CAST")
         override fun <T : ViewModel> create(modelClass: Class<T>): T {

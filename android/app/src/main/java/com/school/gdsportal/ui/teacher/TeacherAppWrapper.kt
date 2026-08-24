@@ -412,14 +412,44 @@ fun TeacherAppWrapper(
                         onEditClick = { navController.navigate("teacher_announcements/edit/$it") }
                     )
                 }
-                
+
                 composable("teacher_notifications") {
-                    val viewModel: com.school.gdsportal.ui.teacher.notifications.TeacherNotificationsViewModel = androidx.lifecycle.viewmodel.compose.viewModel(
-                        factory = com.school.gdsportal.ui.teacher.notifications.TeacherNotificationsViewModel.provideFactory(
+                    val viewModel: com.school.gdsportal.ui.admin.communication.notifications.NotificationsDirectoryViewModel = androidx.lifecycle.viewmodel.compose.viewModel(
+                        factory = com.school.gdsportal.ui.admin.communication.notifications.NotificationsDirectoryViewModel.Factory(
                             appContainer.apiService
                         )
                     )
-                    com.school.gdsportal.ui.teacher.notifications.TeacherNotificationsScreen(
+                    com.school.gdsportal.ui.admin.communication.notifications.NotificationsDirectoryScreen(
+                        isReadOnly = false,
+                        viewModel = viewModel,
+                        onBackClick = { navController.navigateUp() },
+                        onCreateClick = { navController.navigate("teacher_notifications/create") },
+                        onNotificationClick = { id -> navController.navigate("teacher_notifications/detail/$id") }
+                    )
+                }
+
+                composable("teacher_notifications/create") {
+                    val viewModel: com.school.gdsportal.ui.admin.communication.notifications.NotificationCreateViewModel = androidx.lifecycle.viewmodel.compose.viewModel(
+                        factory = com.school.gdsportal.ui.admin.communication.notifications.NotificationCreateViewModel.Factory(
+                            appContainer.apiService
+                        )
+                    )
+                    com.school.gdsportal.ui.admin.communication.notifications.NotificationCreateScreen(
+                        viewModel = viewModel,
+                        onBackClick = { navController.navigateUp() },
+                        onSuccess = { navController.navigateUp() }
+                    )
+                }
+
+                composable("teacher_notifications/detail/{notificationId}") { backStackEntry ->
+                    val id = backStackEntry.arguments?.getString("notificationId")?.toLongOrNull() ?: 0L
+                    val viewModel: com.school.gdsportal.ui.admin.communication.notifications.NotificationDetailViewModel = androidx.lifecycle.viewmodel.compose.viewModel(
+                        factory = com.school.gdsportal.ui.admin.communication.notifications.NotificationDetailViewModel.Factory(
+                            appContainer.apiService, id
+                        )
+                    )
+                    com.school.gdsportal.ui.admin.communication.notifications.NotificationDetailScreen(
+                        isReadOnly = false,
                         viewModel = viewModel,
                         onBackClick = { navController.navigateUp() }
                     )
