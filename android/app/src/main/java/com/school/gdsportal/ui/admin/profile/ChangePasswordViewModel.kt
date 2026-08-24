@@ -17,7 +17,7 @@ private val SPECIAL_CHARS = Regex("[^A-Za-z0-9]")
 fun validatePassword(password: String): List<String> {
     val errors = mutableListOf<String>()
     if (password.length < 8)              errors += "At least 8 characters"
-    if (!password.any { it.isLowerCase() }) errors += "At least 1 lowercase letter"
+    if (!password.any { it.isDigit() }) errors += "At least 1 digit"
     if (!password.any { it.isUpperCase() }) errors += "At least 1 uppercase letter"
     if (!SPECIAL_CHARS.containsMatchIn(password)) errors += "At least 1 special character"
     return errors

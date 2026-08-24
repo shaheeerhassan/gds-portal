@@ -242,7 +242,7 @@ private data class PasswordRule(val label: String, val check: (String) -> Boolea
 
 private val PASSWORD_RULES = listOf(
     PasswordRule("At least 8 characters") { it.length >= 8 },
-    PasswordRule("At least 1 lowercase letter") { it.any { c -> c.isLowerCase() } },
+    PasswordRule("At least 1 digit") { it.any { c -> c.isDigit() } },
     PasswordRule("At least 1 uppercase letter") { it.any { c -> c.isUpperCase() } },
     PasswordRule("At least 1 special character") { Regex("[^A-Za-z0-9]").containsMatchIn(it) }
 )
