@@ -68,19 +68,20 @@ public class NotificationController extends BaseServlet {
         String path = pathInfo(req);
 
         if ("/broadcast".equals(path)) {
-            RoleGuard.requireRole(req, ROLE_ADMIN, ROLE_PRINCIPAL);
+            RoleGuard.requireRole(req, ROLE_ADMIN, ROLE_PRINCIPAL, ROLE_TEACHER);
             com.school.model.BroadcastNotificationRequest request = readBody(req, com.school.model.BroadcastNotificationRequest.class);
             if (request == null || request.getNotification() == null)
                 throw new ValidationException("Broadcast notification request is required.");
             if (request.getNotification().getCreatedAt() == null)
                 request.getNotification().setCreatedAt(LocalDateTime.now());
-            
+
             notificationService.broadcastNotification(request);
             writeStatusMessage(resp, "Broadcast notifications created.");
             return;
         }
         if ("/bulk".equals(path)) {
-            RoleGuard.requireRole(req, ROLE_ADMIN, ROLE_PRINCIPAL);
+            // FIX: Added ROLE_TEACHER
+            RoleGuard.requireRole(req, ROLE_ADMIN, ROLE_PRINCIPAL, ROLE_TEACHER);
             BulkNotificationsRequest request = readBody(req, BulkNotificationsRequest.class);
             if (request == null || request.getNotifications() == null || request.getNotifications().isEmpty())
                 throw new ValidationException("notifications is required.");
@@ -94,7 +95,7 @@ public class NotificationController extends BaseServlet {
             return;
         }
         if ("/".equals(path) || "".equals(path)) {
-            RoleGuard.requireRole(req, ROLE_ADMIN, ROLE_PRINCIPAL);
+            RoleGuard.requireRole(req, ROLE_ADMIN, ROLE_PRINCIPAL, ROLE_TEACHER);
             Notification notification = readBody(req, Notification.class);
             if (notification == null)
                 throw new ValidationException("Request body is required.");

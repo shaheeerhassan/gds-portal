@@ -102,12 +102,12 @@ public class UserController extends BaseServlet {
             return;
         }
 
-        RoleGuard.requireRole(req, ROLE_ADMIN);
+        long userId = parseId(path);
+        RoleGuard.requireUserOrRole(req, userId, ROLE_ADMIN);
         UpdateUserRequest request = readBody(req, UpdateUserRequest.class);
         if (request == null)
             throw new ValidationException("Request body is required.");
 
-        long userId = parseId(path);
         User user = new User();
         user.setUserId(userId);
         user.setRoleId(request.getRoleId());
@@ -145,3 +145,4 @@ public class UserController extends BaseServlet {
         }
     }
 }
+

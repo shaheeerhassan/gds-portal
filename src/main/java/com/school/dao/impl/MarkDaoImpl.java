@@ -32,24 +32,27 @@ public class MarkDaoImpl implements MarkDao {
                 for (Mark mark : marks) {
                     ps.setLong(1, mark.getExaminationId());
                     ps.setLong(2, mark.getStudentId());
-                    ps.setDouble(3, mark.getMarksObtained());
+
+                    // Safely handle nulls to prevent Unboxing NPE crashes
+                    if (mark.getMarksObtained() != null) ps.setDouble(3, mark.getMarksObtained());
+                    else ps.setNull(3, Types.DOUBLE);
+
                     ps.setString(4, mark.getGrade());
                     ps.setString(5, mark.getRemarks());
-                    ps.setLong(6, mark.getEnteredBy());
+
+                    if (mark.getEnteredBy() != 0L) ps.setLong(6, mark.getEnteredBy());
+                    else ps.setNull(6, Types.BIGINT);
+
                     ps.setTimestamp(7, Timestamp.valueOf(LocalDateTime.now()));
-                    ps.addBatch();
-                }
 
-                ps.executeBatch();
+                    // FIX: Execute individually to guarantee safe key retrieval
+                    ps.executeUpdate();
 
-                try (ResultSet resultSet = ps.getGeneratedKeys()) {
-                    int index = 0;
-                    while (resultSet.next() && index < marks.size()) {
-                        marks.get(index).setMarkId(resultSet.getLong(1));
-                        index++;
+                    try (ResultSet rs = ps.getGeneratedKeys()) {
+                        if (rs.next()) {
+                            mark.setMarkId(rs.getLong(1));
+                        }
                     }
-                    if (index < marks.size())
-                        throw new SQLException("Not all mark records received generated keys.");
                 }
             }
 
@@ -72,10 +75,15 @@ public class MarkDaoImpl implements MarkDao {
         try (Connection cn = getDataSource().getConnection();
              PreparedStatement ps = cn.prepareStatement(UPDATE)) {
 
-            ps.setDouble(1, mark.getMarksObtained());
+            if (mark.getMarksObtained() != null) ps.setDouble(1, mark.getMarksObtained());
+            else ps.setNull(1, Types.DOUBLE);
+
             ps.setString(2, mark.getGrade());
             ps.setString(3, mark.getRemarks());
-            ps.setLong(4, mark.getEnteredBy());
+
+            if (mark.getEnteredBy() != 0L) ps.setLong(4, mark.getEnteredBy());
+            else ps.setNull(4, Types.BIGINT);
+
             ps.setTimestamp(5, Timestamp.valueOf(LocalDateTime.now()));
             ps.setLong(6, mark.getMarkId());
 
@@ -89,9 +97,7 @@ public class MarkDaoImpl implements MarkDao {
     public boolean deleteMark(long markId) {
         try (Connection cn = getDataSource().getConnection();
              PreparedStatement ps = cn.prepareStatement(DELETE)) {
-
             ps.setLong(1, markId);
-
             return ps.executeUpdate() > 0;
         } catch (SQLException e) {
             throw new DaoException("Error deleting mark", e);
@@ -102,9 +108,7 @@ public class MarkDaoImpl implements MarkDao {
     public List<Mark> getMarksByExamination(long examinationId) {
         try (Connection cn = getDataSource().getConnection();
              PreparedStatement ps = cn.prepareStatement(SELECT_BY_EXAMINATION)) {
-
             ps.setLong(1, examinationId);
-
             try (ResultSet resultSet = ps.executeQuery()) {
                 List<Mark> marks = new ArrayList<>();
                 while (resultSet.next())
@@ -120,10 +124,8 @@ public class MarkDaoImpl implements MarkDao {
     public List<Mark> getStudentMarksForYear(long studentId, int academicYearId) {
         try (Connection cn = getDataSource().getConnection();
              PreparedStatement ps = cn.prepareStatement(SELECT_BY_STUDENT_AND_YEAR)) {
-
             ps.setLong(1, studentId);
             ps.setInt(2, academicYearId);
-
             try (ResultSet resultSet = ps.executeQuery()) {
                 List<Mark> marks = new ArrayList<>();
                 while (resultSet.next())
@@ -139,11 +141,9 @@ public class MarkDaoImpl implements MarkDao {
     public List<Mark> getStudentMarksByExamType(long studentId, String examName, int academicYearId) {
         try (Connection cn = getDataSource().getConnection();
              PreparedStatement ps = cn.prepareStatement(SELECT_BY_STUDENT_AND_EXAM_TYPE)) {
-
             ps.setLong(1, studentId);
             ps.setString(2, examName);
             ps.setInt(3, academicYearId);
-
             try (ResultSet resultSet = ps.executeQuery()) {
                 List<Mark> marks = new ArrayList<>();
                 while (resultSet.next())
@@ -159,9 +159,7 @@ public class MarkDaoImpl implements MarkDao {
     public Mark getMarkById(long markId) {
         try (Connection cn = getDataSource().getConnection();
              PreparedStatement ps = cn.prepareStatement(SELECT_BY_ID)) {
-
             ps.setLong(1, markId);
-
             try (ResultSet resultSet = ps.executeQuery()) {
                 if (resultSet.next())
                     return mapRow(resultSet);
@@ -176,10 +174,8 @@ public class MarkDaoImpl implements MarkDao {
     public Mark getMarkByStudentAndExamination(long studentId, long examinationId) {
         try (Connection cn = getDataSource().getConnection();
              PreparedStatement ps = cn.prepareStatement(SELECT_BY_STUDENT_AND_EXAMINATION)) {
-
             ps.setLong(1, studentId);
             ps.setLong(2, examinationId);
-
             try (ResultSet resultSet = ps.executeQuery()) {
                 if (resultSet.next())
                     return mapRow(resultSet);

@@ -114,8 +114,9 @@ public class TeacherController extends BaseServlet {
 
     @Override
     protected void doPut(HttpServletRequest req, HttpServletResponse resp) throws IOException {
-        RoleGuard.requireRole(req, ROLE_ADMIN);
         long teacherId = parseLong(pathInfo(req).substring(1));
+        Teacher existing = teacherService.getTeacherById(teacherId);
+        RoleGuard.requireUserOrRole(req, existing.getUserId(), ROLE_ADMIN, ROLE_PRINCIPAL);
         Teacher teacher = readBody(req, Teacher.class);
         if (teacher == null)
             throw new ValidationException("Request body is required.");
@@ -126,9 +127,11 @@ public class TeacherController extends BaseServlet {
 
     @Override
     protected void doDelete(HttpServletRequest req, HttpServletResponse resp) throws IOException {
-        RoleGuard.requireRole(req, ROLE_ADMIN);
         long teacherId = parseLong(pathInfo(req).substring(1));
+        Teacher existing = teacherService.getTeacherById(teacherId);
+        RoleGuard.requireUserOrRole(req, existing.getUserId(), ROLE_ADMIN, ROLE_PRINCIPAL);
         teacherService.deactivateTeacher(teacherId);
         writeStatusMessage(resp, "Teacher deactivated.");
     }
 }
+

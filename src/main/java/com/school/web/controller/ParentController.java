@@ -114,11 +114,14 @@ public class ParentController extends BaseServlet {
 
     @Override
     protected void doPut(HttpServletRequest req, HttpServletResponse resp) throws IOException {
-        RoleGuard.requireRole(req, ROLE_ADMIN);
+        RoleGuard.requireRole(req, ROLE_ADMIN, ROLE_PARENT);
         long parentId = parseLong(pathInfo(req).substring(1));
         Parent parent = readBody(req, Parent.class);
         if (parent == null)
             throw new ValidationException("Request body is required.");
+        long userId = AuthContext.getUserId(req);
+        if (parentId != parentService.getParentByUserId(userId).getParentId())
+            throw new ValidationException("You can only edit your own profile.");
         parent.setParentId(parentId);
         parentService.updateParent(parent);
         writeStatusMessage(resp, "Parent updated.");

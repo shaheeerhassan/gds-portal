@@ -15,6 +15,8 @@ import com.school.web.auth.RoleGuard;
 import jakarta.servlet.annotation.WebServlet;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
+import lombok.Getter;
+import lombok.Setter;
 
 import java.io.IOException;
 import java.util.List;
@@ -83,18 +85,39 @@ public class MarkController extends BaseServlet {
     @Override
     protected void doPost(HttpServletRequest req, HttpServletResponse resp) throws IOException {
         RoleGuard.requireRole(req, ROLE_ADMIN, ROLE_PRINCIPAL, ROLE_TEACHER);
-        EnterMarksRequest request = readBody(req, EnterMarksRequest.class);
-        if (request == null || request.getMarks() == null || request.getMarks().isEmpty())
-            throw new ValidationException("marks is required.");
-        List<Mark> marks = request.getMarks();
-        for (Mark mark : marks) {
-            if (mark.getEnteredBy() == 0)
-                mark.setEnteredBy(AuthContext.getUserId(req));
-            if (mark.getEnteredAt() == null)
-                mark.setEnteredAt(java.time.LocalDateTime.now());
+        String path = pathInfo(req);
+
+        // OPTIONAL: Support for Batch Insert at /api/marks/batch
+        if (path != null && path.equals("/batch")) {
+            EnterMarksRequest request = readBody(req, EnterMarksRequest.class);
+            if (request == null || request.getMarks() == null || request.getMarks().isEmpty())
+                throw new ValidationException("marks array is required for batch insertion.");
+
+            List<Mark> marks = request.getMarks();
+            for (Mark mark : marks) {
+                if (mark.getEnteredBy() == 0L) mark.setEnteredBy(AuthContext.getUserId(req));
+                if (mark.getEnteredAt() == null) mark.setEnteredAt(java.time.LocalDateTime.now());
+            }
+            markService.enterMarks(marks);
+            writeStatusMessage(resp, "Batch marks entered successfully.");
+            return;
         }
-        markService.enterMarks(marks);
-        writeStatusMessage(resp, "Marks entered.");
+
+        // DEFAULT: Single Mark Insertion at /api/marks/
+        Mark mark = readBody(req, Mark.class);
+        if (mark == null)
+            throw new ValidationException("Request body is required.");
+
+        if (mark.getEnteredBy() == 0L) {
+            mark.setEnteredBy(AuthContext.getUserId(req));
+        }
+        if (mark.getEnteredAt() == null) {
+            mark.setEnteredAt(java.time.LocalDateTime.now());
+        }
+
+        // Reuse your batch service by wrapping the single mark in a list
+        markService.enterMarks(java.util.Collections.singletonList(mark));
+        writeStatusMessage(resp, "Mark entered successfully.");
     }
 
     @Override
@@ -104,9 +127,19 @@ public class MarkController extends BaseServlet {
         Mark mark = readBody(req, Mark.class);
         if (mark == null)
             throw new ValidationException("Request body is required.");
+
+        Mark original = markService.getMarkById(markId);
         mark.setMarkId(markId);
+
+        if (mark.getEnteredBy() == 0L) {
+            mark.setEnteredBy(AuthContext.getUserId(req));
+        }
+        if (mark.getEnteredAt() == null) {
+            mark.setEnteredAt(original.getEnteredAt());
+        }
+
         markService.updateMark(mark);
-        writeStatusMessage(resp, "Mark updated.");
+        writeStatusMessage(resp, "Mark updated successfully.");
     }
 
     @Override
@@ -129,15 +162,9 @@ public class MarkController extends BaseServlet {
         RoleGuard.requireRole(req, ROLE_ADMIN, ROLE_PRINCIPAL, ROLE_TEACHER);
     }
 
+    @Getter
+    @Setter
     public static class EnterMarksRequest {
         private List<Mark> marks;
-
-        public List<Mark> getMarks() {
-            return marks;
-        }
-
-        public void setMarks(List<Mark> marks) {
-            this.marks = marks;
-        }
     }
 }

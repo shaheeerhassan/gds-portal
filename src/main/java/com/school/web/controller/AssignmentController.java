@@ -23,6 +23,7 @@ public class AssignmentController extends BaseServlet {
     private static final String ROLE_ADMIN = "ADMINISTRATOR";
     private static final String ROLE_PRINCIPAL = "PRINCIPAL";
     private static final String ROLE_TEACHER = "TEACHER";
+    private static final String ROLE_PARENT = "PARENT";
 
     private final AssignmentService assignmentService;
     private final TeacherService teacherService;
@@ -42,7 +43,7 @@ public class AssignmentController extends BaseServlet {
             return;
         }
         if (path.startsWith("/section/")) {
-            RoleGuard.requireRole(req, ROLE_ADMIN, ROLE_PRINCIPAL, ROLE_TEACHER);
+            RoleGuard.requireRole(req, ROLE_ADMIN, ROLE_PRINCIPAL, ROLE_TEACHER, ROLE_PARENT);
             String[] parts = path.substring("/section/".length()).split("/");
             if (parts.length != 2)
                 throw new ValidationException("Expected /section/{sectionId}/{academicYearId}.");

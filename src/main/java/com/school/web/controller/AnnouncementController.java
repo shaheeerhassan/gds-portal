@@ -85,7 +85,7 @@ public class AnnouncementController extends BaseServlet {
 
     @Override
     protected void doPut(HttpServletRequest req, HttpServletResponse resp) throws IOException {
-        RoleGuard.requireRole(req, ROLE_ADMIN, ROLE_PRINCIPAL);
+        RoleGuard.requireRole(req, ROLE_ADMIN, ROLE_PRINCIPAL, ROLE_TEACHER);
         String path = pathInfo(req);
 
         if (path.startsWith("/disable/")) {

@@ -98,7 +98,9 @@ public class MarkServiceImpl implements MarkService {
         if (mark.getEnteredBy() == 0)
             mark.setEnteredBy(existing.getEnteredBy());
 
+        System.out.println("before validation: markId: "+mark.getMarkId() + "enteredBy: "+ mark.getEnteredBy() + "obtained: "+mark.getMarksObtained()+"examinationId "+mark.getExaminationId());
         validateMark(mark);
+        System.out.println("after validation: markId: "+mark.getMarkId() + "enteredBy: "+ mark.getEnteredBy() + "obtained: "+mark.getMarksObtained()+"examinationId "+mark.getExaminationId());
 
         if (!markDao.updateMark(mark))
             throw new ResourceNotFoundException("Mark record not found.");

@@ -15,11 +15,11 @@ public class NotificationDaoImpl implements NotificationDao {
     private static final String INSERT = "INSERT INTO notifications (user_id, notification_type, title, message, reference_table, reference_id, is_read, created_at, read_at) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)";
     private static final String SELECT_BY_ID = "SELECT * FROM notifications WHERE notification_id = ?";
     private static final String SELECT_FOR_USER = "SELECT * FROM notifications WHERE user_id = ? ORDER BY created_at DESC LIMIT ? OFFSET ?";
-    private static final String SELECT_UNREAD = "SELECT * FROM notifications WHERE user_id = ? AND is_read = FALSE ORDER BY created_at DESC";
+    private static final String SELECT_UNREAD = "SELECT * FROM notifications WHERE user_id = ? AND is_read = 0 ORDER BY created_at DESC";
     private static final String COUNT_UNREAD = "SELECT COUNT(*) FROM notifications WHERE user_id = ? AND is_read = FALSE";
     private static final String DELETE_BY_ID = "DELETE FROM notifications WHERE notification_id = ?";
     private static final String DELETE_ALL = "DELETE FROM notifications WHERE user_id = ?";
-    private static final String MARK_AS_READ = "UPDATE notifications SET is_read = TRUE, read_at = ? WHERE notification_id = ?";
+    private static final String MARK_AS_READ = "UPDATE notifications SET is_read = 1, read_at = ? WHERE notification_id = ?";
     private static final String MARK_ALL_AS_READ = "UPDATE notifications SET is_read = TRUE, read_at = ? WHERE user_id = ? AND is_read = FALSE";
 
     @Override
