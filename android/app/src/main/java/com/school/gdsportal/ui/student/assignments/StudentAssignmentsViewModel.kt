@@ -23,6 +23,7 @@ data class StudentAssignmentItem(
 
 data class StudentAssignmentsUiState(
     val isLoading: Boolean = true,
+    val isRefreshing: Boolean = false,
     val error: String? = null,
     val filter: String = "All", // "All", "Pending", "Submitted"
     val allAssignments: List<StudentAssignmentItem> = emptyList(),
@@ -38,8 +39,11 @@ class StudentAssignmentsViewModel(private val apiService: ApiService) : ViewMode
         loadAssignments()
     }
 
-    fun loadAssignments() {
-        _uiState.update { it.copy(isLoading = true, error = null) }
+    fun loadAssignments(isRefresh: Boolean = false) {
+        _uiState.update {
+            if (isRefresh) it.copy(isRefreshing = true, error = null)
+            else it.copy(isLoading = true, error = null)
+        }
         viewModelScope.launch {
             try {
                 // 1. Get Student & Year
@@ -72,6 +76,7 @@ class StudentAssignmentsViewModel(private val apiService: ApiService) : ViewMode
                         _uiState.update {
                             it.copy(
                                 isLoading = false,
+                                isRefreshing = false,
                                 allAssignments = mappedItems
                             )
                         }

@@ -1,6 +1,5 @@
 package com.school.gdsportal.ui.student.assessment.assignments
 
-import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
@@ -9,6 +8,7 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Menu
 import androidx.compose.material3.*
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
@@ -27,6 +27,10 @@ fun StudentAssignmentsScreen(
 ) {
     val uiState by viewModel.uiState.collectAsState()
 
+    LaunchedEffect(Unit) {
+        viewModel.loadAssignments(isRefresh = true)
+    }
+
     Scaffold(
         topBar = {
             TopAppBar(
@@ -40,8 +44,14 @@ fun StudentAssignmentsScreen(
     ) { padding ->
         Column(modifier = Modifier.fillMaxSize().padding(padding)) {
 
-            Box(modifier = Modifier.fillMaxSize()) {
-                if (uiState.isLoading) {
+            // 1. Replace Box with PullToRefreshBox
+            androidx.compose.material3.pulltorefresh.PullToRefreshBox(
+                isRefreshing = uiState.isRefreshing,
+                onRefresh = { viewModel.loadAssignments(isRefresh = true) },
+                modifier = Modifier.fillMaxSize()
+            ) {
+                // 2. Prevent center spinner from showing during a pull-to-refresh
+                if (uiState.isLoading && !uiState.isRefreshing) {
                     CircularProgressIndicator(modifier = Modifier.align(Alignment.Center), color = AccentStudent)
                 } else if (uiState.error != null) {
                     Text(uiState.error!!, color = MaterialTheme.colorScheme.error, modifier = Modifier.align(Alignment.Center))
@@ -53,6 +63,7 @@ fun StudentAssignmentsScreen(
                     )
                 } else {
                     LazyColumn(
+                        modifier = Modifier.fillMaxSize(), // 3. Ensure LazyColumn fills the box for swipe gestures
                         contentPadding = PaddingValues(16.dp),
                         verticalArrangement = Arrangement.spacedBy(16.dp)
                     ) {
