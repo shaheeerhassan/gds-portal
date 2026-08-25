@@ -177,18 +177,20 @@ fun LoginScreen(
                     Text("Sign in", style = MaterialTheme.typography.labelLarge)
                 }
             }
-            
+
             Spacer(modifier = Modifier.height(24.dp))
-            
+
             TextButton(
-                onClick = { /* Navigate to reset password */ },
-                enabled = !uiState.isLoading,
+                onClick = { /* TODO: Implement password reset */ },
+                // Disable the button to prevent dead clicks and naturally fade the UI
+                enabled = false,
                 interactionSource = remember { MutableInteractionSource() }
             ) {
                 Text(
-                    text = "Reset password",
+                    text = "Reset password (Coming Soon)",
                     style = MaterialTheme.typography.bodyMedium,
-                    color = MaterialTheme.colorScheme.secondary
+                    // Use a slightly faded color to indicate it's not active yet
+                    color = MaterialTheme.colorScheme.secondary.copy(alpha = 0.6f)
                 )
             }
         }
