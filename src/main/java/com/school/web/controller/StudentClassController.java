@@ -4,6 +4,7 @@ import com.school.exceptions.ValidationException;
 import com.school.model.StudentClass;
 import com.school.service.impl.ParentServiceImpl;
 import com.school.service.impl.StudentClassServiceImpl;
+import com.school.service.impl.StudentServiceImpl;
 import com.school.service.interfaces.StudentClassService;
 import com.school.web.auth.AuthContext;
 import com.school.web.auth.OwnershipGuard;
@@ -25,6 +26,7 @@ public class StudentClassController extends BaseServlet {
     private static final String ROLE_PRINCIPAL = "PRINCIPAL";
     private static final String ROLE_TEACHER = "TEACHER";
     private static final String ROLE_PARENT = "PARENT";
+    private static final String ROLE_STUDENT = "STUDENT";
 
     private final StudentClassService studentClassService;
 
@@ -37,19 +39,23 @@ public class StudentClassController extends BaseServlet {
         String path = pathInfo(req);
 
         if (path.startsWith("/student/")) {
-            RoleGuard.requireRole(req, ROLE_ADMIN, ROLE_PRINCIPAL, ROLE_TEACHER, ROLE_PARENT);
+            RoleGuard.requireRole(req, ROLE_ADMIN, ROLE_PRINCIPAL, ROLE_TEACHER, ROLE_PARENT, ROLE_STUDENT);
             long studentId = parseLong(path.substring("/student/".length()));
             if (AuthContext.getRole(req).equals(ROLE_PARENT)) {
                 OwnershipGuard.requireLinkedParent(req, new ParentServiceImpl(), studentId);
+            } else if (AuthContext.getRole(req).equals(ROLE_STUDENT)) {
+                OwnershipGuard.requireOwnStudent(req, new StudentServiceImpl(), studentId);
             }
             writeJson(resp, studentClassService.getEnrollmentHistory(studentId));
             return;
         }
         if (path.startsWith("/current/")) {
-            RoleGuard.requireRole(req, ROLE_ADMIN, ROLE_PRINCIPAL, ROLE_TEACHER, ROLE_PARENT);
+            RoleGuard.requireRole(req, ROLE_ADMIN, ROLE_PRINCIPAL, ROLE_TEACHER, ROLE_PARENT, ROLE_STUDENT);
             long studentId = parseLong(path.substring("/current/".length()));
             if (AuthContext.getRole(req).equals(ROLE_PARENT)) {
                 OwnershipGuard.requireLinkedParent(req, new ParentServiceImpl(), studentId);
+            } else if (AuthContext.getRole(req).equals(ROLE_STUDENT)) {
+                OwnershipGuard.requireOwnStudent(req, new StudentServiceImpl(), studentId);
             }
             writeJson(resp, studentClassService.getCurrentEnrollment(studentId));
             return;
@@ -135,36 +141,13 @@ public class StudentClassController extends BaseServlet {
         private int targetSectionId;
         private int targetAcademicYearId;
 
-        public int getSourceSectionId() {
-            return sourceSectionId;
-        }
-
-        public void setSourceSectionId(int sourceSectionId) {
-            this.sourceSectionId = sourceSectionId;
-        }
-
-        public int getSourceAcademicYearId() {
-            return sourceAcademicYearId;
-        }
-
-        public void setSourceAcademicYearId(int sourceAcademicYearId) {
-            this.sourceAcademicYearId = sourceAcademicYearId;
-        }
-
-        public int getTargetSectionId() {
-            return targetSectionId;
-        }
-
-        public void setTargetSectionId(int targetSectionId) {
-            this.targetSectionId = targetSectionId;
-        }
-
-        public int getTargetAcademicYearId() {
-            return targetAcademicYearId;
-        }
-
-        public void setTargetAcademicYearId(int targetAcademicYearId) {
-            this.targetAcademicYearId = targetAcademicYearId;
-        }
+        public int getSourceSectionId() { return sourceSectionId; }
+        public void setSourceSectionId(int sourceSectionId) { this.sourceSectionId = sourceSectionId; }
+        public int getSourceAcademicYearId() { return sourceAcademicYearId; }
+        public void setSourceAcademicYearId(int sourceAcademicYearId) { this.sourceAcademicYearId = sourceAcademicYearId; }
+        public int getTargetSectionId() { return targetSectionId; }
+        public void setTargetSectionId(int targetSectionId) { this.targetSectionId = targetSectionId; }
+        public int getTargetAcademicYearId() { return targetAcademicYearId; }
+        public void setTargetAcademicYearId(int targetAcademicYearId) { this.targetAcademicYearId = targetAcademicYearId; }
     }
 }

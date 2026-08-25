@@ -23,6 +23,7 @@ public class TimetableController extends BaseServlet {
     private static final String ROLE_ADMIN = "ADMINISTRATOR";
     private static final String ROLE_PRINCIPAL = "PRINCIPAL";
     private static final String ROLE_TEACHER = "TEACHER";
+    private static final String ROLE_STUDENT = "STUDENT";
 
     private final TimetableService timetableService;
     private final TeacherService teacherService;
@@ -37,7 +38,7 @@ public class TimetableController extends BaseServlet {
         String path = pathInfo(req);
 
         if (path.startsWith("/section/")) {
-            RoleGuard.requireRole(req, ROLE_ADMIN, ROLE_PRINCIPAL, ROLE_TEACHER);
+            RoleGuard.requireRole(req, ROLE_ADMIN, ROLE_PRINCIPAL, ROLE_TEACHER, ROLE_STUDENT);
             String[] parts = path.substring("/section/".length()).split("/");
             if (parts.length != 2)
                 throw new ValidationException("Expected /section/{sectionId}/{academicYearId}.");

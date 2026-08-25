@@ -21,6 +21,7 @@ public class ExaminationController extends BaseServlet {
     private static final String ROLE_PRINCIPAL = "PRINCIPAL";
     private static final String ROLE_TEACHER = "TEACHER";
     private static final String ROLE_PARENT = "PARENT";
+    private static final String ROLE_STUDENT = "STUDENT";
 
     private final ExaminationService examinationService;
 
@@ -33,12 +34,14 @@ public class ExaminationController extends BaseServlet {
         String path = pathInfo(req);
 
         if (path.startsWith("/id/")) {
-            RoleGuard.requireRole(req, ROLE_ADMIN, ROLE_PRINCIPAL, ROLE_TEACHER, ROLE_PARENT);
+            // FIX: Added Student
+            RoleGuard.requireRole(req, ROLE_ADMIN, ROLE_PRINCIPAL, ROLE_TEACHER, ROLE_PARENT, ROLE_STUDENT);
             writeJson(resp, examinationService.getExaminationById(parseLong(path.substring("/id/".length()))));
             return;
         }
         if (path.startsWith("/section/")) {
-            RoleGuard.requireRole(req, ROLE_ADMIN, ROLE_PRINCIPAL, ROLE_TEACHER, ROLE_PARENT);
+            // FIX: Added Student
+            RoleGuard.requireRole(req, ROLE_ADMIN, ROLE_PRINCIPAL, ROLE_TEACHER, ROLE_PARENT, ROLE_STUDENT);
             String[] parts = path.substring("/section/".length()).split("/");
             if (parts.length == 3 && "year".equals(parts[1])) {
                 writeJson(resp, examinationService.getExaminationsBySection(parseInt(parts[0]), parseInt(parts[2])));
@@ -49,9 +52,9 @@ public class ExaminationController extends BaseServlet {
                         parseInt(parts[0]), parts[2], parseInt(parts[4])));
                 return;
             }
-            throw new ValidationException("Expected /section/{sectionId}/year/{academicYearId} or "
-                    + "/section/{sectionId}/type/{examName}/year/{academicYearId}.");
+            throw new ValidationException("Expected /section/{sectionId}/year/{academicYearId}...");
         }
+        // ... (rest of the teacher routes remain unchanged)
         if (path.startsWith("/teacher/")) {
             RoleGuard.requireRole(req, ROLE_ADMIN, ROLE_PRINCIPAL, ROLE_TEACHER);
             String[] parts = path.substring("/teacher/".length()).split("/");
@@ -125,13 +128,7 @@ public class ExaminationController extends BaseServlet {
 
     public static class StatusRequest {
         private String status;
-
-        public String getStatus() {
-            return status;
-        }
-
-        public void setStatus(String status) {
-            this.status = status;
-        }
+        public String getStatus() { return status; }
+        public void setStatus(String status) { this.status = status; }
     }
 }
