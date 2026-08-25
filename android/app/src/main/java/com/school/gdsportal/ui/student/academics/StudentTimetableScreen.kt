@@ -63,8 +63,9 @@ fun StudentTimetableScreen(
                 } else if (uiState.error != null) {
                     Text(uiState.error!!, color = MaterialTheme.colorScheme.error, modifier = Modifier.align(Alignment.Center))
                 } else {
-                    val dayTimetable = uiState.timetable.filter { it.dayOfWeek.equals(selectedDay, ignoreCase = true) }
-                        .sortedBy { it.periodId } // Usually periods are sorted by ID or Start Time
+                    val dayTimetable = uiState.timetable.filter {
+                        selectedDay.startsWith(it.dayOfWeek.toString(), ignoreCase = true)
+                    }.sortedBy { it.periodId }
 
                     if (dayTimetable.isEmpty()) {
                         Text("No classes scheduled for $selectedDay.", color = MaterialTheme.colorScheme.onSurfaceVariant, modifier = Modifier.align(Alignment.Center))

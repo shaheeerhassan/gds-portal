@@ -14,10 +14,8 @@ import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
-import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
-import com.school.gdsportal.data.remote.SubmissionStatus
 import com.school.gdsportal.ui.theme.AccentStudent
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -42,32 +40,14 @@ fun StudentAssignmentsScreen(
     ) { padding ->
         Column(modifier = Modifier.fillMaxSize().padding(padding)) {
 
-            // Filters
-            Row(
-                modifier = Modifier.fillMaxWidth().padding(horizontal = 16.dp, vertical = 8.dp),
-                horizontalArrangement = Arrangement.spacedBy(8.dp)
-            ) {
-                listOf("All", "Pending", "Submitted").forEach { filter ->
-                    FilterChip(
-                        selected = uiState.filter == filter,
-                        onClick = { viewModel.setFilter(filter) },
-                        label = { Text(filter) },
-                        colors = FilterChipDefaults.filterChipColors(
-                            selectedContainerColor = AccentStudent.copy(alpha = 0.2f),
-                            selectedLabelColor = AccentStudent
-                        )
-                    )
-                }
-            }
-
             Box(modifier = Modifier.fillMaxSize()) {
                 if (uiState.isLoading) {
                     CircularProgressIndicator(modifier = Modifier.align(Alignment.Center), color = AccentStudent)
                 } else if (uiState.error != null) {
                     Text(uiState.error!!, color = MaterialTheme.colorScheme.error, modifier = Modifier.align(Alignment.Center))
-                } else if (uiState.displayAssignments.isEmpty()) {
+                } else if (uiState.allAssignments.isEmpty()) {
                     Text(
-                        "No assignments found for this filter.",
+                        "No assignments published yet.",
                         color = MaterialTheme.colorScheme.onSurfaceVariant,
                         modifier = Modifier.align(Alignment.Center)
                     )
@@ -76,7 +56,7 @@ fun StudentAssignmentsScreen(
                         contentPadding = PaddingValues(16.dp),
                         verticalArrangement = Arrangement.spacedBy(16.dp)
                     ) {
-                        items(uiState.displayAssignments) { item ->
+                        items(uiState.allAssignments) { item ->
                             StudentAssignmentCard(
                                 item = item,
                                 onClick = { onAssignmentClick(item.assignment.assignmentId) }
@@ -91,9 +71,6 @@ fun StudentAssignmentsScreen(
 
 @Composable
 fun StudentAssignmentCard(item: StudentAssignmentItem, onClick: () -> Unit) {
-    val isSubmitted = item.submission != null
-    val isGraded = item.submission?.status == SubmissionStatus.GRADED
-
     Card(
         modifier = Modifier.fillMaxWidth(),
         colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.4f)),
@@ -106,36 +83,9 @@ fun StudentAssignmentCard(item: StudentAssignmentItem, onClick: () -> Unit) {
 
             Spacer(modifier = Modifier.height(12.dp))
 
-            Row(modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.SpaceBetween, verticalAlignment = Alignment.CenterVertically) {
-                Column {
-                    Text("Due Date", style = MaterialTheme.typography.labelSmall, color = MaterialTheme.colorScheme.onSurfaceVariant)
-                    Text(item.assignment.deadline ?: "No Deadline", style = MaterialTheme.typography.bodyMedium, fontWeight = FontWeight.Bold)
-                }
-
-                Box(
-                    modifier = Modifier.clip(RoundedCornerShape(8.dp)).background(
-                        when {
-                            isGraded -> Color(0xFF4CAF50).copy(alpha = 0.15f)
-                            isSubmitted -> AccentStudent.copy(alpha = 0.15f)
-                            else -> MaterialTheme.colorScheme.error.copy(alpha = 0.15f)
-                        }
-                    ).padding(horizontal = 12.dp, vertical = 6.dp)
-                ) {
-                    Text(
-                        text = when {
-                            isGraded -> "Graded: ${item.submission?.marksAwarded}"
-                            isSubmitted -> "Submitted"
-                            else -> "Pending"
-                        },
-                        style = MaterialTheme.typography.labelMedium,
-                        fontWeight = FontWeight.Bold,
-                        color = when {
-                            isGraded -> Color(0xFF4CAF50)
-                            isSubmitted -> AccentStudent
-                            else -> MaterialTheme.colorScheme.error
-                        }
-                    )
-                }
+            Column {
+                Text("Due Date", style = MaterialTheme.typography.labelSmall, color = MaterialTheme.colorScheme.onSurfaceVariant)
+                Text(item.assignment.deadline ?: "No Deadline", style = MaterialTheme.typography.bodyMedium, fontWeight = FontWeight.Bold)
             }
 
             Spacer(modifier = Modifier.height(16.dp))
@@ -144,7 +94,7 @@ fun StudentAssignmentCard(item: StudentAssignmentItem, onClick: () -> Unit) {
                 modifier = Modifier.fillMaxWidth(),
                 colors = ButtonDefaults.buttonColors(containerColor = AccentStudent)
             ) {
-                Text(if (isSubmitted) "View Submission" else "Submit Assignment", fontWeight = FontWeight.Bold)
+                Text("View Details", fontWeight = FontWeight.Bold)
             }
         }
     }
