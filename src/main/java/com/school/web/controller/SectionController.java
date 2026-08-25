@@ -18,6 +18,7 @@ public class SectionController extends BaseServlet {
     private static final String ROLE_ADMIN = "ADMINISTRATOR";
     private static final String ROLE_PRINCIPAL = "PRINCIPAL";
     private static final String ROLE_TEACHER = "TEACHER";
+    private static final String ROLE_STUDENT = "STUDENT";
 
     private final SectionService sectionService;
 
@@ -51,7 +52,7 @@ public class SectionController extends BaseServlet {
                     return;
                 }
                 if (path.startsWith("/")) {
-                    RoleGuard.requireRole(req, ROLE_ADMIN, ROLE_PRINCIPAL, ROLE_TEACHER);
+                    RoleGuard.requireRole(req, ROLE_ADMIN, ROLE_PRINCIPAL, ROLE_TEACHER, ROLE_STUDENT);
                     writeJson(resp, sectionService.getSectionById(parseInt(path.substring(1))));
                     return;
                 }

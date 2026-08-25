@@ -147,7 +147,7 @@ public class StudentController extends BaseServlet {
 
     @Override
     protected void doPut(HttpServletRequest req, HttpServletResponse resp) throws IOException {
-        RoleGuard.requireRole(req, ROLE_ADMIN);
+        RoleGuard.requireRole(req, ROLE_ADMIN, ROLE_STUDENT);
         long studentId = parseLong(pathInfo(req).substring(1));
         Student student = readBody(req, Student.class);
         if (student == null)

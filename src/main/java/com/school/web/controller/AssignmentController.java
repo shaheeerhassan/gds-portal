@@ -24,6 +24,7 @@ public class AssignmentController extends BaseServlet {
     private static final String ROLE_PRINCIPAL = "PRINCIPAL";
     private static final String ROLE_TEACHER = "TEACHER";
     private static final String ROLE_PARENT = "PARENT";
+    private static final String ROLE_STUDENT = "STUDENT";
 
     private final AssignmentService assignmentService;
     private final TeacherService teacherService;
@@ -38,12 +39,14 @@ public class AssignmentController extends BaseServlet {
         String path = pathInfo(req);
 
         if (path.startsWith("/id/")) {
-            RoleGuard.requireRole(req, ROLE_ADMIN, ROLE_PRINCIPAL, ROLE_TEACHER);
+            // FIX: Added Student and Parent access
+            RoleGuard.requireRole(req, ROLE_ADMIN, ROLE_PRINCIPAL, ROLE_TEACHER, ROLE_STUDENT, ROLE_PARENT);
             writeJson(resp, assignmentService.getAssignmentById(parseLong(path.substring("/id/".length()))));
             return;
         }
         if (path.startsWith("/section/")) {
-            RoleGuard.requireRole(req, ROLE_ADMIN, ROLE_PRINCIPAL, ROLE_TEACHER, ROLE_PARENT);
+            // FIX: Added Student access
+            RoleGuard.requireRole(req, ROLE_ADMIN, ROLE_PRINCIPAL, ROLE_TEACHER, ROLE_PARENT, ROLE_STUDENT);
             String[] parts = path.substring("/section/".length()).split("/");
             if (parts.length != 2)
                 throw new ValidationException("Expected /section/{sectionId}/{academicYearId}.");

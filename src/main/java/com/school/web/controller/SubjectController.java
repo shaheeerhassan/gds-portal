@@ -18,6 +18,7 @@ public class SubjectController extends BaseServlet {
     private static final String ROLE_ADMIN = "ADMINISTRATOR";
     private static final String ROLE_PRINCIPAL = "PRINCIPAL";
     private static final String ROLE_TEACHER = "TEACHER";
+    private static final String ROLE_STUDENT = "STUDENT";
 
     private final SubjectService subjectService;
 
@@ -43,7 +44,7 @@ public class SubjectController extends BaseServlet {
             }
             default:
                 if (path.startsWith("/section/")) {
-                    RoleGuard.requireRole(req, ROLE_ADMIN, ROLE_PRINCIPAL, ROLE_TEACHER);
+                    RoleGuard.requireRole(req, ROLE_ADMIN, ROLE_PRINCIPAL, ROLE_TEACHER, ROLE_STUDENT);
                     String[] parts = path.substring(1).split("/");
                     if (parts.length == 3) {
                         int sectionId = Integer.parseInt(parts[1]);
@@ -52,7 +53,7 @@ public class SubjectController extends BaseServlet {
                         return;
                     }
                 } else if (path.startsWith("/")) {
-                    RoleGuard.requireRole(req, ROLE_ADMIN, ROLE_PRINCIPAL, ROLE_TEACHER);
+                    RoleGuard.requireRole(req, ROLE_ADMIN, ROLE_PRINCIPAL, ROLE_TEACHER, ROLE_STUDENT);
                     writeJson(resp, subjectService.getSubjectById(parseInt(path.substring(1))));
                     return;
                 }
