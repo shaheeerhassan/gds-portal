@@ -68,52 +68,59 @@ class AnnouncementDetailViewModel(
     }
 
     private suspend fun resolveTargetName(announcement: Announcement): String {
-        return when {
-            announcement.targetRoleId != null -> {
-                when (announcement.targetRoleId) {
-                    1 -> "Administrator"
-                    2 -> "Principal"
-                    3 -> "Teacher"
-                    4 -> "Student"
-                    5 -> "Parent"
-                    else -> "Role ID: ${announcement.targetRoleId}"
-                }
+        val parts = mutableListOf<String>()
+
+        // 1. Resolve Role Target
+        if (announcement.targetRoleId != null && announcement.targetRoleId != 0) {
+            val roleName = when (announcement.targetRoleId) {
+                1 -> "Administrators"
+                2 -> "Principals"
+                3 -> "Teachers"
+                4 -> "Students"
+                5 -> "Parents"
+                else -> "Role ID: ${announcement.targetRoleId}"
             }
-            announcement.sectionId != null -> {
-                try {
-                    val secRes = apiService.getSectionById(announcement.sectionId)
-                    val section = if (secRes.isSuccessful) secRes.body()?.data else null
-                    val secName = section?.sectionName ?: "Section ${announcement.sectionId}"
-                    val classId = section?.classId ?: announcement.classId
-                    if (classId != null) {
-                        val clsRes = apiService.getClassById(classId)
-                        val clsName = if (clsRes.isSuccessful) clsRes.body()?.data?.className else null
-                        if (clsName != null) {
-                            "$clsName - $secName"
-                        } else {
-                            secName
-                        }
-                    } else {
-                        secName
-                    }
-                } catch (e: Exception) {
-                    "Section ID: ${announcement.sectionId}"
-                }
-            }
-            announcement.classId != null -> {
-                try {
-                    val res = apiService.getClassById(announcement.classId)
-                    if (res.isSuccessful) {
-                        res.body()?.data?.className ?: "Class ID: ${announcement.classId}"
-                    } else {
-                        "Class ID: ${announcement.classId}"
-                    }
-                } catch (e: Exception) {
-                    "Class ID: ${announcement.classId}"
-                }
-            }
-            else -> "Global (All)"
+            parts.add(roleName)
         }
+
+        // 2. Resolve Class & Section Target
+        if (announcement.sectionId != null && announcement.sectionId != 0) {
+            try {
+                val secRes = apiService.getSectionById(announcement.sectionId)
+                val section = secRes.body()?.data
+                val secName = section?.sectionName ?: "Section ${announcement.sectionId}"
+                val classId = section?.classId ?: announcement.classId
+
+                if (classId != null && classId != 0) {
+                    val clsRes = apiService.getClassById(classId)
+                    val clsName = clsRes.body()?.data?.className
+                    if (clsName != null) {
+                        parts.add("$clsName - $secName")
+                    } else {
+                        parts.add(secName)
+                    }
+                } else {
+                    parts.add(secName)
+                }
+            } catch (e: Exception) {
+                parts.add("Section ID: ${announcement.sectionId}")
+            }
+        } else if (announcement.classId != null && announcement.classId != 0) {
+            try {
+                val res = apiService.getClassById(announcement.classId)
+                val clsName = res.body()?.data?.className
+                if (clsName != null) {
+                    parts.add(clsName)
+                } else {
+                    parts.add("Class ID: ${announcement.classId}")
+                }
+            } catch (e: Exception) {
+                parts.add("Class ID: ${announcement.classId}")
+            }
+        }
+
+        // 3. Combine them
+        return if (parts.isEmpty()) "Global (All)" else parts.joinToString(" • ")
     }
 
     fun showDisableDialog(show: Boolean) {

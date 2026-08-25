@@ -30,14 +30,52 @@ class StudentAnnouncementsViewModel(private val apiService: ApiService) : ViewMo
         _uiState.update { it.copy(isLoading = true, error = null) }
         viewModelScope.launch {
             try {
-                // Fetch all announcements
+                // 1. Fetch Student's specific Class and Section
+                val studentRes = apiService.getStudentMe()
+                val student = studentRes.body()?.data
+
+                var studentSectionId: Int? = null
+                var studentClassId: Int? = null
+
+                if (student != null) {
+                    val enrollRes = apiService.getCurrentEnrollment(student.studentId)
+                    studentSectionId = enrollRes.body()?.data?.sectionId
+
+                    if (studentSectionId != null) {
+                        val secRes = apiService.getSectionById(studentSectionId)
+                        studentClassId = secRes.body()?.data?.classId
+                    }
+                }
+
+                // 2. Fetch all announcements
                 val response = apiService.getAnnouncements()
                 if (response.isSuccessful) {
                     val all = response.body()?.data ?: emptyList()
 
-                    // Filter: Keep only Global (null/0) or Student Role (4)
-                    val studentAnnouncements = all.filter {
-                        it.isActive && (it.targetRoleId == null || it.targetRoleId == 0 || it.targetRoleId == 4)
+                    // 3. Apply Strict Targeting Rules
+                    val studentAnnouncements = all.filter { ann ->
+                        if (!ann.isActive) return@filter false
+
+                        // Check 1: Is it completely Global?
+                        val isGlobal = (ann.targetRoleId == null || ann.targetRoleId == 0) &&
+                                (ann.classId == null || ann.classId == 0) &&
+                                (ann.sectionId == null || ann.sectionId == 0)
+
+                        // Check 2: Is it targeted to ALL students globally?
+                        val isAllStudents = ann.targetRoleId == 4 &&
+                                (ann.classId == null || ann.classId == 0) &&
+                                (ann.sectionId == null || ann.sectionId == 0)
+
+                        // Check 3: Is it targeted to this student's specific Class?
+                        val isMyClass = ann.classId == studentClassId &&
+                                (ann.sectionId == null || ann.sectionId == 0) &&
+                                (ann.targetRoleId == null || ann.targetRoleId == 0 || ann.targetRoleId == 4)
+
+                        // Check 4: Is it targeted to this student's specific Section?
+                        val isMySection = ann.sectionId == studentSectionId &&
+                                (ann.targetRoleId == null || ann.targetRoleId == 0 || ann.targetRoleId == 4)
+
+                        isGlobal || isAllStudents || isMyClass || isMySection
                     }.sortedByDescending { it.createdAt }
 
                     _uiState.update {
