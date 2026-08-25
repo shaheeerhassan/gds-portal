@@ -95,6 +95,12 @@ class MainActivity : ComponentActivity() {
                     role?.uppercase() == "TEACHER" -> {
                         com.school.gdsportal.ui.teacher.TeacherAppWrapper(
                             appContainer = appContainer,
+                            onLogout = onLogout
+                        )
+                    }
+                    role?.uppercase() == "STUDENT" -> {
+                        com.school.gdsportal.ui.student.StudentAppWrapper(
+                            appContainer = appContainer,
                             onLogout  = onLogout
                         )
                     }

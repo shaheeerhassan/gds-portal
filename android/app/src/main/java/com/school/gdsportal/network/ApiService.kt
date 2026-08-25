@@ -656,4 +656,31 @@ interface ApiService {
     suspend fun getSubmissionsByStudent(
         @Path("studentId") studentId: Long
     ): Response<ApiResponse<List<com.school.gdsportal.data.remote.SubmissionDisplay>>>
+
+    //STUDENT PORTAL
+    @GET("api/students/me")
+    suspend fun getStudentMe(): Response<ApiResponse<com.school.gdsportal.data.remote.Student>>
+
+    @GET("api/teachers/section/{sectionId}/{academicYearId}")
+    suspend fun getTeachersBySection(
+        @Path("sectionId") sectionId: Int,
+        @Path("academicYearId") academicYearId: Int
+    ): Response<ApiResponse<List<com.school.gdsportal.data.remote.Teacher>>>
+
+    @POST("api/submissions/")
+    suspend fun submitAssignment(
+        @Body submission: com.school.gdsportal.data.remote.Submission
+    ): Response<com.school.gdsportal.data.remote.ApiResponse<com.school.gdsportal.data.remote.Submission>>
+
+    @PUT("api/submissions/{submissionId}")
+    suspend fun updateSubmission(
+        @Path("submissionId") submissionId: Long,
+        @Body submission: com.school.gdsportal.data.remote.Submission
+    ): Response<com.school.gdsportal.data.remote.ApiResponse<String>>
+
+    @GET("api/submissions/assignment/{assignmentId}/student/{studentId}")
+    suspend fun getSubmissionForStudentAssignment(
+        @Path("assignmentId") assignmentId: Long,
+        @Path("studentId") studentId: Long
+    ): retrofit2.Response<com.school.gdsportal.data.remote.ApiResponse<com.school.gdsportal.data.remote.Submission>>
 }
