@@ -4,6 +4,7 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.viewModelScope
 import com.school.gdsportal.data.remote.Examination
+import com.school.gdsportal.data.remote.ExaminationStatus
 import com.school.gdsportal.network.ApiService
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
@@ -13,6 +14,7 @@ import kotlinx.coroutines.launch
 
 data class StudentExaminationsUiState(
     val isLoading: Boolean = true,
+    val isRefreshing: Boolean = false, // Added for swipe-to-refresh
     val error: String? = null,
     val examinations: List<Examination> = emptyList(),
     val subjectNames: Map<Int, String> = emptyMap()
@@ -23,12 +25,12 @@ class StudentExaminationsViewModel(private val apiService: ApiService) : ViewMod
     private val _uiState = MutableStateFlow(StudentExaminationsUiState())
     val uiState: StateFlow<StudentExaminationsUiState> = _uiState.asStateFlow()
 
-    init {
-        loadExaminations()
-    }
+    fun loadExaminations(isRefresh: Boolean = false) {
+        _uiState.update {
+            if (isRefresh) it.copy(isRefreshing = true, error = null)
+            else it.copy(isLoading = true, error = null)
+        }
 
-    private fun loadExaminations() {
-        _uiState.update { it.copy(isLoading = true, error = null) }
         viewModelScope.launch {
             try {
                 val studentRes = apiService.getStudentMe()
@@ -42,7 +44,10 @@ class StudentExaminationsViewModel(private val apiService: ApiService) : ViewMod
 
                     if (enrollment != null) {
                         val examsRes = apiService.getExaminationsBySection(enrollment.sectionId, year.academicYearId)
-                        val exams = examsRes.body()?.data ?: emptyList()
+                        val allExams = examsRes.body()?.data ?: emptyList()
+
+                        // FIX: Filter out scheduled exams so students don't see them prematurely
+                        val visibleExams = allExams.filter { it.status != ExaminationStatus.SCHEDULED }
 
                         // Fetch subjects to map IDs to Names
                         val subjectsRes = apiService.getSubjectsBySection(enrollment.sectionId, year.academicYearId)
@@ -52,18 +57,19 @@ class StudentExaminationsViewModel(private val apiService: ApiService) : ViewMod
                         _uiState.update {
                             it.copy(
                                 isLoading = false,
-                                examinations = exams.sortedByDescending { e -> e.examDate },
+                                isRefreshing = false,
+                                examinations = visibleExams.sortedByDescending { e -> e.examDate },
                                 subjectNames = subjectMap
                             )
                         }
                     } else {
-                        _uiState.update { it.copy(isLoading = false, error = "No active enrollment found.") }
+                        _uiState.update { it.copy(isLoading = false, isRefreshing = false, error = "No active enrollment found.") }
                     }
                 } else {
-                    _uiState.update { it.copy(isLoading = false, error = "Failed to load profile data.") }
+                    _uiState.update { it.copy(isLoading = false, isRefreshing = false, error = "Failed to load profile data.") }
                 }
             } catch (e: Exception) {
-                _uiState.update { it.copy(isLoading = false, error = "Network error while loading examinations.") }
+                _uiState.update { it.copy(isLoading = false, isRefreshing = false, error = "Network error while loading examinations.") }
             }
         }
     }

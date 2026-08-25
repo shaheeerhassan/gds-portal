@@ -8,10 +8,11 @@ import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.*
-import androidx.compose.material.icons.outlined.AssignmentLate
+import androidx.compose.material.icons.outlined.EventNote
 import androidx.compose.material3.*
 import androidx.compose.material3.pulltorefresh.PullToRefreshBox
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
@@ -33,6 +34,11 @@ fun StudentDashboardScreen(
     onNavigate: (String) -> Unit = {}
 ) {
     val uiState by viewModel.uiState.collectAsState()
+
+    // Trigger data fetch every time the screen is opened
+    LaunchedEffect(Unit) {
+        viewModel.refreshDashboard()
+    }
 
     Scaffold(
         modifier = Modifier.fillMaxSize(),
@@ -83,7 +89,7 @@ fun StudentDashboardScreen(
             )
         }
     ) { innerPadding ->
-        if (uiState.isLoading) {
+        if (uiState.isLoading && !uiState.isRefreshing) {
             Box(modifier = Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
                 CircularProgressIndicator(color = AccentStudent)
             }
@@ -111,6 +117,7 @@ fun StudentDashboardScreen(
                                 color = MaterialTheme.colorScheme.onSurfaceVariant
                             )
                             Text(
+                                // Dynamically displays the First Name
                                 text = uiState.user?.firstName ?: "Student",
                                 style = MaterialTheme.typography.headlineLarge,
                                 fontWeight = FontWeight.Bold,
@@ -179,13 +186,12 @@ fun StudentDashboardScreen(
                                     modifier = Modifier.weight(1f),
                                     onClick = { onNavigate("student_attendance") }
                                 )
-                                // FIX: Replaced Marks with Pending Tasks
                                 StudentMetricCard(
-                                    label = "Pending Tasks",
-                                    value = uiState.pendingAssignmentsCount.toString(),
-                                    icon = Icons.Outlined.AssignmentLate,
+                                    label = "Today's Classes",
+                                    value = uiState.todaysClassesCount.toString(),
+                                    icon = Icons.Outlined.EventNote,
                                     modifier = Modifier.weight(1f),
-                                    onClick = { onNavigate("student_assignments") }
+                                    onClick = { onNavigate("student_timetable") } // Routes to Timetable
                                 )
                             }
                         }
@@ -262,7 +268,7 @@ fun StudentDashboardScreen(
                                     uiState.globalAnnouncements.take(2).forEach { announcement ->
                                         StudentAnnouncementItem(
                                             announcement = announcement,
-                                            onClick = { onNavigate("student_announcements") } // Routing to list for now
+                                            onClick = { onNavigate("student_announcements") }
                                         )
                                     }
                                 }
@@ -278,6 +284,7 @@ fun StudentDashboardScreen(
 }
 
 private fun greetingForCurrentTime(): String {
+    // This perfectly extracts the mobile device's local hour (0-23)
     val hour = Calendar.getInstance().get(Calendar.HOUR_OF_DAY)
     return when {
         hour < 12 -> "Good morning,"

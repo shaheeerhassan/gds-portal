@@ -26,7 +26,7 @@ data class StudentDashboardUiState(
     val currentEnrollment: Enrollment? = null,
 
     val attendancePercentage: Int = 0,
-    val pendingAssignmentsCount: Int = 0, // NEW STAT
+    val todaysClassesCount: Int = 0, // NEW STAT: Replaced pending tasks
     val recentGrades: List<MarkDisplay> = emptyList(),
     val globalAnnouncements: List<Announcement> = emptyList(),
     val unreadNotifications: Int = 0,
@@ -74,18 +74,17 @@ class StudentDashboardViewModel(
                 val announcements = announcementsRes.body()?.data ?: emptyList()
 
                 if (student != null && year != null) {
-                    // Fetch enrollment
                     val enrollRes = apiService.getCurrentEnrollment(student.studentId)
                     val enrollment = if (enrollRes.isSuccessful) enrollRes.body()?.data else null
 
                     var className = "Unknown Class"
                     var sectionName = "Unknown Section"
                     var attendancePct = 0
-                    var pendingTasks = 0
+                    var todaysClasses = 0
                     val recentMarksDisplays = mutableListOf<MarkDisplay>()
 
                     if (enrollment != null) {
-                        // 1. Resolve Class/Section names safely
+                        // 1. Resolve Class/Section names
                         val secRes = apiService.getSectionById(enrollment.sectionId)
                         if (secRes.isSuccessful) {
                             val section = secRes.body()?.data
@@ -98,10 +97,11 @@ class StudentDashboardViewModel(
                             }
                         }
 
-                        // 2. Fetch Attendance for calculation
+                        // 2. Fetch Attendance
                         val startFormat = year.startDate.take(10)
-                        val today = SimpleDateFormat("yyyy-MM-dd", Locale.getDefault()).format(Calendar.getInstance().time)
-                        val attRes = apiService.getStudentAttendanceRecords(student.studentId, startFormat, today)
+                        val todayCalendar = Calendar.getInstance()
+                        val todayDateString = SimpleDateFormat("yyyy-MM-dd", Locale.getDefault()).format(todayCalendar.time)
+                        val attRes = apiService.getStudentAttendanceRecords(student.studentId, startFormat, todayDateString)
 
                         if (attRes.isSuccessful) {
                             val records = attRes.body()?.data ?: emptyList()
@@ -148,18 +148,19 @@ class StudentDashboardViewModel(
                             }
                         }
 
-                        // 4. Calculate Pending Tasks
+                        // 4. Calculate Today's Classes
                         try {
-                            val assignRes = apiService.getAssignmentsBySection(enrollment.sectionId, year.academicYearId)
-                            val subRes = apiService.getSubmissionsByStudent(student.studentId)
-                            if (assignRes.isSuccessful && subRes.isSuccessful) {
-                                val assignments = assignRes.body()?.data?.filter { it.status.name == "PUBLISHED" } ?: emptyList()
-                                val submissions = subRes.body()?.data ?: emptyList()
-                                // Count assignments that do not have a corresponding submission
-                                pendingTasks = assignments.count { a -> submissions.none { s -> s.assignmentTitle == a.title } }
+                            val todayDayString = SimpleDateFormat("EEEE", Locale.ENGLISH).format(todayCalendar.time).uppercase()
+                            val timetableRes = apiService.getTimetableBySection(enrollment.sectionId, year.academicYearId)
+                            if (timetableRes.isSuccessful) {
+                                val timetable = timetableRes.body()?.data ?: emptyList()
+                                // Uses the exact same secure startsWith fix we applied to the Timetable screen!
+                                todaysClasses = timetable.count {
+                                    todayDayString.startsWith(it.dayOfWeek.toString(), ignoreCase = true)
+                                }
                             }
                         } catch (e: Exception) {
-                            // Failsafe for pending tasks
+                            // Failsafe for timetable calculation
                         }
                     }
 
@@ -173,7 +174,7 @@ class StudentDashboardViewModel(
                             className = className,
                             sectionName = sectionName,
                             attendancePercentage = attendancePct,
-                            pendingAssignmentsCount = pendingTasks,
+                            todaysClassesCount = todaysClasses,
                             recentGrades = recentMarksDisplays,
                             globalAnnouncements = announcements,
                             unreadNotifications = unreadCount

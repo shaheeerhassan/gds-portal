@@ -7,6 +7,7 @@ import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.ArrowBack
 import androidx.compose.material.icons.filled.Menu
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
@@ -38,7 +39,7 @@ fun StudentProfileScreen(
             TopAppBar(
                 title = { Text("My Profile", fontWeight = FontWeight.Bold) },
                 navigationIcon = {
-                    IconButton(onClick = onMenuClick) { Icon(Icons.Default.Menu, contentDescription = "Menu") }
+                    IconButton(onClick = onMenuClick) { Icon(Icons.Default.ArrowBack, contentDescription = "Menu") }
                 },
                 colors = TopAppBarDefaults.topAppBarColors(titleContentColor = AccentStudent)
             )
@@ -166,7 +167,7 @@ fun StudentProfileScreen(
                             shape = RoundedCornerShape(12.dp)
                         ) {
                             Column(modifier = Modifier.padding(16.dp), verticalArrangement = Arrangement.spacedBy(12.dp)) {
-                                ReadOnlyField("Username / Email", uiState.user!!.email ?: uiState.user!!.username ?: "N/A")
+                                ReadOnlyField("Email", uiState.user!!.email ?: uiState.user!!.username ?: "N/A")
                                 ReadOnlyField("Registration Number", uiState.registrationNumber)
                                 Row(modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.SpaceBetween) {
                                     ReadOnlyField("Class", uiState.className)
