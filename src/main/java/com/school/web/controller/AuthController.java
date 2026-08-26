@@ -1,5 +1,6 @@
 package com.school.web.controller;
 
+import com.school.config.EnvLoader;
 import com.school.exceptions.ValidationException;
 import com.school.model.Role;
 import com.school.model.User;
@@ -169,9 +170,9 @@ public class AuthController extends BaseServlet {
     }
 
     private long tokenExpiryMillis() {
-        String value = System.getenv().getOrDefault("JWT_EXPIRY_HOURS", "24");
+        String value = EnvLoader.get("JWT_EXPIRY_HOURS", "24");
         try {
-            return Long.parseLong(value) * 60 * 60 * 1000;
+            return (long) (Double.parseDouble(value) * 60 * 60 * 1000);
         } catch (NumberFormatException e) {
             return 24L * 60 * 60 * 1000;
         }

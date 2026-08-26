@@ -1,9 +1,12 @@
 package com.school.web.controller;
 
+import com.school.exceptions.UnauthorizedException;
 import com.school.exceptions.ValidationException;
 import com.school.model.Principal;
 import com.school.service.impl.PrincipalServiceImpl;
 import com.school.service.interfaces.PrincipalService;
+import com.school.web.auth.AuthContext;
+import com.school.web.auth.OwnershipGuard;
 import com.school.web.auth.RoleGuard;
 import com.school.web.dto.request.CreatePrincipalRequest;
 
@@ -12,6 +15,8 @@ import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 
 import java.io.IOException;
+import java.io.UnsupportedEncodingException;
+import java.nio.file.attribute.UserPrincipal;
 
 @WebServlet(urlPatterns = "/api/principals/*")
 public class PrincipalController extends BaseServlet {
@@ -58,11 +63,19 @@ public class PrincipalController extends BaseServlet {
 
     @Override
     protected void doPut(HttpServletRequest req, HttpServletResponse resp) throws IOException {
-        RoleGuard.requireRole(req, ROLE_ADMIN);
+        RoleGuard.requireRole(req, ROLE_ADMIN, ROLE_PRINCIPAL);
         long principalId = parseLong(pathInfo(req).substring(1));
         Principal principal = readBody(req, Principal.class);
         if (principal == null)
             throw new ValidationException("Request body is required.");
+        String role = AuthContext.getRole(req);
+        if (role!=null && role.equalsIgnoreCase("PRINCIPAL")) {
+            long userId = AuthContext.getUserId(req);
+            long userPrincipalId = principalService.getPrincipalByUserId(userId).getPrincipalId();
+            if (principalId != userPrincipalId) {
+                throw new UnauthorizedException("Principal can only update their own profile.");
+            }
+        }
         principal.setPrincipalId(principalId);
         principalService.updatePrincipal(principal);
         writeStatusMessage(resp, "Principal updated.");
