@@ -30,7 +30,8 @@ public class JwtAuthFilter implements Filter {
             "/api/auth/request-password-reset",
             "/api/auth/reset-password",
             "/api/auth/refresh",
-            "/api/auth/logout"
+            "/api/auth/logout",
+            "/api/health"
     );
 
     @Override
