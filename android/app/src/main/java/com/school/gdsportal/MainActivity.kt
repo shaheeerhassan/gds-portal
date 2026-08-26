@@ -48,6 +48,16 @@ class MainActivity : ComponentActivity() {
                 else -> AccentAdministrator
             }
 
+            androidx.compose.runtime.LaunchedEffect(Unit) {
+                appContainer.tokenManager.sessionExpiredEvent.collect {
+                    android.widget.Toast.makeText(
+                        this@MainActivity,
+                        "Session expired. Please log in again.",
+                        android.widget.Toast.LENGTH_LONG
+                    ).show()
+                }
+            }
+
             GDSPortalTheme(primaryColor = themePrimaryColor) {
                 val onLogout: () -> Unit = {
                     coroutineScope.launch { appContainer.tokenManager.clearSession() }

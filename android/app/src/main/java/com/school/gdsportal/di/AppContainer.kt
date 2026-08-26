@@ -4,6 +4,7 @@ import android.content.Context
 import com.school.gdsportal.data.local.TokenManager
 import com.school.gdsportal.network.ApiService
 import com.school.gdsportal.network.AuthInterceptor
+import com.school.gdsportal.network.TokenAuthenticator
 import okhttp3.OkHttpClient
 import okhttp3.logging.HttpLoggingInterceptor
 import retrofit2.Retrofit
@@ -26,6 +27,10 @@ class AppContainer(private val context: Context) {
         AuthInterceptor(tokenManager)
     }
 
+    private val tokenAuthenticator: TokenAuthenticator by lazy {
+        TokenAuthenticator(tokenManager)
+    }
+
     private val loggingInterceptor: HttpLoggingInterceptor by lazy {
         HttpLoggingInterceptor().apply {
             level = HttpLoggingInterceptor.Level.BODY
@@ -36,6 +41,7 @@ class AppContainer(private val context: Context) {
         OkHttpClient.Builder()
             .addInterceptor(authInterceptor)
             .addInterceptor(loggingInterceptor)
+            .authenticator(tokenAuthenticator)
             .build()
     }
 

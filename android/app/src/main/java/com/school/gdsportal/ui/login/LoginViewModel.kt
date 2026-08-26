@@ -47,11 +47,13 @@ class LoginViewModel(
                 val responseBody = response.body()
                 if (response.isSuccessful && responseBody != null && responseBody.success) {
                     val token = responseBody.data?.token
+                    val refreshToken = responseBody.data?.refreshToken
                     val role = responseBody.data?.profile?.role?.roleName
                     val profileWrapper = responseBody.data?.profile
 
                     if (token != null) {
                         tokenManager.saveToken(token)
+                        if (refreshToken != null) tokenManager.saveRefreshToken(refreshToken)
                         if (role != null) tokenManager.saveRole(role)
 
                         // Extract the nested profile data using Gson

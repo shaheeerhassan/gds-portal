@@ -164,7 +164,7 @@ private fun ViewProfileContent(uiState: ProfileUiState) {
                 style = MaterialTheme.typography.headlineSmall.copy(fontWeight = FontWeight.Bold)
             )
             Text(
-                text = "Administrator",
+                text = uiState.roleName,
                 style = MaterialTheme.typography.bodyMedium,
                 color = MaterialTheme.colorScheme.onSurfaceVariant
             )
@@ -258,8 +258,8 @@ private fun EditProfileContent(
                 style = MaterialTheme.typography.titleMedium.copy(fontWeight = FontWeight.SemiBold)
             )
             Text(
-                text = "Administrator",
-                style = MaterialTheme.typography.bodySmall,
+                text = uiState.roleName,
+                style = MaterialTheme.typography.bodyMedium,
                 color = MaterialTheme.colorScheme.onSurfaceVariant
             )
         }
@@ -335,7 +335,7 @@ private fun EditProfileContent(
             Column(modifier = Modifier.padding(horizontal = 16.dp, vertical = 4.dp)) {
                 ProfileField("Email", uiState.email)
                 ProfileField("Employee ID", uiState.employeeId.ifBlank { "—" })
-                ProfileField("Role", "Administrator")
+                ProfileField("Role", uiState.roleName)
             }
         }
 

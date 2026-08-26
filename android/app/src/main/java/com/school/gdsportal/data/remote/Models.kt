@@ -3,6 +3,16 @@ package com.school.gdsportal.data.remote
 import com.google.gson.annotations.SerializedName
 import java.util.Date
 
+data class RefreshTokenRequest(
+    val refreshToken: String
+)
+
+data class RefreshTokenData(
+    val token: String,
+    val expiresIn: Long,
+    val refreshToken: String
+)
+
 data class User(
     val userId: Long,
     val username: String?,

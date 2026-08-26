@@ -4,6 +4,8 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.viewModelScope
 import com.school.gdsportal.data.remote.Administrator
+import com.school.gdsportal.data.remote.Principal
+import com.school.gdsportal.data.remote.User
 import com.school.gdsportal.network.ApiService
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
@@ -12,27 +14,22 @@ import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 
 data class ProfileUiState(
-    // Loading / error
     val isLoading: Boolean = true,
     val error: String? = null,
-    // Core user data
     val userId: Long = 0L,
     val email: String = "",
-    val roleId: Int = 0,
-    // Admin-specific data
-    val adminId: Long = 0L,
+    val roleId: Int = 1,
+    val roleName: String = "Administrator",
+    val recordId: Long = 0L, // adminId or principalId
     val employeeId: String = "",
-    // Edit mode
     val isEditing: Boolean = false,
     val isSaving: Boolean = false,
     val saveError: String? = null,
     val saveSuccess: Boolean = false,
-    // Shared display / editable fields
     val firstName: String = "",
     val lastName: String = "",
     val username: String = "",
     val phone: String = "",
-    // Edit form working copies
     val editFirstName: String = "",
     val editLastName: String = "",
     val editUsername: String = "",
@@ -63,39 +60,63 @@ class ProfileViewModel(
         viewModelScope.launch {
             _uiState.update { it.copy(isLoading = true, error = null) }
             try {
-                // Step 1: get current user (userId, email, roleId, username)
+                // Step 1: Get current user
                 val userResp = apiService.getCurrentUser()
                 if (!userResp.isSuccessful || userResp.body()?.data == null) {
                     _uiState.update { it.copy(isLoading = false, error = "Failed to load user info.") }
                     return@launch
                 }
                 val user = userResp.body()!!.data!!
+                val roleId = user.roleId ?: 1
 
-                // Step 2: get administrator record matching this userId
-                val adminResp = apiService.getAdministrators()
-                if (!adminResp.isSuccessful || adminResp.body()?.data == null) {
-                    _uiState.update { it.copy(isLoading = false, error = "Failed to load administrator details.") }
-                    return@launch
-                }
-                val admin: Administrator? = adminResp.body()!!.data!!.find { it.userId == user.userId }
-                if (admin == null) {
-                    _uiState.update { it.copy(isLoading = false, error = "Administrator record not found.") }
-                    return@launch
-                }
+                if (roleId == 2) {
+                    // Role is PRINCIPAL
+                    val principalResp = apiService.getPrincipals()
+                    val principal: Principal? = principalResp.body()?.data?.find { it.userId == user.userId }
+                    if (principal == null) {
+                        _uiState.update { it.copy(isLoading = false, error = "Principal record not found.") }
+                        return@launch
+                    }
 
-                _uiState.update {
-                    it.copy(
-                        isLoading = false,
-                        userId = user.userId,
-                        email = user.email,
-                        roleId = user.roleId ?: 1,
-                        username = user.username ?: "",
-                        adminId = admin.adminId,
-                        employeeId = admin.employeeId,
-                        firstName = admin.firstName,
-                        lastName = admin.lastName,
-                        phone = admin.phone
-                    )
+                    _uiState.update {
+                        it.copy(
+                            isLoading = false,
+                            userId = user.userId,
+                            email = user.email,
+                            roleId = 2,
+                            roleName = "Principal",
+                            recordId = principal.principalId,
+                            employeeId = principal.employeeId ?: "",
+                            firstName = principal.firstName,
+                            lastName = principal.lastName,
+                            phone = principal.phone ?: "",
+                            username = user.username ?: ""
+                        )
+                    }
+                } else {
+                    // Role is ADMINISTRATOR
+                    val adminResp = apiService.getAdministrators()
+                    val admin: Administrator? = adminResp.body()?.data?.find { it.userId == user.userId }
+                    if (admin == null) {
+                        _uiState.update { it.copy(isLoading = false, error = "Administrator record not found.") }
+                        return@launch
+                    }
+
+                    _uiState.update {
+                        it.copy(
+                            isLoading = false,
+                            userId = user.userId,
+                            email = user.email,
+                            roleId = 1,
+                            roleName = "Administrator",
+                            recordId = admin.adminId,
+                            employeeId = admin.employeeId,
+                            firstName = admin.firstName,
+                            lastName = admin.lastName,
+                            phone = admin.phone,
+                            username = user.username ?: ""
+                        )
+                    }
                 }
             } catch (e: Exception) {
                 _uiState.update { it.copy(isLoading = false, error = "Network error. Please try again.") }
@@ -142,25 +163,41 @@ class ProfileViewModel(
         viewModelScope.launch {
             _uiState.update { it.copy(isSaving = true, saveError = null) }
             try {
-                // Update administrator record (name, phone, employeeId stays same)
-                val adminRequest = Administrator(
-                    adminId = s.adminId,
+                if (s.roleId == 2) {
+                    val principalRequest = Principal(
+                    principalId = s.recordId,
                     userId = s.userId,
                     employeeId = s.employeeId,
                     firstName = s.editFirstName.trim(),
                     lastName = s.editLastName.trim(),
-                    phone = s.editPhone.trim()
+                    phone = s.editPhone.trim(),
+                    isActive = true // Add this line!
                 )
-                val adminResp = apiService.updateAdministrator(s.adminId, adminRequest)
-                if (!adminResp.isSuccessful) {
-                    val msg = parseError(adminResp.errorBody()?.string(), "Failed to save profile.")
-                    _uiState.update { it.copy(isSaving = false, saveError = msg) }
-                    return@launch
+                    val resp = apiService.updatePrincipal(s.recordId, principalRequest)
+                    if (!resp.isSuccessful) {
+                        val msg = parseError(resp.errorBody()?.string(), "Failed to save profile.")
+                        _uiState.update { it.copy(isSaving = false, saveError = msg) }
+                        return@launch
+                    }
+                } else {
+                    val adminRequest = Administrator(
+                        adminId = s.recordId,
+                        userId = s.userId,
+                        employeeId = s.employeeId,
+                        firstName = s.editFirstName.trim(),
+                        lastName = s.editLastName.trim(),
+                        phone = s.editPhone.trim()
+                    )
+                    val resp = apiService.updateAdministrator(s.recordId, adminRequest)
+                    if (!resp.isSuccessful) {
+                        val msg = parseError(resp.errorBody()?.string(), "Failed to save profile.")
+                        _uiState.update { it.copy(isSaving = false, saveError = msg) }
+                        return@launch
+                    }
                 }
 
-                // Update username if it changed (PUT /api/users/{userId})
                 if (s.editUsername.trim() != s.username) {
-                    val userRequest = com.school.gdsportal.data.remote.User(
+                    val userRequest = User(
                         userId = s.userId,
                         username = s.editUsername.trim(),
                         email = s.email,
@@ -175,7 +212,6 @@ class ProfileViewModel(
                     }
                 }
 
-                // Reflect changes locally
                 _uiState.update {
                     it.copy(
                         isSaving = false,
